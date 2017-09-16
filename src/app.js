@@ -1,6 +1,7 @@
-const colors = require("colors");
+const vorpal = require("vorpal")();
+
 const Server = require("./server");
-const RNet = require("./rnet/rnet")
+const RNet = require("./rnet/rnet");
 
 console.log("RNet Proxy v1.0.0");
 console.log("By Zach Cheatham");
@@ -52,7 +53,7 @@ rNet.on("connected", () => {
         zone.getName(),
     );
 })
-.on("name", (zone, name) => {
+.on("zone-name", (zone, name) => {
     console.info(
         "Controller #%i zone #%i renamed to %s.",
         zone.getControllerID(),
@@ -63,8 +64,28 @@ rNet.on("connected", () => {
 .on("zone-deleted", (ctrllrID, zoneID) => {
     console.info(
         "Controller #%i zone #%i deleted.",
-        zone.getControllerID(),
-        zone.getZoneID()
+        ctrllrID,
+        zoneID
+    );
+})
+.on("new-source", (sourceID) => {
+    console.info(
+        "Source #%i (%s) created.",
+        sourceID,
+        rNet.getSourceName(sourceID)
+    );
+})
+.on("source-name", (sourceID) => {
+    console.info(
+        "Source #%i renamed to %s.",
+        sourceID,
+        rNet.getSourceName(sourceID)
+    );
+})
+.on("source-deleted", (sourceID) => {
+    console.info(
+        "Source #%i deleted.",
+        sourceID
     );
 })
 .on("power", (zone, powered) => {
@@ -99,3 +120,126 @@ rNet.on("connected", () => {
 // Start server
 console.log("Starting Server...");
 server.start();
+
+/**
+ * Source data
+ */
+vorpal
+.command("list sources", "Lists sources.")
+.action(function(args, callback) {
+    const sources = rNet.getSources();
+    for (var i = 0; i < sources.length; i++) {
+        if (sources[i]) {
+            console.log("%i\t%s", i, sources[i].name);
+        }
+    }
+    callback();
+});
+vorpal
+.command("create source <id> <name>", "Creates a new source.")
+.action(function(args, callback) {
+    if (!rNet.createSource(args.id, args.name)) {
+        console.error("Source #%i already exists as %s", args.id, rNet.getSourceName(args.id));
+    }
+    callback();
+});
+vorpal
+.command("rename source <id> <name>", "Renames a source.")
+.action(function(args, callback) {
+    if (!rNet.renameSource(args.id, args.name)) {
+        console.error("Source #%i doesn't exist", args.id,);
+    }
+    callback();
+});
+vorpal
+.command("delete source <id>", "Deletes a source.")
+.action(function(args, callback) {
+    rNet.deleteSource(args.id);
+    callback();
+});
+
+/**
+ * Zone data
+ */
+vorpal
+.command("list zones", "Lists zones.")
+.action(function(args, callback) {
+    console.log("CTRL\tZONE\tNAME")
+    const zones = rNet.getZones();
+    for (var c = 0; c < zones.length; c++) {
+        if (zones[c]) {
+            for (var z = 0; z < zones[c].length; z++) {
+                if (zones[c][z]) {
+                    console.log("%i\t%i\t%s", c, z, zones[c][z].getName());
+                }
+            }
+        }
+    }
+    callback();
+});
+vorpal
+.command("create zone <cid> <id> <name>", "Creates a new zone.")
+.action(function(args, callback) {
+    if (!rNet.createZone(args.cid, args.id, args.name)) {
+        console.error(
+            "Controller #%i zone #%i already exists as %s",
+            args.id,
+            args.cid,
+            rNet.getZone(args.cid, args.id).getName()
+        );
+    }
+    callback();
+});
+vorpal
+.command("rename zone <cid> <id> <name>", "Renames a zone.")
+.action(function(args, callback) {
+    const zone = rNet.getZone(args.cid, args.id);
+    if (!zone) {
+        console.error(
+            "Controller #%i zone #%i doesn't exist",
+            args.id,
+            args.cid
+        );
+    }
+    else {
+        zone.setName(args.name);
+    }
+
+    callback();
+});
+vorpal
+.command("delete zone <cid> <id>", "Deletes a zone.")
+.action(function(args, callback) {
+    if (!rNet.deleteZone(args.cid, args.id)) {
+        console.error(
+            "Controller #%i zone #%i doesn't exist",
+            args.id,
+            args.cid
+        );
+    }
+
+    callback();
+});
+
+/**
+ * Zone commands
+ */
+vorpal
+.command("set power <cid> <id> <power>", "Set zone power")
+.action(function(args, callback) {
+    const zone = rNet.getZone(args.cid, args.id);
+    if (!zone) {
+        console.error(
+            "Controller #%i zone #%i doesn't exist",
+            args.id,
+            args.cid
+        );
+    }
+    else {
+        zone.setPower(args.power);
+    }
+
+    callback();
+});
+
+vorpal.delimiter(">").show();

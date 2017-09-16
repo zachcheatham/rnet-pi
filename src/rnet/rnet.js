@@ -99,8 +99,9 @@ class RNet extends EventEmitter {
         fs.writeFileSync("zones.json", JSON.stringify(zones));
     }
 
-    createZone(ctrllrID, zoneID, name, writeConfig=false) {
-        const zone = new Zone(ctrllrID, zoneID);
+    createZone(ctrllrID, zoneID, name, writeConfig=true) {
+        // TODO Prevent overriding existing zone
+        const zone = new Zone(this, ctrllrID, zoneID);
         zone.setName(name);
 
         if (!this._zones[ctrllrID]) {
@@ -113,12 +114,12 @@ class RNet extends EventEmitter {
         }
 
         zone.on("name", (name) => {
-            this.emit("name", zone, name);
+            this.emit("zone-name", zone, name);
         })
         .on("power", (powered, rNetTriggered) => {
             if (!rNetTriggered) {
                 this.sendData(
-                    new SetZonePowerPacket(
+                    new SetPowerPacket(
                         zone.getControllerID(),
                         zone.getZoneID(),
                         powered
@@ -170,13 +171,15 @@ class RNet extends EventEmitter {
                     )
                 );
             }
-            this.emit("parameter", zone, parameterID, value);
+            this.emit("parameter", zone, parametzoneIDerID, value);
         });
 
         this.emit("new-zone", zone);
+        return true;
     }
 
     deleteZone(ctrllrID, zoneID) {
+        // TODO Check if zone exists
         this._zones[ctrllrID][zoneID].removeAllListeners();
 
         delete this._zones[ctrllrID][zoneID];
@@ -185,6 +188,55 @@ class RNet extends EventEmitter {
         }
 
         this.writeConfiguration();
+        this.emit("zone-deleted", ctrllrID, zoneID);
+        return true;
+    }
+
+    getZone(ctrllrID, zoneID) {
+        if (!this._zones[ctrllrID]) {
+            return null;
+        }
+        else {
+            return this._zones[ctrllrID][zoneID];
+        }
+    }
+
+    getZones() {
+        return this._zones;
+    }
+
+    createSource(sourceID, name) {
+        if (!this._sources[sourceID]) {
+            this._sources[sourceID] = {name: name};
+            this.writeConfiguration();
+            this.emit("new-source", sourceID);
+            return true;
+        }
+        return false;
+    }
+
+    renameSource(sourceID, name) {
+        if (this._sources[sourceID]) {
+            this._sources[sourceID].name = name;
+            this.writeConfiguration();
+            this.emit("source-name", sourceID);
+            return true;
+        }
+        return false;
+    }
+
+    deleteSource(sourceID) {
+        delete this._sources[sourceID];
+        this.writeConfiguration();
+        this.emit("source-deleted", sourceID);
+    }
+
+    getSourceName(sourceID) {
+        return this._sources[sourceID].name;
+    }
+
+    getSources() {
+        return this._sources;
     }
 
     setAutoUpdate(enabled) {
@@ -201,14 +253,6 @@ class RNet extends EventEmitter {
                 this._autoUpdateInterval = undefined;
             }
         }
-    }
-
-    getZone(ctrllrID, zoneID) {
-        return this._zones[ctrllrID][zoneID];
-    }
-
-    getSourceName(sourceID) {
-        return this._sources[sourceID];
     }
 
     requestAllZoneInfo() {

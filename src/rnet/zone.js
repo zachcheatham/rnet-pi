@@ -48,8 +48,10 @@ class Zone extends EventEmitter {
     }
 
     setPower(powered, rNetTriggered=false) {
-        this._power = powered;
-        this.emit("power", powered, rNetTriggered);
+        if (powered != this._power) {
+            this._power = powered;
+            this.emit("power", powered, rNetTriggered);
+        }
         return true;
     }
 
