@@ -14,7 +14,7 @@ module.exports = class Packet {
             throw new TypeError("Packet subclasses must implement getTargetPath()");
         }
 
-        if (this.getSourcePath) === undefined) {
+        if (this.getSourcePath === undefined) {
             throw new TypeError("Packet subclasses must implement getSourcePath()");
         }
 
@@ -53,7 +53,7 @@ module.exports = class Packet {
         buffer.writeUInt8(this.calculateChecksum(buffer));
         buffer.writeUInt8(0xF7); // End of message;
 
-        return this._buffer.toBuffer();
+        return buffer.toBuffer();
     }
 
     getTargetControllerID() {
@@ -83,7 +83,7 @@ module.exports = class Packet {
     calculateChecksum(buffer) {
         const totalBytes = buffer.length;
         var byteSum = 0;
-        
+
         buffer.moveTo(0);
         for (var i = 0; i < totalBytes; i++) {
             byteSum += buffer.readUInt8();
@@ -92,7 +92,7 @@ module.exports = class Packet {
         byteSum += totalBytes;
         byteSum = byteSum & 0x007F;
 
-        if (isReservedByte(byteSum)) {
+        if (this.isReservedByte(byteSum)) {
             console.warn("Checksum was a reserved byte! It happened not sure if I'm supposed to handle it. If whatever you tried to do didn't work, it means I do.")
         }
 
