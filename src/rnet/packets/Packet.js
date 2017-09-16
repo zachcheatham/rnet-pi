@@ -79,4 +79,35 @@ module.exports = class Packet {
     getSourceKeypadID() {
         return 0x70;
     }
+
+    calculateChecksum(buffer) {
+        const totalBytes = buffer.length;
+        var byteSum = 0;
+        
+        buffer.moveTo(0);
+        for (var i = 0; i < totalBytes; i++) {
+            byteSum += buffer.readUInt8();
+        }
+
+        byteSum += totalBytes;
+        byteSum = byteSum & 0x007F;
+
+        if (isReservedByte(byteSum)) {
+            console.warn("Checksum was a reserved byte! It happened not sure if I'm supposed to handle it. If whatever you tried to do didn't work, it means I do.")
+        }
+
+        return byteSum;
+    }
+
+    isReservedByte(byte) {
+        if (
+            byte == 0xF0 ||
+            byte == 0xF7 ||
+            byte == 0xF1
+        ) {
+            return true;
+        }
+
+        return false;
+    }
 }
