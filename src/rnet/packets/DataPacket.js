@@ -1,6 +1,6 @@
 const Packet = require("./Packet");
 
-class DataPacket extends Packet {
+module.exports = class DataPacket extends Packet {
     constructor() {
         super();
 
