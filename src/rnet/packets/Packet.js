@@ -14,10 +14,6 @@ module.exports = class Packet {
             throw new TypeError("Packet subclasses must implement getTargetPath()");
         }
 
-        if (this.getSourcePath === undefined) {
-            throw new TypeError("Packet subclasses must implement getSourcePath()");
-        }
-
         if (this.writePacketBody === undefined) {
             throw new TypeError("Packet subclasses must implement writePacketBody(buf)");
         }
@@ -29,7 +25,7 @@ module.exports = class Packet {
         buffer.writeUInt8(this.getTargetControllerID());
         buffer.writeUInt8(this.getTargetZoneID());
         buffer.writeUInt8(this.getTargetKeypadID());
-        buffer.writeUInt8(this.getSourceControllerID()); // Source controller ID
+        buffer.writeUInt8(this.getSourceControllerID());
         buffer.writeUInt8(this.getSourceZoneID());
         buffer.writeUInt8(this.getSourceKeypadID());
         buffer.writeUInt8(this.getMessageType());
@@ -78,6 +74,10 @@ module.exports = class Packet {
 
     getSourceKeypadID() {
         return 0x70;
+    }
+
+    getSourcePath() {
+        return [];
     }
 
     calculateChecksum(buffer) {
