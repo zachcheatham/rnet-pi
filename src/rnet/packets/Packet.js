@@ -1,17 +1,25 @@
 const SmartBuffer = require("smart-buffer").SmartBuffer;
 
-module.exports = class PacketP2R {
+module.exports = class Packet {
     constructor() {
-        if (new.target === PacketP2R) {
-            throw new TypeError("Cannot initiate a PacketP2R object. PacketP2R is meant to be extended.");
+        if (new.target === Packet) {
+            throw new TypeError("Cannot initiate a Packet object. Packet is meant to be extended.");
         }
 
         if (this.getMessageType === undefined) {
-            throw new TypeError("PacketP2R subclasses must implement getMessageType()");
+            throw new TypeError("Packet subclasses must implement getMessageType()");
         }
 
-        if (this.getEventIDLoByte === undefined) {
-            throw new TypeError("PacketP2R subclasses must implement getEventIDLoByte()");
+        if (this.getTargetPath === undefined) {
+            throw new TypeError("Packet subclasses must implement getTargetPath()");
+        }
+
+        if (this.getSourcePath) === undefined) {
+            throw new TypeError("Packet subclasses must implement getSourcePath()");
+        }
+
+        if (this.writePacketBody === undefined) {
+            throw new TypeError("Packet subclasses must implement writePacketBody(buf)");
         }
     }
 
@@ -40,14 +48,10 @@ module.exports = class PacketP2R {
             }
         }
 
-        if (this.invertEventIDLo()) {
-            buffer.writeUInt8(0xF1);
-        }
+        this.writePacketBody(buffer);
 
-        buffer.writeUInt8(this.getEventIDLoByte());
-        buffer.writeUInt8(0x00); // Event ID Hi Byte
-
-
+        buffer.writeUInt8(this.calculateChecksum(buffer));
+        buffer.writeUInt8(0xF7); // End of message;
 
         return this._buffer.toBuffer();
     }
@@ -74,17 +78,5 @@ module.exports = class PacketP2R {
 
     getSourceKeypadID() {
         return 0x70;
-    }
-
-    getTargetPath() {
-        return [0x02, 0x00];
-    }
-
-    getSourcePath() {
-        return [];
-    }
-
-    invertEventIDLo()
-        return false;
     }
 }
