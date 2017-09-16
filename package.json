@@ -3,15 +3,14 @@
   "version": "1.0.0",
   "description": "Proxy between smart devices and RNet enabled amps",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "author": "zachcheatham",
   "license": "ISC",
   "dependencies": {
     "colors": "^1.1.2",
     "console-stamp": "^0.2.5",
     "forever": "^0.15.3",
+    "serialport": "^5.0.0",
     "smart-buffer": "^3.0.3"
   }
 }
