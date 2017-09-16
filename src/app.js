@@ -43,7 +43,58 @@ rNet.on("connected", () => {
 .on("error", (error) => {
     console.error("RNet Error: %s", error.message);
     process.exit(2);
-});
+})
+.on("new-zone", (zone) => {
+    console.info(
+        "Controller #%i zone #%i (%s) created.",
+        zone.getControllerID(),
+        zone.getZoneID(),
+        zone.getName(),
+    );
+})
+.on("name", (zone, name) => {
+    console.info(
+        "Controller #%i zone #%i renamed to %s.",
+        zone.getControllerID(),
+        zone.getZoneID(),
+        name
+    );
+})
+.on("zone-deleted", (ctrllrID, zoneID) => {
+    console.info(
+        "Controller #%i zone #%i deleted.",
+        zone.getControllerID(),
+        zone.getZoneID()
+    );
+})
+.on("power", (zone, powered) => {
+    console.info(
+        "Controller #%i zone #%i (%s) power set to %s",
+        zone.getControllerID(),
+        zone.getZoneID(),
+        zone.getName(),
+        powered
+    );
+})
+.on("volume", (zone, volume) => {
+    console.info(
+        "Controller #%i zone #%i (%s) volume set to %i",
+        zone.getControllerID(),
+        zone.getZoneID(),
+        zone.getName(),
+        volume
+    );
+})
+.on("source", (zone, sourceID) => {
+    console.info(
+        "Controller #%i zone #%i (%s) source set to #%i (%s)",
+        zone.getControllerID(),
+        zone.getZoneID(),
+        zone.getName(),
+        sourceID,
+        rNet.getSourceName(sourceID)
+    );
+})
 
 // Start server
 console.log("Starting Server...");

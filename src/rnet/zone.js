@@ -119,7 +119,7 @@ class Zone extends EventEmitter {
             }
 
             this._parameters[parameterID] = value;
-            this.emit("parameter", value, rNetTriggered)
+            this.emit("parameter", parameterID, value, rNetTriggered)
         }
         else {
             return false;

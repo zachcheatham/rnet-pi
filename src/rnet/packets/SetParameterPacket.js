@@ -26,6 +26,9 @@ module.exports = class SetParameterPacket extends DataPacket {
             case 4:
                 if (value < 0 || value > 100)
                     throw new Error("Parameter \"" + parameterIDToString(parameterID) + "\" out of range (0 - 100) while constructing SetParameterPacket");
+                else {
+                    value = Math.floor(value / 2);
+                }
                 break;
             case 5:
             case 7:
@@ -40,6 +43,10 @@ module.exports = class SetParameterPacket extends DataPacket {
         }
 
         this._value = value;
+    }
+
+    getTargetControllerID() {
+        return this._controllerID;
     }
 
     getTargetPath() {

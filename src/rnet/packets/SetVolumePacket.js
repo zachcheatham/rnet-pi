@@ -7,12 +7,16 @@ module.exports = class SetVolumePacket extends EventPacket {
         this._controllerID = controllerID;
         this._zoneID = zoneID;
 
-        if (volume < 0 || volume > 50) {
-            throw new Error("Volume out of range (0-50) when constructing SetVolumePacket");
+        if (volume < 0 || volume > 100) {
+            throw new Error("Volume out of range (0-100) when constructing SetVolumePacket");
             return;
         }
 
-        this._volume = volume;
+        this._volume = Math.floor(volume / 2); // Translate our range 0-100 to 0-50
+    }
+
+    getTargetControllerID() {
+        return this._controllerID;
     }
 
     getTargetPath() {

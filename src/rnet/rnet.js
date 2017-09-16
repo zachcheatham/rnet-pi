@@ -2,7 +2,11 @@ const EventEmitter = require("events");
 const fs = require("fs");
 const SerialPort = require("serialport");
 
-const EXTRA_ZONE_PARAM = require("./extraZoneParam");
+const parameterIDToString = require("./parameterIDToString");
+const SetParameterPacket = require("./packets/SetParameterPacket");
+const SetPowerPacket = require("./packets/SetPowerPacket");
+const SetSourcePacket = require("./packets/SetSourcePacket");
+const SetVolumePacket = require("./packets/SetVolumePacket");
 const Zone = require("./zone");
 
 class RNet extends EventEmitter {
@@ -107,9 +111,74 @@ class RNet extends EventEmitter {
         if (writeConfig) {
             this.writeConfiguration();
         }
+
+        zone.on("name", (name) => {
+            this.emit("name", zone, name);
+        })
+        .on("power", (powered, rNetTriggered) => {
+            if (!rNetTriggered) {
+                this.sendData(
+                    new SetZonePowerPacket(
+                        zone.getControllerID(),
+                        zone.getZoneID(),
+                        powered
+                    )
+                );
+            }
+            this.emit("power", zone, powered);
+        })
+        .on("volume", (volume, rNetTriggered) => {
+            if (!rNetTriggered) {
+                this.sendData(
+                    new SetVolumePacket(
+                        zone.getControllerID(),
+                        zone.getZoneID(),
+                        volume
+                    )
+                );
+            }
+            this.emit("volume", zone, volume);
+        })
+        .on("source", (sourceID, rNetTriggered) => {
+            if (!rNetTriggered) {
+                this.sendData(
+                    new SetSourcePacket(
+                        zone.getControllerID(),
+                        zone.getZoneID(),
+                        sourceID
+                    )
+                );
+            }
+            this.emit("source", zone, sourceID);
+        })
+        .on("parameter", (parameterID, value, rNetTriggered) => {
+            console.log(
+                "DEBUG: Controller #%i Zone #%i parameter %i (%s) to #%s",
+                zone.getControllerID(),
+                zone.getZoneID(),
+                parameterID,
+                parameterIDToString(parameterID),
+                value
+            );
+            if (!rNetTriggered) {
+                this.sendData(
+                    new SetParameterPacket(
+                        zone.getControllerID(),
+                        zone.getZoneID(),
+                        parameterID,
+                        value,
+                    )
+                );
+            }
+            this.emit("parameter", zone, parameterID, value);
+        });
+
+        this.emit("new-zone", zone);
     }
 
     deleteZone(ctrllrID, zoneID) {
+        this._zones[ctrllrID][zoneID].removeAllListeners();
+
         delete this._zones[ctrllrID][zoneID];
         if (this._zones[ctrllrID].length == 0) {
             delete this._zones[ctrllrID];
@@ -138,11 +207,15 @@ class RNet extends EventEmitter {
         return this._zones[ctrllrID][zoneID];
     }
 
+    getSourceName(sourceID) {
+        return this._sources[sourceID];
+    }
+
     requestAllZoneInfo() {
         for (var ctrllrID in this._zones) {
             for (var zoneID in this._zones[ctrllrID]) {
                 var zone = this._zones[ctrllrID][zoneID];
-                this.sendData(new RequestAllZoneInfoPacket(zone.getControllerID(), zone.getZoneID()).getBuffer());
+                this.sendData(new RequestAllZoneInfoPacket(zone.getControllerID(), zone.getZoneID()));
             }
         }
     }
