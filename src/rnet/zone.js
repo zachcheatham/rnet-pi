@@ -4,7 +4,7 @@ class Zone extends EventEmitter {
     constructor(rnet, ctrllrID, zoneID) {
         super()
 
-        this._rNet = rNet;
+        this._rNet = rnet;
         this._zoneID = zoneID;
         this._ctrllrID = ctrllrID;
 
@@ -126,3 +126,5 @@ class Zone extends EventEmitter {
         }
     }
 }
+
+module.exports = Zone;
