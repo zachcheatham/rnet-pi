@@ -92,22 +92,39 @@ module.exports = class Packet {
         byteSum += totalBytes;
         byteSum = byteSum & 0x007F;
 
-        if (this.isReservedByte(byteSum)) {
-            console.warn("Checksum was a reserved byte! It happened not sure if I'm supposed to handle it. If whatever you tried to do didn't work, it means I do.")
+        if (byteSum > 127) {
+            console.warn("Checksum is true byte! It happened not sure if I'm supposed to handle it. If whatever you tried to do didn't work, it means I do.")
         }
 
         return byteSum;
     }
 
-    isReservedByte(byte) {
-        if (
-            byte == 0xF0 ||
-            byte == 0xF7 ||
-            byte == 0xF1
-        ) {
-            return true;
+    writeWithInvertUInt16LE(buffer, value) {
+        var b = [
+            value & 0x00FF,
+            (value & 0xFF00) >> 8
+        ];
+
+        if (b[0] > 127) {
+            buffer.writeUInt8(0xF1); // Invert signal
+            buffer.writeUInt8(~ b[0] & 0xFF); // Invert
+        }
+        else {
+            buffer.writeUInt8(b[0]);
         }
 
-        return false;
+        buffer.writeUInt8(b[1]);
+    }
+
+    writeWithInvertUInt8(buffer, value) {
+        var b = value & 0x00FF
+
+        if (b > 127) {
+            buffer.writeUInt8(0xF1); // Invert signal
+            buffer.writeUInt8(~ b & 0xFF); // Invert
+        }
+        else {
+            buffer.writeUInt8(b);
+        }
     }
 }

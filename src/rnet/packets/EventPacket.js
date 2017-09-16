@@ -30,9 +30,9 @@ module.exports = class EventPacket extends Packet {
     }
 
     writePacketBody(buffer) {
-        buffer.writeUInt16LE(this.getEventID());
-        buffer.writeUInt16LE(this.getEventTimestamp());
-        buffer.writeUInt16LE(this.getEventData());
-        buffer.writeUInt8(this.getEventPriority());
+        this.writeWithInvertUInt16LE(buffer, this.getEventID());
+        this.writeWithInvertUInt16LE(buffer, this.getEventTimestamp());
+        this.writeWithInvertUInt16LE(buffer, this.getEventData());
+        this.writeWithInvertUInt8(buffer, this.getEventPriority());
     }
 }
