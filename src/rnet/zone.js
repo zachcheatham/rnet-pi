@@ -61,8 +61,10 @@ class Zone extends EventEmitter {
 
     setVolume(volume, rNetTriggered=false) {
         if (volume >= 0 && volume <= 100) {
-            this._volume = volume;
-            this.emit("volume", volume, rNetTriggered);
+            if (volume != this._volume) {
+                this._volume = volume;
+                this.emit("volume", volume, rNetTriggered);
+            }
 
             return true;
         }
@@ -77,8 +79,10 @@ class Zone extends EventEmitter {
 
     setSourceID(id, rNetTriggered=false) {
         if (rNetTriggered || this._rNet.sourceExists(id)) {
-            this._source = id;
-            this.emit("source", id, rNetTriggered);
+            if (this._source != id) {
+                this._source = id;
+                this.emit("source", id, rNetTriggered);
+            }
             return true;
         }
         else {
@@ -119,9 +123,10 @@ class Zone extends EventEmitter {
                         return false;
                     }
             }
-
-            this._parameters[parameterID] = value;
-            this.emit("parameter", parameterID, value, rNetTriggered)
+            if (this._parameters[parameterID] != value) {
+                this._parameters[parameterID] = value;
+                this.emit("parameter", parameterID, value, rNetTriggered)
+            }
         }
         else {
             return false;

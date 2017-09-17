@@ -6,7 +6,7 @@ module.exports = class SetPowerPacket extends EventPacket {
 
         this._controllerID = controllerID;
         this._zoneID = zoneID;
-        this._power = power ? 1 : 0;
+        this._power = power === true ? 1 : 0;
     }
 
     getTargetControllerID() {

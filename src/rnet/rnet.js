@@ -52,7 +52,7 @@ class RNet extends EventEmitter {
         }
         catch (e) {}
 
-        if (sourceFile.length > 0) {
+        if (sourceFile && sourceFile.length > 0) {
             this._sources = JSON.parse(sourceFile);
         }
 
@@ -167,7 +167,7 @@ class RNet extends EventEmitter {
                         zone.getControllerID(),
                         zone.getZoneID(),
                         parameterID,
-                        value,
+                        value
                     )
                 );
             }
