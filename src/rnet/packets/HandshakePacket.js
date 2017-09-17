@@ -1,17 +1,31 @@
-const Packet = require("./Packet");
+const RNetPacket = require("./RNetPacket");
+//const Buffer = require("buffer");
 
-module.exports = class HandshakePacket extends Packet {
-    constructor(type=2) {
+class HandshakePacket extends RNetPacket {
+    constructor(controllerID, handshakeType) {
         super();
-
-        this._type = type;
+        this.targetControllerID = controllerID;
+        this.messageType = 0x02;
+        this._handshakeType = handshakeType;
     }
 
-    getMessageType(data) {
-        return 0x02;
-    }
-
-    writePacketBody(buffer) {
-        buffer.writeUInt8(this._type);
+    getMessageBody() {
+        const buffer = Buffer.alloc(1);
+        buffer.writeUInt8(this._handshakeType, 0);
+        return buffer;
     }
 }
+
+HandshakePacket.fromPacket = function(rNetPacket) {
+    if (rNetPacket instanceof RNetPacket) {
+        const handshakePacket = new HandshakePacket();
+        rNetPacket.copyToPacket(handshakePacket);
+        handshakePacket._handshakeType = rNetPacket.messageBody.readUInt8(0);
+        return handshakePacket;
+    }
+    else {
+        throw new TypeError("Cannot create HandshakePacket with anything other than RNetPacket");
+    }
+}
+
+module.exports = HandshakePacket;

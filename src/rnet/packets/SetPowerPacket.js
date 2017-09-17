@@ -1,38 +1,39 @@
 const EventPacket = require("./EventPacket");
 
-module.exports = class SetPowerPacket extends EventPacket {
+class SetPowerPacket extends EventPacket {
     constructor(controllerID, zoneID, power) {
         super();
 
-        this._controllerID = controllerID;
-        this._zoneID = zoneID;
-        this._power = power === true ? 1 : 0;
+        this.targetPath = [0x02, 0x00];
+        this.targetControllerID = controllerID;
+        this.eventID = 0xDC;
+        this.eventData = zoneID;
+        this.eventTimestamp = power === true ? 1 : 0;
+        this.eventPriority = 1;
     }
 
-    getTargetControllerID() {
-        return this._controllerID;
+    getControllerID() {
+        return this.targetControllerID;
     }
 
-    getTargetPath() {
-        return [
-            0x02, // Root Menu
-            0x00 // Run Mode
-        ]
+    getZoneID() {
+        return this.eventData;
     }
 
-    getEventID() {
-        return 0xDC;
-    }
-
-    getEventTimestamp() {
-        return this._power;
-    }
-
-    getEventData() {
-        return this._zoneID;
-    }
-
-    getEventPriority() {
-        return 0x01;
+    getPower() {
+        return this.eventTimestamp == 1;
     }
 }
+
+SetPowerPacket.fromPacket = function(eventpacket) {
+    if (eventPacket instanceof EventPacket) {
+        const powerPacket = new SetPowerPacket();
+        eventPacket.copyToPacket(powerPacket);
+        return powerPacket;
+    }
+    else {
+        throw new TypeError("Cannot create SetPowerPacket from anything other than an EventPacket");
+    }
+}
+
+module.exports = SetPowerPacket;

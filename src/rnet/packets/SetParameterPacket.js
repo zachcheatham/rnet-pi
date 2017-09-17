@@ -6,13 +6,19 @@ module.exports = class SetParameterPacket extends DataPacket {
     constructor(controllerID, zoneID, parameterID, value) {
         super();
 
-        this._controllerID = controllerID;
-        this._zoneID = zoneID;
-        this._parameterID = parameterID;
-
         if (parameterID < 0 || parameterID > 8) {
             throw new Error("Unknown parameter ID (" + parameterID + ") while constructing SetParameterPacket");
         }
+
+        this.targetPath = [
+            0x02, // Root Menu
+            0x00, // Run Mode
+            zoneID,
+            0x00, // User Menu
+            parameterID
+        ]
+
+        this.targetControllerID = controllerID;
 
         switch (parameterID) {
             case 0:
@@ -42,26 +48,37 @@ module.exports = class SetParameterPacket extends DataPacket {
                     value = value ? 1 : 0;
         }
 
-        this._value = value;
+        this.data = Buffer.alloc(1);
+        this.data.writeUInt8(value, 0);
     }
 
-    getTargetControllerID() {
-        return this._controllerID;
+    getControllerID() {
+        return this.targetControllerID;
     }
 
-    getTargetPath() {
-        return [
-            0x02, // Root Menu
-            0x00, // Run Mode
-            this._zoneID,
-            0x00, // User Menu
-            this._parameterID
-        ]
+    getZoneID() {
+        return this.targetPath[2];
     }
 
-    getData() {
-        return [
-            this._value
-        ];
+    getParameterID() {
+        return this.targetPath[4]
+    }
+
+    getValue() {
+        var value = this.data.readUInt8(0);
+
+        switch (this.getParameterID) {
+            case 0:
+            case 1:
+            case 3:
+                return value -= 10;
+            case 4:
+                return value * 2;
+            case 5:
+            case 7:
+                return value;
+            default:
+                return value == 1;
+        }
     }
 }

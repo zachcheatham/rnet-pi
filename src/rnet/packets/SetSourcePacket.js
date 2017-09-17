@@ -1,42 +1,40 @@
 const EventPacket = require("./EventPacket");
 
-module.exports = class SetSourcePacket extends EventPacket {
+class SetSourcePacket extends EventPacket {
     constructor(controllerID, zoneID, sourceID) {
         super();
 
-        this._controllerID = controllerID;
-        this._zoneID = zoneID;
-        this._sourceID = sourceID;
+        this.targetPath = [0x00, 0x00];
+        this.targetControllerID = controllerID;
+        this.sourceZoneID = zoneID;
+        this.eventID = 0xC1;
+        this.eventData = sourceID;
+        this.eventTimestamp = 0;
+        this.eventPriority = 1;
     }
 
-    getTargetControllerID() {
-        return this._controllerID;
+    getControllerID() {
+        return this.targetControllerID;
     }
 
-    getSourceZoneID() {
-        return this._zoneID;
+    getZoneID() {
+        return this.sourceZoneID;
     }
 
-    getTargetPath() {
-        return [
-            0x00, // Root Menu
-            0x00 // Run Mode
-        ]
-    }
-
-    getEventID() {
-        return 0xC1;
-    }
-
-    getEventTimestamp() {
-        return 0x00;
-    }
-
-    getEventData() {
-        return this._sourceID;
-    }
-
-    getEventPriority() {
-        return 0x01;
+    getSourceID() {
+        return this.eventData;
     }
 }
+
+SetSourcePacket.fromPacket = function(eventpacket) {
+    if (eventPacket instanceof EventPacket) {
+        const sourcePacket = new SetSourcePacket();
+        eventPacket.copyToPacket(sourcePacket);
+        return sourcePacket;
+    }
+    else {
+        throw new TypeError("Cannot create SetSourcePacket from anything other than an EventPacket");
+    }
+}
+
+module.exports = SetSourcePacket;
