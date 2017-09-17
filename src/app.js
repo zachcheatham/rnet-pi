@@ -237,7 +237,41 @@ vorpal
         );
     }
     else {
-        zone.setPower(args.power);
+        zone.setPower(args.power == "true");
+    }
+
+    callback();
+});
+vorpal
+.command("set volume <cid> <id> <volume>", "Set zone volume.")
+.action(function(args, callback) {
+    const zone = rNet.getZone(args.cid, args.id);
+    if (!zone) {
+        console.error(
+            "Controller #%d zone #%d doesn't exist",
+            args.id,
+            args.cid
+        );
+    }
+    else {
+        zone.setVolume(parseInt(args.volume));
+    }
+
+    callback();
+});
+vorpal
+.command("set source <cid> <id> <sourceID>", "Set zone source")
+.action(function(args, callback) {
+    const zone = rNet.getZone(args.cid, args.id);
+    if (!zone) {
+        console.error(
+            "Controller #%d zone #%d doesn't exist",
+            args.id,
+            args.cid
+        );
+    }
+    else {
+        zone.setSource(parseInt(args.sourceID));
     }
 
     callback();
