@@ -115,15 +115,17 @@ RNetPacket.fromData = function(data) {
     packet.targetControllerID = buffer.readUInt8();
     packet.targetZoneID = buffer.readUInt8();
     packet.targetKeypadID = buffer.readUInt8();
-    packet.sourceControllerID = readUInt8();
-    packet.sourceZoneID = readUInt8();
-    packet.sourceKeypadID = readUInt8();
-    packet.messageType = readUInt8();
+    packet.sourceControllerID = buffer.readUInt8();
+    packet.sourceZoneID = buffer.readUInt8();
+    packet.sourceKeypadID = buffer.readUInt8();
+    packet.messageType = buffer.readUInt8();
     packet.messageBody = buffer.readBuffer(buffer.remaining() - 2);
     buffer.readUInt8() // checksum TODO we really should check it.
     if (buffer.readUInt8() != BYTE_END_MESSAGE) {
         throw new Error("RNetPacket data didn't end with BYTE_END_MESSAGE")
     }
+
+    return packet;
 }
 
 module.exports = RNetPacket;

@@ -88,7 +88,7 @@ DataPacket.fromPacket = function(rNetPacket) {
         dataPacket.packetCount = buffer.readUInt16LE();
         const dataLength = buffer.readUInt16LE();
         dataPacket.data = buffer.readBuffer(buffer.remaining() - 2);
-        if (data.length != dataLength) {
+        if (dataPacket.data.length != dataLength) {
             return false;
         }
         return dataPacket;

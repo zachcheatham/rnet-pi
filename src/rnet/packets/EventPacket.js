@@ -108,6 +108,8 @@ EventPacket.fromPacket = function(rNetPacket) {
         eventPacket.eventTimestamp = buffer.readUInt16LE();
         eventPacket.eventData = buffer.readUInt16LE();
         eventPacket.eventPriority = buffer.readUInt8();(0, 0, true);
+
+        return eventPacket;
     }
     else {
         throw new TypeError("Cannot create EventPacket with anything other than RNetPacket");

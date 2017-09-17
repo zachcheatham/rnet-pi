@@ -41,7 +41,7 @@ class RNet extends EventEmitter {
         .on("error", (error) => {
             this.emit("error", error);
         })
-        .on("data", this._handleData);
+        .on("data", (data) => {this._handleData(data)});
     }
 
     disconnect() {
@@ -279,29 +279,46 @@ class RNet extends EventEmitter {
             }
 
             if (b == 0xF0) {
-                if (this._pendingPacket.length > 0) {
-                    console.warning("Received START_MESSAGE_BYTE before recieving a END_MESSAGE_BYTE from RNet");
-                    this._pendingPacket.clear();
+                if (this._pendingPacket !== undefined) {
+                    console.warn("Received START_MESSAGE_BYTE before recieving a END_MESSAGE_BYTE from RNet");
+                    delete this._pendingPacket;
+                    this._pendingPacket = undefined;
                 }
-
+                this._pendingPacket = new SmartBuffer();
                 this._pendingPacket.writeUInt8(b);
             }
             else if (b == 0xF7) {
-                this._pendingPacket.writeUInt8(b);
-
-                const packet = PacketBuilder.build(this._pendingPacket.toBuffer());
-                if (packet) {
-                    // TODO make happen async
-                    this._receivedRNetPacket(packet);
+                if (this._pendingPacket !== undefined) {
+                    this._pendingPacket.writeUInt8(b);
+                    const buffer = this._pendingPacket.toBuffer();
+                    delete this._pendingPacket;
+                    this._pendingPacket = undefined;
+                    setImmediate(() => {
+                        const packet = PacketBuilder.build(buffer);
+                        if (packet) {
+                            this._receivedRNetPacket(packet);
+                        }
+                    });
                 }
-
-                this._pendingPacket.clear();
+                else {
+                    console.warn("Received packet from RNet without start of new message.");
+                }
             }
             else if (b == 0xF1) {
-                this._invertNextPacket = true;
+                if (this._pendingPacket !== undefined) {
+                    this._invertNextPacket = true;
+                }
+                else {
+                    console.warn("Received packet from RNet without start of new message.");
+                }
             }
             else {
-                this._pendingPacket.writeUInt8(b);
+                if (this._pendingPacket !== undefined) {
+                    this._pendingPacket.writeUInt8(b);
+                }
+                else {
+                    console.warn("Received packet from RNet without start of new message.");
+                }
             }
         }
     }
