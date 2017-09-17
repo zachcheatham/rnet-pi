@@ -1,7 +1,9 @@
 const EventEmitter = require("events");
 const fs = require("fs");
 const SerialPort = require("serialport");
+const SmartBuffer = require("smart-buffer").SmartBuffer;
 
+const PacketBuilder = require("./packets/PacketBuilder");
 const parameterIDToString = require("./parameterIDToString");
 const SetParameterPacket = require("./packets/SetParameterPacket");
 const SetPowerPacket = require("./packets/SetPowerPacket");
@@ -16,6 +18,7 @@ class RNet extends EventEmitter {
         this._zones = [];
         this._sources = [];
         this._autoUpdating = false;
+        this._pendingPacket = new SmartBuffer();
 
         this.readConfiguration();
         this.writeConfiguration();
@@ -269,8 +272,46 @@ class RNet extends EventEmitter {
     }
 
     _handleData(data) {
-        // TODO Construct some kind of packet :/
-        console.log(data);
+        for (var b of data) {
+            if (this._invertNextPacket) {
+                b = ~ b[0] & 0xFF
+                this._invertNextPacket = false;
+            }
+
+            if (b == 0xF0) {
+                if (this._pendingPacket.length > 0) {
+                    console.warning("Received START_MESSAGE_BYTE before recieving a END_MESSAGE_BYTE from RNet");
+                    this._pendingPacket.clear();
+                }
+
+                this._pendingPacket.writeUInt8(b);
+            }
+            else if (b == 0xF7) {
+                this._pendingPacket.writeUInt8(b);
+
+                const packet = PacketBuilder.build(this._pendingPacket.toBuffer());
+                if (packet) {
+                    // TODO make happen async
+                    this._receivedRNetPacket(packet);
+                }
+
+                this._pendingPacket.clear();
+            }
+            else if (b == 0xF1) {
+                this._invertNextPacket = true;
+            }
+            else {
+                this._pendingPacket.writeUInt8(b);
+            }
+        }
+    }
+
+    _receivedRNetPacket(packet) {
+        console.log(packet);
+
+        if (packet.requiresHandshake()) {
+            this.sendData(new HandshakePacket(packet.sourceControllerID, 2));
+        }
     }
 }
 

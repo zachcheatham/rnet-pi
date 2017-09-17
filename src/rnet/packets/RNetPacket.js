@@ -38,6 +38,10 @@ class RNetPacket {
         throw new Error("getMessageBody() not implemented.");
     }
 
+    requiresHandshake() {
+        return false;
+    }
+
     calculateChecksum(buffer) {
         const totalBytes = buffer.length;
         var byteSum = 0;
