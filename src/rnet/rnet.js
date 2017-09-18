@@ -6,7 +6,8 @@ const SmartBuffer = require("smart-buffer").SmartBuffer;
 const ExtraZoneParam = require("./extraZoneParam");
 const HandshakePacket = require("./packets/HandshakePacket");
 const PacketBuilder = require("./packets/PacketBuilder");
-const RequestDataPacket = require("./packets/RequestDataPacket")
+const RequestDataPacket = require("./packets/RequestDataPacket");
+const SetAllPowerPacket = require("./packets/SetAllPowerPacket");
 const SetParameterPacket = require("./packets/SetParameterPacket");
 const SetPowerPacket = require("./packets/SetPowerPacket");
 const SetSourcePacket = require("./packets/SetSourcePacket");
@@ -268,6 +269,14 @@ class RNet extends EventEmitter {
                 this.sendData(new RequestDataPacket(ctrllrID, zoneID, RequestDataPacket.DATA_TYPE.ZONE_INFO));
             }
         }
+    }
+
+    setAllPower(power) {
+        this.sendData(new SetAllPowerPacket(power));
+
+        setTimeout(() => {
+            this.requestAllZoneInfo();
+        }, 5000);
     }
 
     sendData(packet) {

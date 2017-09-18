@@ -238,6 +238,14 @@ vorpal
  * Zone commands
  */
 vorpal
+.command("set power all <power>", "Set all zone on/off")
+.action(function(args, callback) {
+    rNet.setAllPower(args.power == "true");
+
+    callback();
+});
+
+vorpal
 .command("set power <cid> <id> <power>", "Set zone power")
 .action(function(args, callback) {
     const zone = rNet.getZone(args.cid, args.id);
