@@ -3,12 +3,16 @@ const fs = require("fs");
 const SerialPort = require("serialport");
 const SmartBuffer = require("smart-buffer").SmartBuffer;
 
+const ExtraZoneParam = require("./extraZoneParam");
+const HandshakePacket = require("./packets/HandshakePacket");
 const PacketBuilder = require("./packets/PacketBuilder");
 const parameterIDToString = require("./parameterIDToString");
+const RequestDataPacket = require("./packets/RequestDataPacket")
 const SetParameterPacket = require("./packets/SetParameterPacket");
 const SetPowerPacket = require("./packets/SetPowerPacket");
 const SetSourcePacket = require("./packets/SetSourcePacket");
 const SetVolumePacket = require("./packets/SetVolumePacket");
+const ZoneInfoPacket = require("./packets/ZoneInfoPacket");
 const Zone = require("./zone");
 
 class RNet extends EventEmitter {
@@ -18,7 +22,6 @@ class RNet extends EventEmitter {
         this._zones = [];
         this._sources = [];
         this._autoUpdating = false;
-        this._pendingPacket = new SmartBuffer();
 
         this.readConfiguration();
         this.writeConfiguration();
@@ -33,6 +36,7 @@ class RNet extends EventEmitter {
         })
         .on("open", () => {
             this.emit("connected");
+            this.requestAllZoneInfo();
         })
         .on("close", () => {
             // TODO Start auto-reconnect
@@ -157,7 +161,7 @@ class RNet extends EventEmitter {
         })
         .on("parameter", (parameterID, value, rNetTriggered) => {
             console.log(
-                "DEBUG: Controller #%i Zone #%i parameter %i (%s) to #%s",
+                "DEBUG: Controller #%d Zone #%d parameter %d (%s) to %s",
                 zone.getControllerID(),
                 zone.getZoneID(),
                 parameterID,
@@ -174,7 +178,7 @@ class RNet extends EventEmitter {
                     )
                 );
             }
-            this.emit("parameter", zone, parametzoneIDerID, value);
+            this.emit("parameter", zone, parameterID, value);
         });
 
         this.emit("new-zone", zone);
@@ -235,7 +239,16 @@ class RNet extends EventEmitter {
     }
 
     getSourceName(sourceID) {
-        return this._sources[sourceID].name;
+        if (this._sources[sourceID]) {
+            return this._sources[sourceID].name;
+        }
+        else {
+            return "Unknown";
+        }
+    }
+
+    sourceExists(sourceID) {
+        return (this._sources[sourceID] !== undefined)
     }
 
     getSources() {
@@ -261,8 +274,7 @@ class RNet extends EventEmitter {
     requestAllZoneInfo() {
         for (var ctrllrID in this._zones) {
             for (var zoneID in this._zones[ctrllrID]) {
-                var zone = this._zones[ctrllrID][zoneID];
-                this.sendData(new RequestAllZoneInfoPacket(zone.getControllerID(), zone.getZoneID()));
+                this.sendData(new RequestDataPacket(ctrllrID, zoneID, RequestDataPacket.DATA_TYPE.ZONE_INFO));
             }
         }
     }
@@ -324,10 +336,26 @@ class RNet extends EventEmitter {
     }
 
     _receivedRNetPacket(packet) {
-        console.log(packet);
-
         if (packet.requiresHandshake()) {
             this.sendData(new HandshakePacket(packet.sourceControllerID, 2));
+        }
+
+        if (packet instanceof ZoneInfoPacket) {
+            const zone = this.getZone(packet.getControllerID(), packet.getZoneID());
+            if (zone) {
+                zone.setPower(packet.getPower(), true);
+                zone.setSourceID(packet.getSourceID(), true);
+                zone.setVolume(packet.getVolume(), true);
+                zone.setParameter(ExtraZoneParam.BASS, packet.getBassLevel(), true);
+                zone.setParameter(ExtraZoneParam.TREBLE, packet.getTrebleLevel(), true);
+                zone.setParameter(ExtraZoneParam.LOUDNESS, packet.getLoudness(), true);
+                zone.setParameter(ExtraZoneParam.BALANCE, packet.getBalance(), true);
+                zone.setParameter(ExtraZoneParam.PARTY_MODE, packet.getPartyMode(), true);
+                zone.setParameter(ExtraZoneParam.DO_NOT_DISTURB, packet.getDoNotDisturbMode(), true);
+            }
+            else {
+                console.warn("Received ZoneInfo for unknown zone (%d.%d)", packet.getControllerID(), packet.getZoneID());
+            }
         }
     }
 }

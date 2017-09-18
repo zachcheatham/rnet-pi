@@ -1,5 +1,7 @@
 const EventEmitter = require("events");
 
+const RequestDataPacket = require("./packets/RequestDataPacket");
+
 class Zone extends EventEmitter {
     constructor(rnet, ctrllrID, zoneID) {
         super()
@@ -118,10 +120,6 @@ class Zone extends EventEmitter {
                     if (value < 0 || value > 2)
                         return false;
                     break;
-                default:
-                    if (type(value) != type(true)) {
-                        return false;
-                    }
             }
             if (this._parameters[parameterID] != value) {
                 this._parameters[parameterID] = value;
@@ -131,6 +129,10 @@ class Zone extends EventEmitter {
         else {
             return false;
         }
+    }
+
+    requestInfo() {
+        this._rNet.sendData(new RequestDataPacket(this._ctrllrID, this._zoneID, RequestDataPacket.DATA_TYPE.ZONE_INFO));
     }
 }
 

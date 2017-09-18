@@ -87,9 +87,10 @@ DataPacket.fromPacket = function(rNetPacket) {
         dataPacket.packetNumber = buffer.readUInt16LE();
         dataPacket.packetCount = buffer.readUInt16LE();
         const dataLength = buffer.readUInt16LE();
-        dataPacket.data = buffer.readBuffer(buffer.remaining() - 2);
+        dataPacket.data = buffer.readBuffer(buffer.remaining());
         if (dataPacket.data.length != dataLength) {
-            return false;
+            console.warn("Data length doesn't equal what was specified.");
+            console.warn("%d vs %d", dataLength, dataPacket.data.length);
         }
         return dataPacket;
     }

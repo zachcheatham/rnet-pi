@@ -38,7 +38,7 @@ class RequestDataPacket extends RNetPacket {
 }
 
 RequestDataPacket.DATA_TYPE = {
-    ZONE_INF0: 0x07,
+    ZONE_INFO: 0x07,
     ZONE_POWER: 0x06,
     ZONE_SOURCE: 0x02,
     ZONE_VOLUME: 0x01

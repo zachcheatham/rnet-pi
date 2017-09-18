@@ -271,7 +271,31 @@ vorpal
         );
     }
     else {
-        zone.setSource(parseInt(args.sourceID));
+        zone.setSourceID(parseInt(args.sourceID));
+    }
+
+    callback();
+});
+vorpal
+.command("request all info", "Requests info update on all zones")
+.action(function(args, callback) {
+    rNet.requestAllZoneInfo();
+    callback();
+});
+
+vorpal
+.command("request info <cid> <id>", "Requests info update on zone")
+.action(function(args, callback) {
+    const zone = rNet.getZone(args.cid, args.id);
+    if (!zone) {
+        console.error(
+            "Controller #%d zone #%d doesn't exist",
+            args.cid,
+            args.id
+        );
+    }
+    else {
+        zone.requestInfo();
     }
 
     callback();

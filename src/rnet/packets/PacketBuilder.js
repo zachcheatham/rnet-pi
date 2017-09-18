@@ -1,26 +1,33 @@
 const RNetPacket = require("./RNetPacket");
 const DataPacket = require("./DataPacket");
-const EventPacket = require("./EventPacket");
+const ZoneInfoPacket = require("./ZoneInfoPacket");
 
 module.exports = {
     build: function(buffer) {
         var packet = RNetPacket.fromData(buffer);
+
         switch (packet.messageType) {
             case 0x00:
                 packet = DataPacket.fromPacket(packet);
                 break;
-            case 0x01:
-                console.log("DEBUG: Received a RequestDataPacket from RNet");
-                return false; // Don't care about these
-            case 0x02:
-                console.log("DEBUG: Received a HandshakePacket from RNet");
-                return false; // Don't care about these
-            case 0x05:
-                packet = EventPacket.fromPacket(packet);
-                break;
+            default:
+                return false; // We don't care about anything else
         }
 
-        // TODO: Break down these more
-        return packet;
+        // Data Messages
+        if (packet.messageType == 0x00) {
+            // Zone Info Response
+            if (
+                packet.sourcePath.length == 4 &&
+                packet.sourcePath[0] == 0x02 && // Root Menu
+                packet.sourcePath[1] == 0x00 && // Run Mode
+                packet.sourcePath[3] == 0x07 // Zone Info
+            ) {
+                var packet =  ZoneInfoPacket.fromPacket(packet);
+                return packet;
+            }
+        }
+
+        return false;
     }
 }
