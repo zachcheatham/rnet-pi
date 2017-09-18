@@ -3,6 +3,7 @@ const vorpal = require("vorpal")();
 const Server = require("./server");
 const RNet = require("./rnet/rnet");
 const PacketS2CRNetStatus = require("./packets/PacketS2CRNetStatus");
+const parameterIDToString = require("./rnet/parameterIDToString");
 
 console.log("RNet Proxy v1.0.0");
 console.log("By Zach Cheatham");
@@ -115,6 +116,17 @@ rNet.on("connected", () => {
         zone.getName(),
         sourceID,
         rNet.getSourceName(sourceID)
+    );
+})
+.on("parameter", (zone, parameterID, value) => {
+    console.info(
+        "Controller #%d Zone #%d (%s) parameter %d (%s) to %s",
+        zone.getControllerID(),
+        zone.getZoneID(),
+        zone.getName(),
+        parameterID,
+        parameterIDToString(parameterID),
+        value
     );
 })
 
