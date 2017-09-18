@@ -4,19 +4,19 @@ module.exports = function(parameterID) {
             return "Bass";
         case 1:
             return "Treble";
-        case 3:
+        case 2:
             return "Loudness";
-        case 4:
+        case 3:
             return "Balance";
-        case 5:
+        case 4:
             return "Turn on Volume";
-        case 6:
+        case 5:
             return "Background Color";
-        case 7:
+        case 6:
             return "Do Not Disturb"
-        case 8:
+        case 7:
             return "Party Mode";
-        case 9:
+        case 8:
             return "Front AV Enable";
         default:
             return "Unknown";

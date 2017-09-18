@@ -184,8 +184,8 @@ vorpal
     if (!rNet.createZone(args.cid, args.id, args.name)) {
         console.error(
             "Controller #%d zone #%d already exists as %s",
-            args.id,
             args.cid,
+            args.id,
             rNet.getZone(args.cid, args.id).getName()
         );
     }
@@ -198,8 +198,8 @@ vorpal
     if (!zone) {
         console.error(
             "Controller #%d zone #%d doesn't exist",
-            args.id,
-            args.cid
+            args.cid,
+            args.id
         );
     }
     else {
@@ -214,8 +214,8 @@ vorpal
     if (!rNet.deleteZone(args.cid, args.id)) {
         console.error(
             "Controller #%d zone #%d doesn't exist",
-            args.id,
-            args.cid
+            args.cid,
+            args.id
         );
     }
 
@@ -232,8 +232,8 @@ vorpal
     if (!zone) {
         console.error(
             "Controller #%d zone #%d doesn't exist",
-            args.id,
-            args.cid
+            args.cid,
+            args.id
         );
     }
     else {
@@ -266,8 +266,8 @@ vorpal
     if (!zone) {
         console.error(
             "Controller #%d zone #%d doesn't exist",
-            args.id,
-            args.cid
+            args.cid,
+            args.id
         );
     }
     else {
