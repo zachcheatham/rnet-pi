@@ -11,9 +11,23 @@ const PacketC2S = require("./PacketC2S");
  */
 class PacketC2SSourceName extends PacketC2S {
     parseData() {
-        this.sourceID = this._buffer.readUInt8();
-        this.name = this._buffer.readStringNT();
+        this._sourceID = this._buffer.readUInt8();
+        this._name = this._buffer.readStringNT();
+    }
+
+    getSourceID() {
+        return this._sourceID;
+    }
+
+    getName() {
+        return this._name;
+    }
+
+    getID() {
+        return PacketC2SSourceName.ID;
     }
 }
+
+PacketC2SSourceName.ID = 0x06;
 
 module.exports = PacketC2SSourceName;

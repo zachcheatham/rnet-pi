@@ -22,6 +22,7 @@ class RNet extends EventEmitter {
         this._zones = [];
         this._sources = [];
         this._autoUpdating = false;
+        this._connected = false;
 
         this.readConfiguration();
         this.writeConfiguration();
@@ -35,11 +36,13 @@ class RNet extends EventEmitter {
             autoOpen: false // TODO Remove after dry debugging
         })
         .on("open", () => {
+            this._connected = true;
             this.emit("connected");
             this.requestAllZoneInfo();
         })
         .on("close", () => {
             // TODO Start auto-reconnect
+            this._connected = false;
             this.emit("disconnected");
         })
         .on("error", (error) => {
@@ -200,8 +203,17 @@ class RNet extends EventEmitter {
         }
     }
 
-    getZones() {
-        return this._zones;
+    getControllersSize() {
+        return this._zones.length;
+    }
+
+    getZonesSize(ctrllrID) {
+        if (this._zones[ctrllrID] != null) {
+            return this._zones[ctrllrID].length;
+        }
+        else {
+            return 0;
+        }
     }
 
     createSource(sourceID, name) {
@@ -240,7 +252,11 @@ class RNet extends EventEmitter {
     }
 
     sourceExists(sourceID) {
-        return (this._sources[sourceID] !== undefined)
+        return (sourceID < this._sources.length && this._sources[sourceID] !== null)
+    }
+
+    getSourcesSize() {
+        return this._sources.length;
     }
 
     getSources() {
@@ -277,6 +293,10 @@ class RNet extends EventEmitter {
         setTimeout(() => {
             this.requestAllZoneInfo();
         }, 5000);
+    }
+
+    isConnected() {
+        return this._connected;
     }
 
     sendData(packet) {

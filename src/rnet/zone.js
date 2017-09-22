@@ -13,7 +13,7 @@ class Zone extends EventEmitter {
         this._name = null;
         this._power = false;
         this._volume = 0;
-        this._source = -1;
+        this._source = 0;
 
         this._parameters = [
             0,      // Bass             -10 - +10

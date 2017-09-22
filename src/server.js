@@ -11,6 +11,7 @@ class Server extends EventEmitter {
 
         this._name = name;
         this._port = port;
+        this._clients = [];
 
         if (!host) {
             this._host = ip.address();
@@ -39,8 +40,12 @@ class Server extends EventEmitter {
         });
     }
 
-    broadcast() {
-
+    broadcast(packet) {
+        console.info("DEBUG: Sending packet " + packet.constructor.name + " to everyone");
+        const buffer = packet.getBuffer();
+        for (let client of this._clients) {
+            client.sendBuffer(buffer);
+        }
     }
 
     stop() {
@@ -57,11 +62,18 @@ class Server extends EventEmitter {
         .once("close", () => {
             if (client.isNamed()) {
                 this.emit("client_disconnect", client);
+
+                let i = this._clients.indexOf(client);
+                this._clients.splice(i, 1);
             }
         })
         .once("named", () => {
             // Ready to tell the world!
             this.emit("client_connected", client);
+            this._clients.push(client);
+        })
+        .on("packet", (packet) => {
+            this.emit("packet", client, packet);
         });
 
         client.requestName();

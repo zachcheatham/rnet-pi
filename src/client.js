@@ -38,6 +38,10 @@ class Client extends EventEmitter {
         this._connection.write(packet.getBuffer());
     }
 
+    sendBuffer(buffer) {
+        this._connection.write(buffer);
+    }
+
     getName() {
         return this._name || this.getAddress();
     }
@@ -87,11 +91,11 @@ class Client extends EventEmitter {
         if (packet !== undefined) {
             console.info("DEBUG: Recieved packet " + packet.constructor.name + " from " + this.getName());
 
-            if (packet instanceof PacketC2SName) {
-                this._name = packet.name;
+            if (packet.getID() == PacketC2SName.ID) {
+                this._name = packet.getName();
                 this.emit("named");
             }
-            else {
+            else if (this.isNamed()) {
                 this.emit("packet", packet);
             }
         }

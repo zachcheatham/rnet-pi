@@ -8,6 +8,12 @@ const PacketC2S = require("./PacketC2S");
  */
 class PacketC2SDisconnect extends PacketC2S {
     parseData() {}
+
+    getID() {
+        return PacketC2SDisconnect.ID;
+    }
 }
+
+PacketC2SDisconnect.ID = 0x03;
 
 module.exports = PacketC2SDisconnect;

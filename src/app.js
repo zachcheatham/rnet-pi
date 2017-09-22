@@ -2,7 +2,16 @@ const vorpal = require("vorpal")();
 
 const Server = require("./server");
 const RNet = require("./rnet/rnet");
+const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
+const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
 const PacketS2CRNetStatus = require("./packets/PacketS2CRNetStatus");
+const PacketS2CSourceName = require("./packets/PacketS2CSourceName");
+const PacketS2CZoneName = require("./packets/PacketS2CZoneName");
+const PacketS2CZoneDeleted = require("./packets/PacketS2CZoneDeleted");
+const PacketS2CZoneParameter = require("./packets/PacketS2CZoneParameter");
+const PacketS2CZonePower = require("./packets/PacketS2CZonePower");
+const PacketS2CZoneSource = require("./packets/PacketS2CZoneSource");
+const PacketS2CZoneVolume = require("./packets/PacketS2CZoneVolume");
 const parameterIDToString = require("./rnet/parameterIDToString");
 
 console.log("RNet Proxy v1.0.0");
@@ -28,12 +37,52 @@ server.once("start", function() {
 })
 .on("client_connected", function(client) {
     console.log("Client %s connected.", client.getName());
+
+    client.send(new PacketS2CRNetStatus(rNet.isConnected()));
+
+    for (let sourceID = 0; sourceID < rNet.getSourcesSize(); sourceID++) {
+        if (rNet.sourceExists(sourceID)) {
+            client.send(new PacketS2CSourceName(sourceID, rNet.getSourceName(sourceID)));
+        }
+    }
+
+    for (let ctrllrID = 0; ctrllrID < rNet.getControllersSize(); ctrllrID++) {
+        for (let zoneID = 0; zoneID < rNet.getZonesSize(ctrllrID); zoneID++) {
+            const zone = rNet.getZone(ctrllrID, zoneID);
+
+            if (zone != null) {
+                client.send(new PacketS2CZoneName(ctrllrID, zoneID, zone.getName()));
+                client.send(new PacketS2CZonePower(ctrllrID, zoneID, zone.getPower()));
+                client.send(new PacketS2CZoneVolume(ctrllrID, zoneID, zone.getVolume()));
+                client.send(new PacketS2CZoneSource(ctrllrID, zoneID, zone.getSourceID()));
+                for (let i = 0; i < 9; i++) {
+                    client.send(new PacketS2CZoneParameter(ctrllrID, zoneID, i, zone.getParameter(i)));
+                }
+            }
+        }
+    }
+
+    console.log("E");
 })
 .on("client_disconnect", function(client) {
     console.log("Client %s disconnected.", client.getName());
 })
 .on("packet", function(client, packet) {
-
+    switch (packet.getID())
+    {
+        case PacketC2SZonePower.ID:
+        {
+            const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
+            zone.setPower(packet.getPowered());
+            break;
+        }
+        case PacketC2SZoneVolume.ID:
+        {
+            const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
+            zone.setVolume(packet.getVolume());
+            break;
+        }
+    }
 });
 
 rNet.on("connected", () => {
@@ -49,6 +98,7 @@ rNet.on("connected", () => {
     process.exit(2);
 })
 .on("new-zone", (zone) => {
+    server.broadcast(new PacketS2CZoneName(zone.getZoneID(), zone.getControllerID(), zone.getName()));
     console.info(
         "Controller #%d zone #%d (%s) created.",
         zone.getControllerID(),
@@ -57,6 +107,7 @@ rNet.on("connected", () => {
     );
 })
 .on("zone-name", (zone, name) => {
+    server.broadcast(new PacketS2CZoneName(zone.getZoneID(), zone.getControllerID(), name));
     console.info(
         "Controller #%d zone #%d renamed to %s.",
         zone.getControllerID(),
@@ -65,6 +116,7 @@ rNet.on("connected", () => {
     );
 })
 .on("zone-deleted", (ctrllrID, zoneID) => {
+    server.broadcast(new PacketS2CZoneDeleted(ctrllrID, zoneID));
     console.info(
         "Controller #%d zone #%d deleted.",
         ctrllrID,
@@ -72,6 +124,7 @@ rNet.on("connected", () => {
     );
 })
 .on("new-source", (sourceID) => {
+    server.broadcast(new PacketS2CSourceName(sourceID, rNet.getSourceName(sourceID)));
     console.info(
         "Source #%d (%s) created.",
         sourceID,
@@ -79,6 +132,7 @@ rNet.on("connected", () => {
     );
 })
 .on("source-name", (sourceID) => {
+    server.broadcast(new PacketS2CSourceName(sourceID, rNet.getSourceName(sourceID)));
     console.info(
         "Source #%d renamed to %s.",
         sourceID,
@@ -86,12 +140,14 @@ rNet.on("connected", () => {
     );
 })
 .on("source-deleted", (sourceID) => {
+    server.broadcast(new PacketS2CSourceDeleted(sourceID));
     console.info(
         "Source #%d deleted.",
         sourceID
     );
 })
 .on("power", (zone, powered) => {
+    server.broadcast(new PacketS2CZonePower(zone.getControllerID(), zone.getZoneID(), powered));
     console.info(
         "Controller #%d zone #%d (%s) power set to %s",
         zone.getControllerID(),
@@ -101,6 +157,7 @@ rNet.on("connected", () => {
     );
 })
 .on("volume", (zone, volume) => {
+    server.broadcast(new PacketS2CZoneVolume(zone.getControllerID(), zone.getZoneID(), volume));
     console.info(
         "Controller #%d zone #%d (%s) volume set to %d",
         zone.getControllerID(),
@@ -110,6 +167,7 @@ rNet.on("connected", () => {
     );
 })
 .on("source", (zone, sourceID) => {
+    server.broadcast(new PacketS2CZoneSource(zone.getControllerID(), zone.getZoneID(), sourceID));
     console.info(
         "Controller #%d zone #%d (%s) source set to #%d (%s)",
         zone.getControllerID(),
@@ -120,6 +178,7 @@ rNet.on("connected", () => {
     );
 })
 .on("parameter", (zone, parameterID, value) => {
+    server.broadcast(new PacketS2CZoneParameter(zone.getControllerID(), zone.getZoneID(), parameterID, value));
     console.info(
         "Controller #%d Zone #%d (%s) parameter %d (%s) to %s",
         zone.getControllerID(),
@@ -175,7 +234,8 @@ vorpal
 /**
  * Zone data
  */
-vorpal
+//TODO
+/*vorpal
 .command("list zones", "Lists zones.")
 .action(function(args, callback) {
     console.log("CTRL\tZONE\tNAME")
@@ -190,7 +250,7 @@ vorpal
         }
     }
     callback();
-});
+});*/
 vorpal
 .command("create zone <cid> <id> <name>", "Creates a new zone.")
 .action(function(args, callback) {

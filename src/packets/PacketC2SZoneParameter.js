@@ -14,17 +14,39 @@ const parameterIsSigned = require("./parameterIsSigned");
  */
 class PacketC2SParameter extends PacketC2S {
     parseData() {
-        this.ctrllrID = this._buffer.readUInt8();
-        this.zoneID = this._buffer.readUInt8();
-        this.parameterID = this._buffer.readUInt8();
+        this._ctrllrID = this._buffer.readUInt8();
+        this._zoneID = this._buffer.readUInt8();
+        this._parameterID = this._buffer.readUInt8();
 
         if (parameterIsSigned(parameterID)) {
-            this.value = this._buffer.readInt8();
+            this._value = this._buffer.readInt8();
         }
         else {
-            this.value = this._buffer.readUInt8();
+            this._value = this._buffer.readUInt8();
         }
     }
+
+    getControllerID() {
+        return this._ctrllrID;
+    }
+
+    getZoneID() {
+        return this._zoneID;
+    }
+
+    getParameterID() {
+        return this._parameterID;
+    }
+
+    getValue() {
+        return this._value;
+    }
+
+    getID() {
+        return PacketC2SParameter.ID;
+    }
 }
+
+PacketC2SParameter.ID = 0x0B;
 
 module.exports = PacketC2SParameter;

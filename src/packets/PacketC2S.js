@@ -10,12 +10,12 @@ class PacketC2S {
             throw new TypeError("PacketC2S subclasses must implement parseData()");
         }
 
+        if (this.getID === undefined) {
+            throw new TypeError("PacketC2S subclasses must implement getID()");
+        }
+
         this._buffer = SmartBuffer.fromBuffer(data);
         this.parseData();
-    }
-
-    getID() {
-        return this.id;
     }
 }
 

@@ -12,10 +12,28 @@ const PacketC2S = require("./PacketC2S");
  */
 class PacketC2SZonePower extends PacketC2S {
     parseData() {
-        this.ctrllrID = this._buffer.readUInt8();
-        this.zoneID = this._buffer.readUInt8();
-        this.power = (this._buffer.readUInt8() == 1);
+        this._ctrllrID = this._buffer.readUInt8();
+        this._zoneID = this._buffer.readUInt8();
+        this._power = (this._buffer.readUInt8() == 1);
+    }
+
+    getControllerID() {
+        return this._ctrllrID;
+    }
+
+    getZoneID() {
+        return this._zoneID;
+    }
+
+    getPowered() {
+        return this._power;
+    }
+
+    getID() {
+        return PacketC2SZonePower.ID;
     }
 }
+
+PacketC2SZonePower.ID = 0x08;
 
 module.exports = PacketC2SZonePower;
