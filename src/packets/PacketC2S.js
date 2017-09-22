@@ -11,8 +11,6 @@ class PacketC2S {
         }
 
         this._buffer = SmartBuffer.fromBuffer(data);
-
-        this.id = this._buffer.readUInt8(); // First byte is always the id;
         this.parseData();
     }
 

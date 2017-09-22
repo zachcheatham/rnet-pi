@@ -10,8 +10,8 @@ const PacketC2SZonePower = require("./PacketC2SZonePower");
 const PacketC2SZoneSource = require("./PacketC2SZoneSource");
 const PacketC2SZoneVolume = require("./PacketC2SZoneVolume");
 
-module.exports = function(data) {
-    switch (data[0]) {
+module.exports = function(packetType, data) {
+    switch (packetType) {
         case 0x01:
             return new PacketC2SName(data);
         case 0x03:

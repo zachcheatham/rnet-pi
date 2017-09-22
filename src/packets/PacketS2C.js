@@ -15,10 +15,9 @@ class PacketS2C {
     }
 
     getBuffer() {
+        this._buffer.writeUInt8(this._buffer.length - 1, 1);
         return this._buffer.toBuffer();
     }
 }
 
 module.exports = PacketS2C;
-
-//return((0xff - b + 1) * -1);
