@@ -1,13 +1,24 @@
 const EventEmitter = require("events");
 const net = require("net");
+const mdns = require("mdns");
+const ip = require("ip");
 
 const Client = require("./client");
 
 class Server extends EventEmitter {
-    constructor(port) {
+    constructor(name, host, port) {
         super();
 
+        this._name = name;
         this._port = port;
+
+        if (!host) {
+            this._host = ip.address();
+        }
+        else {
+            this._host = host;
+        }
+
         this._server = net.createServer();
 
         this._server.on("error", (err) => {
@@ -20,7 +31,10 @@ class Server extends EventEmitter {
     }
 
     start() {
-        this._server.listen(this._port, () => {
+        this._server.listen(this._port, this._host, () => {
+            this._service = mdns.createAdvertisement(mdns.tcp("rnet"), this._port, {name: this._name});
+            this._service.start();
+
             this.emit("start");
         });
     }
@@ -30,12 +44,12 @@ class Server extends EventEmitter {
     }
 
     stop() {
-
+        this._service.destroy();
     }
 
     getAddress() {
         const addr = this._server.address();
-        return addr.address + addr.port;
+        return addr.address + ":" + addr.port;
     }
 
     _handleConnection(conn) {

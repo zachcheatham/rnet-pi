@@ -12,7 +12,8 @@ console.log("");
 // Modify console.log to include timestamps
 require("console-stamp")(console, "HH:MM:ss");
 
-const server = new Server(3000)
+// TODO Configuration
+const server = new Server("Russound", null, 3000);
 const rNet = new RNet();
 
 // Setup server
