@@ -57,6 +57,10 @@ class Server extends EventEmitter {
         return addr.address + ":" + addr.port;
     }
 
+    getClientCount() {
+        return this._clients.length;
+    }
+
     _handleConnection(conn) {
         const client = new Client(conn)
         .once("close", () => {

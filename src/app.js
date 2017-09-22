@@ -62,10 +62,14 @@ server.once("start", function() {
         }
     }
 
-    console.log("E");
+    rNet.setAutoUpdate(true);
 })
 .on("client_disconnect", function(client) {
     console.log("Client %s disconnected.", client.getName());
+
+    if (server.getClientCount == 0) {
+        rNet.setAutoUpdate(false);
+    }
 })
 .on("packet", function(client, packet) {
     switch (packet.getID())
