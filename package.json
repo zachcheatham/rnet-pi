@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Proxy between smart devices and RNet enabled amps",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "start": "forever start src/app.js"
+  },
   "author": "zachcheatham",
   "license": "ISC",
   "dependencies": {
