@@ -2,6 +2,8 @@ const vorpal = require("vorpal")();
 
 const Server = require("./server");
 const RNet = require("./rnet/rnet");
+const config = require("./configuration");
+
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
 const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
 const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
@@ -23,9 +25,11 @@ console.log("");
 // Modify console.log to include timestamps
 require("console-stamp")(console, "HH:MM:ss");
 
-// TODO Configuration
-const server = new Server("Russound", null, 3000);
-const rNet = new RNet();
+config.read();
+config.write();
+
+const server = new Server(config.get("serverName"), config.get("serverHost"), config.get("serverPort"));
+const rNet = new RNet(config.get("serialDevice"));
 
 // Setup server
 server.once("start", function() {

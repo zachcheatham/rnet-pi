@@ -16,9 +16,10 @@ const ZoneInfoPacket = require("./packets/ZoneInfoPacket");
 const Zone = require("./zone");
 
 class RNet extends EventEmitter {
-    constructor() {
+    constructor(device) {
         super();
 
+        this._device = device
         this._zones = [];
         this._sources = [];
         this._autoUpdating = false;
@@ -31,9 +32,8 @@ class RNet extends EventEmitter {
     connect() {
         // TODO Automatically continue to try to connect
         // TODO This autodetect usb serial
-        this._serialPort = new SerialPort("/dev/tty-usbserial1", {
+        this._serialPort = new SerialPort(this._device, {
             baudRate: 19200,
-            autoOpen: false // TODO Remove after dry debugging
         })
         .on("open", () => {
             this._connected = true;
