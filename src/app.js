@@ -2,7 +2,9 @@ const vorpal = require("vorpal")();
 
 const Server = require("./server");
 const RNet = require("./rnet/rnet");
+const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
 const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
+const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
 const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
 const PacketS2CRNetStatus = require("./packets/PacketS2CRNetStatus");
 const PacketS2CSourceName = require("./packets/PacketS2CSourceName");
@@ -74,10 +76,21 @@ server.once("start", function() {
 .on("packet", function(client, packet) {
     switch (packet.getID())
     {
+        case PacketC2SAllPower.ID:
+        {
+            rNet.setAllPower(packet.getPowered());
+            break;
+        }
         case PacketC2SZonePower.ID:
         {
             const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
             zone.setPower(packet.getPowered());
+            break;
+        }
+        case PacketC2SZoneSource.ID:
+        {
+            const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
+            zone.setSourceID(packet.getSourceID());
             break;
         }
         case PacketC2SZoneVolume.ID:
