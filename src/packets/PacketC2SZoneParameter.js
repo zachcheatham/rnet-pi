@@ -18,11 +18,22 @@ class PacketC2SParameter extends PacketC2S {
         this._zoneID = this._buffer.readUInt8();
         this._parameterID = this._buffer.readUInt8();
 
-        if (parameterIsSigned(parameterID)) {
+        if (parameterIsSigned(this._parameterID)) {
             this._value = this._buffer.readInt8();
         }
         else {
-            this._value = this._buffer.readUInt8();
+            switch (this._parameterID)
+            {
+                case 2: // Loudness
+                case 6: // Do Not Disturb
+                case 8: // Front A/V Enable
+                    this._value = (this._buffer.readUInt8() == 1);
+                    console.log(this._value);
+                    break;
+                default:
+                    this._value = this._buffer.readUInt8();
+                    break;
+            }
         }
     }
 
@@ -38,7 +49,7 @@ class PacketC2SParameter extends PacketC2S {
         return this._parameterID;
     }
 
-    getValue() {
+    getParameterValue() {
         return this._value;
     }
 

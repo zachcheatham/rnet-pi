@@ -25,7 +25,17 @@ class PacketS2CZoneParameter extends PacketS2C {
             this._buffer.writeInt8(value);
         }
         else {
-            this._buffer.writeUInt8(value);
+            switch (this._parameterID)
+            {
+                case 2: // Loudness
+                case 6: // Do Not Disturb
+                case 8: // Front A/V Enable
+                    this._buffer.writeUInt8(value === true ? 1 : 0);
+                    break;
+                default:
+                    this._buffer.writeUInt8(value);
+                    break;
+            }
         }
     }
 

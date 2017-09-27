@@ -42,10 +42,7 @@ module.exports = class SetParameterPacket extends DataPacket {
                     throw new Error("Parameter \"" + parameterIDToString(parameterID) + "\" out of range (0 - 2) while constructing SetParameterPacket");
                 break;
             default:
-                if (type(value) != type(true))
-                    throw new Error("Parameter \"" + parameterIDToString(parameterID) + "\" not true nor false when constructing SetParameterPacket");
-                else
-                    value = value ? 1 : 0;
+                    value = value === true ? 1 : 0;
         }
 
         this.data = Buffer.alloc(1);

@@ -3,6 +3,7 @@ const RNet = require("./rnet/rnet");
 const config = require("./configuration");
 
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
+const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
 const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
 const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
 const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
@@ -67,7 +68,7 @@ server.once("start", function() {
 .on("client_disconnect", function(client) {
     console.log("Client %s disconnected.", client.getName());
 
-    if (server.getClientCount == 0) {
+    if (server.getClientCount() == 0) {
         rNet.setAutoUpdate(false);
     }
 })
@@ -77,6 +78,12 @@ server.once("start", function() {
         case PacketC2SAllPower.ID:
         {
             rNet.setAllPower(packet.getPowered());
+            break;
+        }
+        case PacketC2SZoneParameter.ID:
+        {
+            const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
+            zone.setParameter(packet.getParameterID(), packet.getParameterValue());
             break;
         }
         case PacketC2SZonePower.ID:
