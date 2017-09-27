@@ -9,13 +9,10 @@
   "author": "zachcheatham",
   "license": "ISC",
   "dependencies": {
-    "colors": "^1.1.2",
     "console-stamp": "^0.2.5",
-    "forever": "^0.15.3",
     "ip": "^1.1.5",
     "mdns": "^2.3.3",
     "serialport": "^5.0.0",
-    "smart-buffer": "^3.0.3",
-    "vorpal": "^1.12.0"
+    "smart-buffer": "^3.0.3"
   }
 }
