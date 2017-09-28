@@ -2,7 +2,7 @@ const PacketC2S = require("./PacketC2S");
 
 /**
  * Client -> Server
- * ID = 0x01
+ * ID = 0x04
  * Zone Name
  * Renames a zone
  * Data:
@@ -34,6 +34,6 @@ class PacketC2SZoneName extends PacketC2S {
     }
 }
 
-PacketC2SZoneName.ID = 0x01;
+PacketC2SZoneName.ID = 0x04;
 
 module.exports = PacketC2SZoneName;

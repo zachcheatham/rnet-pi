@@ -3,6 +3,8 @@ const RNet = require("./rnet/rnet");
 const config = require("./configuration");
 
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
+const PacketC2SDeleteZone = require("./packets/PacketC2SDeleteZone");
+const PacketC2SZoneName = require("./packets/PacketC2SZoneName");
 const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
 const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
 const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
@@ -80,28 +82,54 @@ server.once("start", function() {
             rNet.setAllPower(packet.getPowered());
             break;
         }
+        case PacketC2SDeleteZone.ID:
+        {
+            rNet.deleteZone(packet.getControllerID(), packet.getZoneID());
+            break;
+        }
+        case PacketC2SZoneName.ID:
+        {
+            const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
+            if (zone)
+                zone.setName(packet.getName());
+            else
+                rNet.createZone(packet.getControllerID(), packet.getZoneID(), packet.getName());
+            break;
+        }
         case PacketC2SZoneParameter.ID:
         {
             const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
-            zone.setParameter(packet.getParameterID(), packet.getParameterValue());
+            if (zone != null)
+                zone.setParameter(packet.getParameterID(), packet.getParameterValue());
+            else
+                console.warn("Recieved request to set parameter of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             break;
         }
         case PacketC2SZonePower.ID:
         {
             const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
-            zone.setPower(packet.getPowered());
+            if (zone != null)
+                zone.setPower(packet.getPowered());
+            else
+                console.warn("Recieved request to set power of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             break;
         }
         case PacketC2SZoneSource.ID:
         {
             const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
-            zone.setSourceID(packet.getSourceID());
+            if (zone != null)
+                zone.setSourceID(packet.getSourceID());
+            else
+                console.warn("Recieved request to set source of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             break;
         }
         case PacketC2SZoneVolume.ID:
         {
             const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
-            zone.setVolume(packet.getVolume());
+            if (zone != null)
+                zone.setVolume(packet.getVolume());
+            else
+                console.warn("Recieved request to set volume of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             break;
         }
     }
@@ -120,7 +148,7 @@ rNet.on("connected", () => {
     process.exit(2);
 })
 .on("new-zone", (zone) => {
-    server.broadcast(new PacketS2CZoneName(zone.getZoneID(), zone.getControllerID(), zone.getName()));
+    server.broadcast(new PacketS2CZoneName(zone.getControllerID(), zone.getZoneID(), zone.getName()));
     console.info(
         "Controller #%d zone #%d (%s) created.",
         zone.getControllerID(),

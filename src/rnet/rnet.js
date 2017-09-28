@@ -181,17 +181,20 @@ class RNet extends EventEmitter {
     }
 
     deleteZone(ctrllrID, zoneID) {
-        // TODO Check if zone exists
-        this._zones[ctrllrID][zoneID].removeAllListeners();
+        if (this._zones[ctrllrID] && this._zones[ctrllrID][zoneID])
+        {
+            this._zones[ctrllrID][zoneID].removeAllListeners();
 
-        delete this._zones[ctrllrID][zoneID];
-        if (this._zones[ctrllrID].length == 0) {
-            delete this._zones[ctrllrID];
+            delete this._zones[ctrllrID][zoneID];
+            if (this._zones[ctrllrID].length == 0) {
+                delete this._zones[ctrllrID];
+            }
+
+            this.writeConfiguration();
+            this.emit("zone-deleted", ctrllrID, zoneID);
+            return true;
         }
-
-        this.writeConfiguration();
-        this.emit("zone-deleted", ctrllrID, zoneID);
-        return true;
+        return false;
     }
 
     getZone(ctrllrID, zoneID) {
