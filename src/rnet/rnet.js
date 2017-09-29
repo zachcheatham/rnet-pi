@@ -281,11 +281,7 @@ class RNet extends EventEmitter {
             if (enabled) {
                 this._autoUpdateInterval = setInterval(() => {
                     this.requestAllZoneInfo();
-                }, 60000);
-
-                this._autoUpdateInterval = setInterval(() => {
-                    this.requestAllZoneBasicInfo();
-                }, 10000);
+                }, 30000);
             }
             else {
                 clearInterval(this._autoUpdateInterval);
@@ -294,28 +290,10 @@ class RNet extends EventEmitter {
         }
     }
 
-    requestAllZoneBasicInfo() {
-        for (var ctrllrID in this._zones) {
-            for (var zoneID in this._zones[ctrllrID]) {
-                if (this._zones[ctrllrID][zoneID].getPower()) {
-                    this._zones[ctrllrID][zoneID].requestBasicInfo();
-                }
-                else {
-                    this._zones[ctrllrID][zoneID].requestPowered();
-                }
-            }
-        }
-    }
-
     requestAllZoneInfo(forceAll=false) {
         for (var ctrllrID in this._zones) {
             for (var zoneID in this._zones[ctrllrID]) {
-                if (this._zones[ctrllrID][zoneID].getPower()) {
-                    this._zones[ctrllrID][zoneID].requestInfo();
-                }
-                else if (forceAll) {
-                    this._zones[ctrllrID][zoneID].requestPowered();
-                }
+                this._zones[ctrllrID][zoneID].requestInfo();
             }
         }
     }

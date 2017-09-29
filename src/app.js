@@ -73,7 +73,7 @@ server.once("start", function() {
 .on("client_disconnect", function(client) {
     console.log("Client %s disconnected.", client.getName());
 
-    if (server.getClientCount() == 0) {
+    if (server.getClientCount() - 1 == 0) {
         rNet.setAutoUpdate(false);
     }
 })

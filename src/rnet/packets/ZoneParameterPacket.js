@@ -21,7 +21,7 @@ class ZoneParameterPacket extends DataPacket {
     getValue() {
         const byte = this.data.readUInt8(0);
 
-        switch (parameterID) {
+        switch (this.getParameterID()) {
             case ExtraZoneParam.BASS:
             case ExtraZoneParam.TREBLE:
             case ExtraZoneParam.BALANCE:

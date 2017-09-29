@@ -1,6 +1,10 @@
 const RNetPacket = require("./RNetPacket");
 const DataPacket = require("./DataPacket");
 const ZoneInfoPacket = require("./ZoneInfoPacket");
+const ZonePowerPacket = require("./ZonePowerPacket");
+const ZoneSourcePacket = require("./ZoneSourcePacket");
+const ZoneVolumePacket = require("./ZoneVolumePacket");
+const ZoneParameterPacket = require("./ZoneParameterPacket");
 
 module.exports = {
     build: function(buffer) {

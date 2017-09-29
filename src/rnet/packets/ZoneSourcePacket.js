@@ -1,6 +1,6 @@
 const DataPacket = require("./DataPacket");
 
-class ZoneVolumePacket extends DataPacket {
+class ZoneSourcePacket extends DataPacket {
     requiresHandshake() {
         return true;
     }
@@ -13,20 +13,20 @@ class ZoneVolumePacket extends DataPacket {
         return this.sourcePath[2];
     }
 
-    getVolume() {
-        return this.data.readUInt8(0) * 2;
+    getSourceID() {
+        return this.data.readUInt8(0);
     }
 }
 
-ZoneVolumePacket.fromPacket = function(dataPacket) {
+ZoneSourcePacket.fromPacket = function(dataPacket) {
     if (dataPacket instanceof DataPacket) {
-        const zoneVolumePacket = new ZoneVolumePacket();
-        dataPacket.copyToPacket(zoneVolumePacket);
-        return zoneVolumePacket;
+        const zoneSourcePacket = new ZoneSourcePacket();
+        dataPacket.copyToPacket(zoneSourcePacket);
+        return zoneSourcePacket;
     }
     else {
-        throw new TypeError("Cannot create ZoneVolumePacket with anything other than a DataPacket");
+        throw new TypeError("Cannot create ZoneSourcePacket with anything other than a DataPacket");
     }
 }
 
-module.exports = ZoneVolumePacket;
+module.exports = ZoneSourcePacket;
