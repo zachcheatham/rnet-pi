@@ -53,6 +53,12 @@ class Zone extends EventEmitter {
         if (powered != this._power) {
             this._power = powered;
             this.emit("power", powered, rNetTriggered);
+
+            if (powered) {
+                setTimeout(() => {
+                    this.requestInfo();
+                }, 1000);
+            }
         }
         return true;
     }

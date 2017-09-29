@@ -110,74 +110,77 @@ class RNet extends EventEmitter {
     }
 
     createZone(ctrllrID, zoneID, name, writeConfig=true) {
-        // TODO Prevent overriding existing zone
-        const zone = new Zone(this, ctrllrID, zoneID);
-        zone.setName(name);
+        if (this._zones[ctrllrID] == null || this._zones[ctrllrID][zoneID] == null)
+        {
+            const zone = new Zone(this, ctrllrID, zoneID);
+            zone.setName(name);
 
-        if (!this._zones[ctrllrID]) {
-            this._zones[ctrllrID] = [];
+            if (!this._zones[ctrllrID]) {
+                this._zones[ctrllrID] = [];
+            }
+            this._zones[ctrllrID][zoneID] = zone;
+
+            if (writeConfig) {
+                this.writeConfiguration();
+            }
+
+            zone.on("name", (name) => {
+                this.emit("zone-name", zone, name);
+            })
+            .on("power", (powered, rNetTriggered) => {
+                if (!rNetTriggered) {
+                    this.sendData(
+                        new SetPowerPacket(
+                            zone.getControllerID(),
+                            zone.getZoneID(),
+                            powered
+                        )
+                    );
+                }
+                this.emit("power", zone, powered);
+            })
+            .on("volume", (volume, rNetTriggered) => {
+                if (!rNetTriggered) {
+                    this.sendData(
+                        new SetVolumePacket(
+                            zone.getControllerID(),
+                            zone.getZoneID(),
+                            volume
+                        )
+                    );
+                }
+                this.emit("volume", zone, volume);
+            })
+            .on("source", (sourceID, rNetTriggered) => {
+                if (!rNetTriggered) {
+                    this.sendData(
+                        new SetSourcePacket(
+                            zone.getControllerID(),
+                            zone.getZoneID(),
+                            sourceID
+                        )
+                    );
+                }
+                this.emit("source", zone, sourceID);
+            })
+            .on("parameter", (parameterID, value, rNetTriggered) => {
+                if (!rNetTriggered) {
+                    this.sendData(
+                        new SetParameterPacket(
+                            zone.getControllerID(),
+                            zone.getZoneID(),
+                            parameterID,
+                            value
+                        )
+                    );
+                }
+                this.emit("parameter", zone, parameterID, value);
+            });
+
+            this.emit("new-zone", zone);
+            return true;
         }
-        this._zones[ctrllrID][zoneID] = zone;
-
-        if (writeConfig) {
-            this.writeConfiguration();
-        }
-
-        zone.on("name", (name) => {
-            this.emit("zone-name", zone, name);
-        })
-        .on("power", (powered, rNetTriggered) => {
-            if (!rNetTriggered) {
-                this.sendData(
-                    new SetPowerPacket(
-                        zone.getControllerID(),
-                        zone.getZoneID(),
-                        powered
-                    )
-                );
-            }
-            this.emit("power", zone, powered);
-        })
-        .on("volume", (volume, rNetTriggered) => {
-            if (!rNetTriggered) {
-                this.sendData(
-                    new SetVolumePacket(
-                        zone.getControllerID(),
-                        zone.getZoneID(),
-                        volume
-                    )
-                );
-            }
-            this.emit("volume", zone, volume);
-        })
-        .on("source", (sourceID, rNetTriggered) => {
-            if (!rNetTriggered) {
-                this.sendData(
-                    new SetSourcePacket(
-                        zone.getControllerID(),
-                        zone.getZoneID(),
-                        sourceID
-                    )
-                );
-            }
-            this.emit("source", zone, sourceID);
-        })
-        .on("parameter", (parameterID, value, rNetTriggered) => {
-            if (!rNetTriggered) {
-                this.sendData(
-                    new SetParameterPacket(
-                        zone.getControllerID(),
-                        zone.getZoneID(),
-                        parameterID,
-                        value
-                    )
-                );
-            }
-            this.emit("parameter", zone, parameterID, value);
-        });
-
-        this.emit("new-zone", zone);
-        return true;
+        return false;
     }
 
     deleteZone(ctrllrID, zoneID) {
@@ -285,7 +288,7 @@ class RNet extends EventEmitter {
     requestAllZoneInfo() {
         for (var ctrllrID in this._zones) {
             for (var zoneID in this._zones[ctrllrID]) {
-                this.sendData(new RequestDataPacket(ctrllrID, zoneID, RequestDataPacket.DATA_TYPE.ZONE_INFO));
+                this._zones[ctrllrID][zoneID].requestInfo();
             }
         }
     }
@@ -295,7 +298,7 @@ class RNet extends EventEmitter {
 
         setTimeout(() => {
             this.requestAllZoneInfo();
-        }, 5000);
+        }, 1000);
     }
 
     isConnected() {
