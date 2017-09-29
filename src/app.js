@@ -65,6 +65,9 @@ server.once("start", function() {
         }
     }
 
+    if (server.getClientCount() == 1) { // First client connected
+        rNet.requestAllZoneInfo(true);
+    }
     rNet.setAutoUpdate(true);
 })
 .on("client_disconnect", function(client) {

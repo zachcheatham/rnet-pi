@@ -13,6 +13,10 @@ const SetPowerPacket = require("./packets/SetPowerPacket");
 const SetSourcePacket = require("./packets/SetSourcePacket");
 const SetVolumePacket = require("./packets/SetVolumePacket");
 const ZoneInfoPacket = require("./packets/ZoneInfoPacket");
+const ZoneParameterPacket = require("./packets/ZoneParameterPacket");
+const ZonePowerPacket = require("./packets/ZonePowerPacket");
+const ZoneSourcePacket = require("./packets/ZoneSourcePacket");
+const ZoneVolumePacket = require("./packets/ZoneVolumePacket");
 const Zone = require("./zone");
 
 class RNet extends EventEmitter {
@@ -38,7 +42,7 @@ class RNet extends EventEmitter {
         .on("open", () => {
             this._connected = true;
             this.emit("connected");
-            this.requestAllZoneInfo();
+            this.requestAllZoneInfo(true);
         })
         .on("close", () => {
             // TODO Start auto-reconnect
@@ -126,6 +130,7 @@ class RNet extends EventEmitter {
 
             zone.on("name", (name) => {
                 this.emit("zone-name", zone, name);
+                this.writeConfiguration();
             })
             .on("power", (powered, rNetTriggered) => {
                 if (!rNetTriggered) {
@@ -276,7 +281,11 @@ class RNet extends EventEmitter {
             if (enabled) {
                 this._autoUpdateInterval = setInterval(() => {
                     this.requestAllZoneInfo();
-                }, 30000);
+                }, 60000);
+
+                this._autoUpdateInterval = setInterval(() => {
+                    this.requestAllZoneBasicInfo();
+                }, 10000);
             }
             else {
                 clearInterval(this._autoUpdateInterval);
@@ -285,10 +294,28 @@ class RNet extends EventEmitter {
         }
     }
 
-    requestAllZoneInfo() {
+    requestAllZoneBasicInfo() {
         for (var ctrllrID in this._zones) {
             for (var zoneID in this._zones[ctrllrID]) {
-                this._zones[ctrllrID][zoneID].requestInfo();
+                if (this._zones[ctrllrID][zoneID].getPower()) {
+                    this._zones[ctrllrID][zoneID].requestBasicInfo();
+                }
+                else {
+                    this._zones[ctrllrID][zoneID].requestPowered();
+                }
+            }
+        }
+    }
+
+    requestAllZoneInfo(forceAll=false) {
+        for (var ctrllrID in this._zones) {
+            for (var zoneID in this._zones[ctrllrID]) {
+                if (this._zones[ctrllrID][zoneID].getPower()) {
+                    this._zones[ctrllrID][zoneID].requestInfo();
+                }
+                else if (forceAll) {
+                    this._zones[ctrllrID][zoneID].requestPowered();
+                }
             }
         }
     }
@@ -297,7 +324,7 @@ class RNet extends EventEmitter {
         this.sendData(new SetAllPowerPacket(power));
 
         setTimeout(() => {
-            this.requestAllZoneInfo();
+            this.requestAllZoneInfo(true);
         }, 1000);
     }
 
@@ -380,7 +407,43 @@ class RNet extends EventEmitter {
                 zone.setParameter(ExtraZoneParam.DO_NOT_DISTURB, packet.getDoNotDisturbMode(), true);
             }
             else {
-                console.warn("Received ZoneInfo for unknown zone (%d.%d)", packet.getControllerID(), packet.getZoneID());
+                console.warn("Received ZoneInfoPacket for unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+            }
+        }
+        else if (packet instanceof ZonePowerPacket) {
+            const zone = this.getZone(packet.getControllerID(), packet.getZoneID());
+            if (zone) {
+                zone.setPower(packet.getPower(), true);
+            }
+            else {
+                console.warn("Received ZonePowerPacket for unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+            }
+        }
+        else if (packet instanceof ZoneSourcePacket) {
+            const zone = this.getZone(packet.getControllerID(), packet.getZoneID());
+            if (zone) {
+                zone.setSourceID(packet.getSourceID(), true);
+            }
+            else {
+                console.warn("Received ZoneSourcePacket for unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+            }
+        }
+        else if (packet instanceof ZoneVolumePacket) {
+            const zone = this.getZone(packet.getControllerID(), packet.getZoneID());
+            if (zone) {
+                zone.setVolume(packet.getVolume(), true);
+            }
+            else {
+                console.warn("Received ZoneVolumePacket for unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+            }
+        }
+        else if (packet instanceof ZoneParameterPacket) {
+            const zone = this.getZone(packet.getControllerID(), packet.getZoneID());
+            if (zone) {
+                zone.setParameter(packet.getParameterID(), packet.getValue(), true);
+            }
+            else {
+                console.warn("Received ZoneParameterPacket for unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             }
         }
     }

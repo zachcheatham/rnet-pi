@@ -20,11 +20,26 @@ module.exports = {
             if (
                 packet.sourcePath.length == 4 &&
                 packet.sourcePath[0] == 0x02 && // Root Menu
-                packet.sourcePath[1] == 0x00 && // Run Mode
-                packet.sourcePath[3] == 0x07 // Zone Info
+                packet.sourcePath[1] == 0x00 // Run Mode
             ) {
-                var packet =  ZoneInfoPacket.fromPacket(packet);
-                return packet;
+                switch (packet.sourcePath[3]) {
+                    case 0x07:
+                        return ZoneInfoPacket.fromPacket(packet);
+                    case 0x06:
+                        return ZonePowerPacket.fromPacket(packet);
+                    case 0x02:
+                        return ZoneSourcePacket.fromPacket(packet);
+                    case 0x01:
+                        return ZoneVolumePacket.fromPacket(packet);
+                }
+            }
+            else if (
+                packet.sourcePath.length == 5 &&
+                packet.sourcePath[0] == 0x02 && // Root Menu
+                packet.sourcePath[1] == 0x00 &&// Run Mode
+                packet.sourcePath[3] == 0x00 // User Parameters
+            ) {
+                return ZoneParameterPacket.fromPacket(packet);
             }
         }
 

@@ -15,7 +15,6 @@ class PacketS2C {
     }
 
     getBuffer() {
-        // TODO Only allow this to happen once
         this._buffer.writeUInt8(this._buffer.length - 1, 1);
         return this._buffer.toBuffer();
     }
