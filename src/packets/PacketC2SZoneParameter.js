@@ -27,8 +27,7 @@ class PacketC2SParameter extends PacketC2S {
                 case 2: // Loudness
                 case 6: // Do Not Disturb
                 case 8: // Front A/V Enable
-                    this._value = (this._buffer.readUInt8() == 1);
-                    console.log(this._value);
+                    this._value = (this._buffer.readUInt8() == 0x01);
                     break;
                 default:
                     this._value = this._buffer.readUInt8();

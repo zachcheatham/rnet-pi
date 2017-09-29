@@ -160,7 +160,7 @@ rNet.on("connected", () => {
     );
 })
 .on("zone-name", (zone, name) => {
-    server.broadcast(new PacketS2CZoneName(zone.getZoneID(), zone.getControllerID(), name));
+    server.broadcast(new PacketS2CZoneName(zone.getControllerID(), zone.getZoneID(), name));
     console.info(
         "Controller #%d zone #%d renamed to %s.",
         zone.getControllerID(),

@@ -2,6 +2,7 @@ const EventEmitter = require("events");
 
 const ExtraZoneParam = require("./extraZoneParam");
 const RequestDataPacket = require("./packets/RequestDataPacket");
+const RequestParameterPacket = require("./packets/RequestParameterPacket");
 
 class Zone extends EventEmitter {
     constructor(rnet, ctrllrID, zoneID) {

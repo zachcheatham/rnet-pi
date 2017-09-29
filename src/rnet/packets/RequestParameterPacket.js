@@ -1,7 +1,7 @@
-const RNetPacket = require("./RNetPacket");
+const RequestDataPacket = require("./RequestDataPacket");
 const SmartBuffer = require("smart-buffer").SmartBuffer;
 
-class RequestParameterPacket extends RNetPacket {
+class RequestParameterPacket extends RequestDataPacket {
     constructor(controllerID, zoneID, parameterID) {
         super();
 
@@ -14,3 +14,5 @@ class RequestParameterPacket extends RNetPacket {
         ]
     }
 }
+
+module.exports = RequestParameterPacket;
