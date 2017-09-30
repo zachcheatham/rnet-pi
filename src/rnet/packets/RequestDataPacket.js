@@ -35,6 +35,10 @@ class RequestDataPacket extends RNetPacket {
 
         return buffer.toBuffer();
     }
+
+    causesResponseWithHandshake() {
+        return true;
+    }
 }
 
 RequestDataPacket.DATA_TYPE = {

@@ -28,6 +28,8 @@ class RNet extends EventEmitter {
         this._sources = [];
         this._autoUpdating = false;
         this._connected = false;
+        this._waitingForHandshake = false;
+        this._packetQueue = [];
 
         this.readConfiguration();
         this.writeConfiguration();
@@ -38,6 +40,7 @@ class RNet extends EventEmitter {
         // TODO This autodetect usb serial
         this._serialPort = new SerialPort(this._device, {
             baudRate: 19200,
+            autoOpen: false,
         })
         .on("open", () => {
             this._connected = true;
@@ -278,6 +281,8 @@ class RNet extends EventEmitter {
         if (this._autoUpdating != enabled) {
             this._autoUpdating = enabled;
 
+            console.log("DEBUG: RNet auto-update set to " + enabled);
+
             if (enabled) {
                 this._autoUpdateInterval = setInterval(() => {
                     this.requestAllZoneInfo();
@@ -310,8 +315,47 @@ class RNet extends EventEmitter {
         return this._connected;
     }
 
-    sendData(packet) {
-        this._serialPort.write(packet.getBuffer());
+    sendData(packet, queueLoop=false) {
+        if (packet instanceof HandshakePacket) {
+            this._serialPort.write(packet.getBuffer());
+            console.log("DEBUG: Sent handshake packet to RNet.");
+
+            if (!this._waitingForHandshake) {
+                console.warn("Unexpectedly sent a handshake packet!");
+            }
+            else {
+                this._waitingForHandshake = false;
+                clearTimeout(this._waitingForHandshakeTimeout);
+            }
+
+            if (this._packetQueue.length > 0) {
+                this.sendData(this._packetQueue.shift(), true);
+            }
+        }
+        else if (this._waitingForHandshake || (!queueLoop && this._packetQueue.length > 0)) {
+            console.log("DEBUG: Queued packet while expecting to perform a handshake.");
+            this._packetQueue.push(packet);
+        }
+        else {
+            this._serialPort.write(packet.getBuffer());
+            console.log("DEBUG: Sent packet " + packet.constructor.name + " to RNet.");
+
+            if (packet.causesResponseWithHandshake()) {
+                console.log("DEBUG: Now expecting to perform handshake.");
+                this._waitingForHandshake = true;
+                this._waitingForHandshakeTimeout = setTimeout(() => {
+                    console.warn("Waited for expected handshake for too long. Continuing...");
+                    this._waitingForHandshake = false;
+                    if (this._packetQueue.length > 0) {
+                        this.sendData(this._packetQueue.shift(), true);
+                    }
+                }, 3000);
+            }
+
+            if (!this._waitingForHandshake && this._packetQueue.length > 0) {
+                this.sendData(this._packetQueue.shift(), true);
+            }
+        }
     }
 
     _handleData(data) {
@@ -367,6 +411,8 @@ class RNet extends EventEmitter {
     }
 
     _receivedRNetPacket(packet) {
+        console.log("DEBUG: Received packet " + packet.constructor.name + " from RNet.");
+
         if (packet.requiresHandshake()) {
             this.sendData(new HandshakePacket(packet.sourceControllerID, 2));
         }

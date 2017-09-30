@@ -41,7 +41,7 @@ class Server extends EventEmitter {
     }
 
     broadcast(packet) {
-        console.info("DEBUG: Sending packet " + packet.constructor.name + " to everyone");
+        //console.info("DEBUG: Sending packet " + packet.constructor.name + " to everyone");
         const buffer = packet.getBuffer();
         for (let client of this._clients) {
             client.sendBuffer(buffer);

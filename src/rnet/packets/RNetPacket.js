@@ -42,6 +42,10 @@ class RNetPacket {
         return false;
     }
 
+    causesResponseWithHandshake() {
+        return false;
+    }
+
     calculateChecksum(buffer) {
         const totalBytes = buffer.length;
         var byteSum = 0;

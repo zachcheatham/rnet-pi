@@ -34,7 +34,7 @@ class Client extends EventEmitter {
     }
 
     send(packet) {
-        console.info("DEBUG: Sending packet " + packet.constructor.name + " to " + this.getName());
+        //console.info("DEBUG: Sending packet " + packet.constructor.name + " to " + this.getName());
         this._connection.write(packet.getBuffer());
     }
 
@@ -89,7 +89,7 @@ class Client extends EventEmitter {
         const packet = createPacket(packetType, data);
 
         if (packet !== undefined) {
-            console.info("DEBUG: Recieved packet " + packet.constructor.name + " from " + this.getName());
+            //console.info("DEBUG: Recieved packet " + packet.constructor.name + " from " + this.getName());
 
             if (packet.getID() == PacketC2SName.ID) {
                 this._name = packet.getName();

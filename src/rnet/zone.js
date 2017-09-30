@@ -141,13 +141,6 @@ class Zone extends EventEmitter {
 
     requestInfo() {
         this._rNet.sendData(new RequestDataPacket(this._ctrllrID, this._zoneID, RequestDataPacket.DATA_TYPE.ZONE_INFO));
-
-        // The following are not in the response to the above packet.
-        setTimeout(() => {
-            this._rNet.sendData(new RequestParameterPacket(this._ctrllrID, this._zoneID, ExtraZoneParam.TURN_ON_VOLUME));
-            //this._rNet.sendData(new RequestParameterPacket(this._ctrllrID, this._zoneID, ExtraZoneParam.BACKGROUND_COLOR));
-            //this._rNet.sendData(new RequestParameterPacket(this._ctrllrID, this._zoneID, ExtraZoneParam.FRONT_AV_ENABLE));
-        }, ((this._zoneID + 1) * 1000) / 2);
     }
 
     requestBasicInfo() {
