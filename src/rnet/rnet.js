@@ -40,7 +40,6 @@ class RNet extends EventEmitter {
         // TODO This autodetect usb serial
         this._serialPort = new SerialPort(this._device, {
             baudRate: 19200,
-            autoOpen: false,
         })
         .on("open", () => {
             this._connected = true;
