@@ -64,14 +64,14 @@ class Server extends EventEmitter {
     _handleConnection(conn) {
         const client = new Client(conn)
         .once("close", () => {
-            if (client.isNamed()) {
+            if (client.isSubscribed()) {
                 this.emit("client_disconnect", client);
 
                 let i = this._clients.indexOf(client);
                 this._clients.splice(i, 1);
             }
         })
-        .once("named", () => {
+        .once("subscribed", () => {
             // Ready to tell the world!
             this.emit("client_connected", client);
             this._clients.push(client);
@@ -79,8 +79,6 @@ class Server extends EventEmitter {
         .on("packet", (packet) => {
             this.emit("packet", client, packet);
         });
-
-        client.requestName();
     }
 }
 

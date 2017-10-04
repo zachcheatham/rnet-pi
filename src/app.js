@@ -13,6 +13,7 @@ const PacketS2CRNetStatus = require("./packets/PacketS2CRNetStatus");
 const PacketS2CSourceName = require("./packets/PacketS2CSourceName");
 const PacketS2CZoneName = require("./packets/PacketS2CZoneName");
 const PacketS2CZoneDeleted = require("./packets/PacketS2CZoneDeleted");
+const PacketS2CZoneIndex = require("./packets/PacketS2CZoneIndex");
 const PacketS2CZoneParameter = require("./packets/PacketS2CZoneParameter");
 const PacketS2CZonePower = require("./packets/PacketS2CZonePower");
 const PacketS2CZoneSource = require("./packets/PacketS2CZoneSource");
@@ -39,7 +40,15 @@ server.once("start", function() {
     process.exit(1);
 })
 .on("client_connected", function(client) {
-    console.log("Client %s connected.", client.getName());
+    console.log("Client %s connected.", client.getAddress());
+
+    let zones = [];
+    for (let ctrllrID = 0; ctrllrID < rNet.getControllersSize(); ctrllrID++) {
+        for (let zoneID = 0; zoneID < rNet.getZonesSize(ctrllrID); zoneID++) {
+            zones.push([ctrllrID, zoneID]);
+        }
+    }
+    client.send(new PacketS2CZoneIndex(zones))
 
     client.send(new PacketS2CRNetStatus(rNet.isConnected()));
 
@@ -71,7 +80,7 @@ server.once("start", function() {
     rNet.setAutoUpdate(true);
 })
 .on("client_disconnect", function(client) {
-    console.log("Client %s disconnected.", client.getName());
+    console.log("Client %s disconnected.", client.getAddress());
 
     if (server.getClientCount() - 1 == 0) {
         rNet.setAutoUpdate(false);
