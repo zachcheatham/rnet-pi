@@ -251,6 +251,15 @@ class RNet extends EventEmitter {
 
     deleteSource(sourceID) {
         delete this._sources[sourceID];
+
+        let lastNonNull = false;
+        for (let i = this._sources.length - 1; i >= 0; i--)
+            if (this._sources[i]) {
+                lastNonNull = i;
+                break;
+            }
+        this._sources.splice(lastNonNull+1, this._sources.length - lastNonNull + 1)
+
         this.writeConfiguration();
         this.emit("source-deleted", sourceID);
     }
@@ -265,7 +274,7 @@ class RNet extends EventEmitter {
     }
 
     sourceExists(sourceID) {
-        return (sourceID < this._sources.length && this._sources[sourceID] !== null)
+        return (sourceID < this._sources.length && this._sources[sourceID] != null)
     }
 
     getSourcesSize() {

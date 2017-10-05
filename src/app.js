@@ -3,7 +3,9 @@ const RNet = require("./rnet/rnet");
 const config = require("./configuration");
 
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
+const PacketC2SDeleteSource = require("./packets/PacketC2SDeleteSource");
 const PacketC2SDeleteZone = require("./packets/PacketC2SDeleteZone");
+const PacketC2SSourceName = require("./packets/PacketC2SSourceName");
 const PacketC2SZoneName = require("./packets/PacketC2SZoneName");
 const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
 const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
@@ -11,6 +13,7 @@ const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
 const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
 const PacketS2CRNetStatus = require("./packets/PacketS2CRNetStatus");
 const PacketS2CSourceName = require("./packets/PacketS2CSourceName");
+const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
 const PacketS2CZoneName = require("./packets/PacketS2CZoneName");
 const PacketS2CZoneDeleted = require("./packets/PacketS2CZoneDeleted");
 const PacketS2CZoneIndex = require("./packets/PacketS2CZoneIndex");
@@ -97,6 +100,19 @@ server.once("start", function() {
         case PacketC2SDeleteZone.ID:
         {
             rNet.deleteZone(packet.getControllerID(), packet.getZoneID());
+            break;
+        }
+        case PacketC2SDeleteSource.ID:
+        {
+            rNet.deleteSource(packet.getSourceID());
+            break;
+        }
+        case PacketC2SSourceName.ID:
+        {
+            if (rNet.sourceExists(packet.getSourceID()))
+                rNet.renameSource(packet.getSourceID(), packet.getName());
+            else
+                rNet.createSource(packet.getSourceID(), packet.getName());
             break;
         }
         case PacketC2SZoneName.ID:
