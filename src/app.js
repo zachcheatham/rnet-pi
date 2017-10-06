@@ -48,7 +48,9 @@ server.once("start", function() {
     let zones = [];
     for (let ctrllrID = 0; ctrllrID < rNet.getControllersSize(); ctrllrID++) {
         for (let zoneID = 0; zoneID < rNet.getZonesSize(ctrllrID); zoneID++) {
-            zones.push([ctrllrID, zoneID]);
+            if (rNet.getZone(ctrllrID, zoneID) != null) {
+                zones.push([ctrllrID, zoneID]);
+            }
         }
     }
     client.send(new PacketS2CZoneIndex(zones))

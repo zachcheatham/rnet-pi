@@ -1,7 +1,6 @@
 const EventEmitter = require("events");
 const net = require("net");
 const mdns = require("mdns");
-const ip = require("ip");
 
 const Client = require("./client");
 
@@ -14,7 +13,7 @@ class Server extends EventEmitter {
         this._clients = [];
 
         if (!host) {
-            this._host = ip.address();
+            this._host = "0.0.0.0";
         }
         else {
             this._host = host;
