@@ -12,6 +12,7 @@ const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
 const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
 const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
 const PacketS2CRNetStatus = require("./packets/PacketS2CRNetStatus");
+const PacketC2SMute = require("./packets/PacketC2SMute");
 const PacketS2CSourceName = require("./packets/PacketS2CSourceName");
 const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
 const PacketS2CZoneName = require("./packets/PacketS2CZoneName");
@@ -132,7 +133,7 @@ server.once("start", function() {
             if (zone != null)
                 zone.setParameter(packet.getParameterID(), packet.getParameterValue());
             else
-                console.warn("Recieved request to set parameter of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+                console.warn("Received request to set parameter of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             break;
         }
         case PacketC2SZonePower.ID:
@@ -141,7 +142,7 @@ server.once("start", function() {
             if (zone != null)
                 zone.setPower(packet.getPowered());
             else
-                console.warn("Recieved request to set power of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+                console.warn("Received request to set power of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             break;
         }
         case PacketC2SZoneSource.ID:
@@ -150,7 +151,7 @@ server.once("start", function() {
             if (zone != null)
                 zone.setSourceID(packet.getSourceID());
             else
-                console.warn("Recieved request to set source of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+                console.warn("Received request to set source of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             break;
         }
         case PacketC2SZoneVolume.ID:
@@ -159,8 +160,32 @@ server.once("start", function() {
             if (zone != null)
                 zone.setVolume(packet.getVolume());
             else
-                console.warn("Recieved request to set volume of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+                console.warn("Received request to set volume of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             break;
+        }
+        case PacketC2SMute.ID:
+        {
+            if (!packet.getControllerID()) {
+                if (packet.getMuteState() == PacketC2SMute.MUTE_TOGGLE) {
+                    rNet.setAllMute(!rNet.getAllMute(), packet.getFadeTime());
+                }
+                else {
+                    rNet.setAllMute(packet.getMuteState == 0x01, packet.getFadeTime());
+                }
+            }
+            else {
+                const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
+                if (zone != null) {
+                    if (packet.getMuteState() == PacketC2SMute.MUTE_TOGGLE) {
+                        zone.setMute(!zone.getMuted(), packet.getFadeTime());
+                    }
+                    else {
+                        zone.setMute(zone.getMuted() == 0x01, packet.getFadeTime());
+                    }
+                }
+                else
+                    console.warn("Received request to set mute of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+            }
         }
     }
 });

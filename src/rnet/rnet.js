@@ -30,6 +30,7 @@ class RNet extends EventEmitter {
         this._connected = false;
         this._waitingForHandshake = false;
         this._packetQueue = [];
+        this._allMuted = false;
 
         this.readConfiguration();
         this.writeConfiguration();
@@ -317,6 +318,23 @@ class RNet extends EventEmitter {
         setTimeout(() => {
             this.requestAllZoneInfo(true);
         }, 1000);
+    }
+
+    setAllMute(muted, fadeTime=0) {
+        this._allMuted = muted;
+        for (let ctrllrID = 0; ctrllrID < rNet.getControllersSize(); ctrllrID++) {
+            for (let zoneID = 0; zoneID < rNet.getZonesSize(ctrllrID); zoneID++) {
+                const zone = rNet.getZone(ctrllrID, zoneID);
+
+                if (zone != null) {
+                    zone.setMute(muted);
+                }
+            }
+        }
+    }
+
+    getAllMute() {
+        return this._allMuted;
     }
 
     isConnected() {

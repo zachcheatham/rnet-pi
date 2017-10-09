@@ -3,6 +3,7 @@ const PacketC2SDeleteSource = require("./PacketC2SDeleteSource");
 const PacketC2SDeleteZone = require("./PacketC2SDeleteZone");
 const PacketC2SDisconnect = require("./PacketC2SDisconnect");
 const PacketC2SIntent = require("./PacketC2SIntent");
+const PacketC2SMute = require("./PacketC2SMute");
 const PacketC2SSourceName = require("./PacketC2SSourceName");
 const PacketC2SZoneName = require("./PacketC2SZoneName");
 const PacketC2SZoneParameter = require("./PacketC2SZoneParameter");
@@ -34,6 +35,8 @@ module.exports = function(packetType, data) {
             return new PacketC2SZoneParameter(data);
         case 0x0C:
             return new PacketC2SAllPower(data);
+        case 0x0D:
+            return new PacketC2SMute(data);
         default:
             return undefined;
     }

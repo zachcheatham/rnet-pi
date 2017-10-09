@@ -16,6 +16,8 @@ class Zone extends EventEmitter {
         this._power = false;
         this._volume = 0;
         this._source = 0;
+        this._mute = false;
+        this._preMuteVolume = 0;
 
         this._parameters = [
             0,      // Bass             -10 - +10
@@ -56,6 +58,11 @@ class Zone extends EventEmitter {
             this._power = powered;
             this.emit("power", powered, rNetTriggered);
 
+            if (this._muted) {
+                this._muted = false;
+                this._preMuteVolume = 0;
+            }
+
             if (powered) {
                 setTimeout(() => {
                     this.requestInfo();
@@ -69,9 +76,14 @@ class Zone extends EventEmitter {
         return this._volume;
     }
 
-    setVolume(volume, rNetTriggered=false) {
+    setVolume(volume, rNetTriggered=false, forMute=false) {
         if (volume >= 0 && volume <= 100) {
             if (volume != this._volume) {
+                if (this._mute && !forMute) {
+                    this._mute = false;
+                    this._preMuteVolume = 0;
+                }
+
                 this._volume = volume;
                 this.emit("volume", volume, rNetTriggered);
             }
@@ -80,6 +92,25 @@ class Zone extends EventEmitter {
         }
         else {
             return false;
+        }
+    }
+
+    getMuted() {
+        return this._mute;
+    }
+
+    setMute(muted, fadeTime=0) {
+        if (muted != this._mute) {
+            this._mute = muted;
+
+            if (muted) {
+                this._preMuteVolume = this.getVolume();
+                this.setVolume(0, false, true);
+            }
+            else {
+                this.setVolume(this._preMuteVolume, false, true);
+                this._preMuteVolume = 0;
+            }
         }
     }
 
