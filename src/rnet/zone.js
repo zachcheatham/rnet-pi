@@ -1,4 +1,5 @@
 const EventEmitter = require("events");
+const animate = require("amator");
 
 const ExtraZoneParam = require("./extraZoneParam");
 const RequestDataPacket = require("./packets/RequestDataPacket");
@@ -103,13 +104,36 @@ class Zone extends EventEmitter {
         if (muted != this._mute) {
             this._mute = muted;
 
-            if (muted) {
-                this._preMuteVolume = this.getVolume();
-                this.setVolume(0, false, true);
+            if (fadeTime == 0) {
+                if (muted) {
+                    this._preMuteVolume = this.getVolume();
+                    this.setVolume(0, false, true);
+                }
+                else {
+                    this.setVolume(this._preMuteVolume, false, true);
+                    this._preMuteVolume = 0;
+                }
             }
             else {
-                this.setVolume(this._preMuteVolume, false, true);
-                this._preMuteVolume = 0;
+                if (muted) {
+                    this._preMuteVolume = this.getVolume();
+                    animate({v: this._preMuteVolume / 2}, {v: 0}, {
+                        duration: fadeTime,
+                        step: (fo) => {
+                            const vol = Math.round(fo.v) * 2;
+                            this.setVolume(vol, false, true);
+                        }
+                    });
+                }
+                else {
+                    animate({v: 0}, {v: this._preMuteVolume / 2}, {
+                        duration: fadeTime,
+                        step: (fo) => {
+                            const vol = Math.round(fo.v) * 2;
+                            this.setVolume(vol, false, true);
+                        }
+                    });
+                }
             }
         }
     }

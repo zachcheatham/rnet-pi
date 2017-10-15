@@ -9,6 +9,7 @@
   "author": "zachcheatham",
   "license": "ISC",
   "dependencies": {
+    "amator": "^1.1.0",
     "console-stamp": "^0.2.5",
     "ip": "^1.1.5",
     "mdns": "^2.3.3",

@@ -322,12 +322,12 @@ class RNet extends EventEmitter {
 
     setAllMute(muted, fadeTime=0) {
         this._allMuted = muted;
-        for (let ctrllrID = 0; ctrllrID < rNet.getControllersSize(); ctrllrID++) {
-            for (let zoneID = 0; zoneID < rNet.getZonesSize(ctrllrID); zoneID++) {
-                const zone = rNet.getZone(ctrllrID, zoneID);
+        for (let ctrllrID = 0; ctrllrID < this.getControllersSize(); ctrllrID++) {
+            for (let zoneID = 0; zoneID < this.getZonesSize(ctrllrID); zoneID++) {
+                const zone = this.getZone(ctrllrID, zoneID);
 
-                if (zone != null) {
-                    zone.setMute(muted);
+                if (zone != null && zone.getPower()) {
+                    zone.setMute(muted, fadeTime);
                 }
             }
         }

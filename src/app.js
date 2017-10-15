@@ -293,7 +293,7 @@ rNet.on("connected", () => {
         parameterIDToString(parameterID),
         value
     );
-})
+});
 
 // Start server
 console.log("Starting Server...");
