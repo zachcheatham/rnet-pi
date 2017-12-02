@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "amator": "^1.1.0",
+    "castv2-device-monitor": "^1.2.4",
     "console-stamp": "^0.2.5",
     "ip": "^1.1.5",
     "mdns": "^2.3.3",

@@ -1,5 +1,6 @@
 const Server = require("./server");
 const RNet = require("./rnet/rnet");
+const CastIntegration = require("./CastIntegration");
 const config = require("./configuration");
 
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
@@ -32,6 +33,11 @@ config.write();
 
 const server = new Server(config.get("serverName"), config.get("serverHost"), config.get("serverPort"));
 const rNet = new RNet(config.get("serialDevice"));
+var castIntegration = null;
+
+if (rNet.hasCastSource()) {
+    castIntegration = new CastIntegration(rNet, config);
+}
 
 // Setup server
 server.once("start", function() {

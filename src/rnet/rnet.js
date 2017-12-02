@@ -286,6 +286,41 @@ class RNet extends EventEmitter {
         return this._sources;
     }
 
+    hasCastSource() {
+        for (let sourceID = 0; sourceID < this._sources.length; sourceID++) {
+            if (this._sources[sourceID] != null && this._sources[sourceID].cast == true) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    getCastSources() {
+        let sources = [];
+        for (let sourceID = 0; sourceID < this._sources.length; sourceID++) {
+            if (this._sources[sourceID] != null && this._sources[sourceID].cast == true) {
+                sources.push({sourceID: sourceID, name: this._sources[sourceID].name});
+            }
+        }
+        return sources;
+    }
+
+    zonePlayingSource(sourceID) {
+        for (let ctrllrID = 0; ctrllrID < this.getControllersSize(); ctrllrID++) {
+            for (let zoneID = 0; zoneID < this.getZonesSize(ctrllrID); zoneID++) {
+                let zone = this.getZone(ctrllrID, zoneID);
+                if (zone != null &&
+                    zone.getPower() == true &&
+                    zone.getSourceID() == sourceID
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     setAutoUpdate(enabled) {
         if (this._autoUpdating != enabled) {
             this._autoUpdating = enabled;
