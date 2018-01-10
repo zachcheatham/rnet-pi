@@ -19,6 +19,7 @@ class Zone extends EventEmitter {
         this._source = 0;
         this._mute = false;
         this._preMuteVolume = 0;
+        this._maxVolume = 100;
 
         this._parameters = [
             0,      // Bass             -10 - +10
@@ -85,6 +86,11 @@ class Zone extends EventEmitter {
                     this._preMuteVolume = 0;
                 }
 
+                if (volume > this._maxVolume) {
+                    volume = this._maxVolume;
+                    rNetTriggered = false; // Set rNetTriggered to false since rnet can go over our max
+                }
+
                 this._volume = volume;
                 this.emit("volume", volume, rNetTriggered);
             }
@@ -93,6 +99,21 @@ class Zone extends EventEmitter {
         }
         else {
             return false;
+        }
+    }
+
+    getMaxVolume() {
+        return this._maxVolume;
+    }
+
+    setMaxVolume(maxVolume, save=true) {
+        this._maxVolume = maxVolume;
+        if (this._volume > this._maxVolume) {
+            this.setVolume(this._maxVolume);
+        }
+
+        if (save) {
+            this._rNet.writeZones();
         }
     }
 
@@ -196,7 +217,7 @@ class Zone extends EventEmitter {
 
     requestInfo() {
         this._rNet.sendData(new RequestDataPacket(this._ctrllrID, this._zoneID, RequestDataPacket.DATA_TYPE.ZONE_INFO));
-	this._rNet.sendData(new RequestParameterPacket(this._ctrllrID, this._zoneID, ExtraZoneParam.TURN_ON_VOLUME));
+        this._rNet.sendData(new RequestParameterPacket(this._ctrllrID, this._zoneID, ExtraZoneParam.TURN_ON_VOLUME));
     }
 
     requestBasicInfo() {

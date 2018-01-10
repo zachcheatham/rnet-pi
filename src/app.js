@@ -86,6 +86,9 @@ server.once("start", function() {
                 for (let i = 0; i < 9; i++) {
                     client.send(new PacketS2CZoneParameter(ctrllrID, zoneID, i, zone.getParameter(i)));
                 }
+                if (zone.maxVolume < 100) {
+                    client.send(new PacketS2CZoneMaxVolume(ctrllrID, zoneID, zone.getMaxVolume()));
+                }
             }
         }
     }
@@ -196,6 +199,15 @@ server.once("start", function() {
                 else
                     console.warn("Received request to set mute of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             }
+        }
+        case PacketC2SZoneMaxVolume.ID:
+        {
+            const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
+            if (zone != null)
+                zone.setMaxVolume(packet.getMaxVolume());
+            else
+                console.warn("Received request to set max volume of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+            break;
         }
     }
 });

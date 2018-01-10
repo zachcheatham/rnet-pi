@@ -85,7 +85,11 @@ class RNet extends EventEmitter {
                 if (zones[ctrllrID] != null) {
                     for (var zoneID = 0; zoneID < zones[ctrllrID].length; zoneID++) {
                         if (zones[ctrllrID][zoneID] != null) {
-                            this.createZone(ctrllrID, zoneID, zones[ctrllrID][zoneID], false);
+                            let zoneData = zones[ctrllrID][zoneID];
+                            let zone = this.createZone(ctrllrID, zoneID, zoneData.name, false);
+                            if ("maxvol" in zoneData) {
+                                zone.setMaxVolume(zoneData.maxvol, false)
+                            }
                         }
                     }
                 }
@@ -95,7 +99,10 @@ class RNet extends EventEmitter {
 
     writeConfiguration() {
         fs.writeFileSync("sources.json", JSON.stringify(this._sources));
+        this.writeZones();
+    }
 
+    writeZones() {
         const zones = [];
         for (var ctrllrID = 0; ctrllrID < this._zones.length; ctrllrID++) {
             if (this._zones[ctrllrID] == null) {
@@ -108,11 +115,18 @@ class RNet extends EventEmitter {
                         zones[ctrllrID][zoneID] = null;
                     }
                     else {
-                        zones[ctrllrID][zoneID] = this._zones[ctrllrID][zoneID].getName();
+                        zones[ctrllrID][zoneID] = {
+                            name: this._zones[ctrllrID][zoneID].getName(),
+                        }
+
+                        if (this._zones[ctrllrID][zoneID].getMaxVolume() < 100) {
+                            zones[ctrllrID][zoneID].maxvol = this._zones[ctrllrID][zoneID].getMaxVolume();
+                        }
                     }
                 }
             }
         }
+
         fs.writeFileSync("zones.json", JSON.stringify(zones));
     }
 
@@ -186,7 +200,7 @@ class RNet extends EventEmitter {
             });
 
             this.emit("new-zone", zone);
-            return true;
+            return zone;
         }
         return false;
     }
