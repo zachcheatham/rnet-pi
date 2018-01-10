@@ -44,6 +44,10 @@ server.once("start", function() {
     console.info("Server listening on %s", server.getAddress());
     console.log("Connecting to RNet...")
     rNet.connect();
+
+    if (castIntegration != null) {
+        castIntegration.start();
+    }
 })
 .once("error", function(error) {
     console.error("Server error: %s", error.message);

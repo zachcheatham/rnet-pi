@@ -18,7 +18,6 @@ class CaseIntegration {
         }
 
         console.info("Google Cast integration enabled.");
-        this.start();
     }
 
     start() {
