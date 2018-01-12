@@ -17,9 +17,9 @@ class PacketC2SMute extends PacketC2S {
         this._controllerID = false;
         this._zoneID = false;
 
-        if (buffer.remaining() > 1) {
-            this._controllerID = buffer.readUInt8();
-            this._zoneID = buffer.readUInt8();
+        if (this._buffer.remaining() > 1) {
+            this._controllerID = this._buffer.readUInt8();
+            this._zoneID = this._buffer.readUInt8();
         }
     }
 
@@ -40,7 +40,7 @@ class PacketC2SMute extends PacketC2S {
     }
 
     getID() {
-        return PacketC2SIntent.ID;
+        return PacketC2SMute.ID;
     }
 }
 

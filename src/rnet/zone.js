@@ -107,13 +107,25 @@ class Zone extends EventEmitter {
     }
 
     setMaxVolume(maxVolume, save=true) {
-        this._maxVolume = maxVolume;
-        if (this._volume > this._maxVolume) {
-            this.setVolume(this._maxVolume);
-        }
+        if (maxVolume >= 0 && maxVolume <= 100)
+        {
+            if (maxVolume != this._maxVolume) {
+                this._maxVolume = maxVolume;
+                if (this._volume > this._maxVolume) {
+                    this.setVolume(this._maxVolume);
+                }
 
-        if (save) {
-            this._rNet.writeZones();
+                this.emit("max-volume", maxVolume);
+
+                if (save) {
+                    this._rNet.writeZones();
+                }
+            }
+
+            return true;
+        }
+        else {
+            return false;
         }
     }
 

@@ -173,6 +173,9 @@ class RNet extends EventEmitter {
                 }
                 this.emit("volume", zone, volume);
             })
+            .on("max-volume", (maxVolume) => {
+                this.emit("max-volume", zone, maxVolume);
+            })
             .on("source", (sourceID, rNetTriggered) => {
                 if (!rNetTriggered) {
                     this.sendData(

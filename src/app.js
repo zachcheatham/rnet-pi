@@ -12,6 +12,7 @@ const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
 const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
 const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
 const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
+const PacketC2SZoneMaxVolume = require("./packets/PacketC2SZoneMaxVolume");
 const PacketS2CRNetStatus = require("./packets/PacketS2CRNetStatus");
 const PacketC2SMute = require("./packets/PacketC2SMute");
 const PacketS2CSourceName = require("./packets/PacketS2CSourceName");
@@ -23,6 +24,7 @@ const PacketS2CZoneParameter = require("./packets/PacketS2CZoneParameter");
 const PacketS2CZonePower = require("./packets/PacketS2CZonePower");
 const PacketS2CZoneSource = require("./packets/PacketS2CZoneSource");
 const PacketS2CZoneVolume = require("./packets/PacketS2CZoneVolume");
+const PacketS2CZoneMaxVolume = require("./packets/PacketS2CZoneMaxVolume");
 const parameterIDToString = require("./rnet/parameterIDToString");
 
 // Modify console.log to include timestamps
@@ -86,7 +88,7 @@ server.once("start", function() {
                 for (let i = 0; i < 9; i++) {
                     client.send(new PacketS2CZoneParameter(ctrllrID, zoneID, i, zone.getParameter(i)));
                 }
-                if (zone.maxVolume < 100) {
+                if (zone.getMaxVolume() < 100) {
                     client.send(new PacketS2CZoneMaxVolume(ctrllrID, zoneID, zone.getMaxVolume()));
                 }
             }
@@ -183,7 +185,7 @@ server.once("start", function() {
                     rNet.setAllMute(!rNet.getAllMute(), packet.getFadeTime());
                 }
                 else {
-                    rNet.setAllMute(packet.getMuteState == 0x01, packet.getFadeTime());
+                    rNet.setAllMute(packet.getMuteState() == 0x01, packet.getFadeTime());
                 }
             }
             else {
@@ -199,6 +201,7 @@ server.once("start", function() {
                 else
                     console.warn("Received request to set mute of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             }
+            break;
         }
         case PacketC2SZoneMaxVolume.ID:
         {
@@ -314,6 +317,16 @@ rNet.on("connected", () => {
         parameterID,
         parameterIDToString(parameterID),
         value
+    );
+})
+.on("max-volume", (zone, maxVolume) => {
+    server.broadcast(new PacketS2CZoneMaxVolume(zone.getControllerID(), zone.getZoneID(), maxVolume));
+    console.info(
+        "Controller #%d Zone #%d (%s) max volume set to %d",
+        zone.getControllerID(),
+        zone.getZoneID(),
+        zone.getName(),
+        maxVolume
     );
 });
 

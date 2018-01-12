@@ -13,7 +13,7 @@ const PacketS2C = require("./PacketS2C");
 class PacketS2CZoneMaxVolume extends PacketS2C {
     constructor(ctrlrID, zoneID, maxVolume) {
         super();
-        this._buffer.writeUInt8(ctrllrID);
+        this._buffer.writeUInt8(ctrlrID);
         this._buffer.writeUInt8(zoneID);
         this._buffer.writeUInt8(maxVolume);
     }
