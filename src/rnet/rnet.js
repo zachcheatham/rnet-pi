@@ -235,6 +235,20 @@ class RNet extends EventEmitter {
         }
     }
 
+    findZoneByName(name) {
+        name = name.toUpperCase();
+        for (let ctrllrID = 0; ctrllrID < this.getControllersSize(); ctrllrID++) {
+            for (let zoneID = 0; zoneID < this.getZonesSize(ctrllrID); zoneID++) {
+                let zone = this.getZone(ctrllrID, zoneID);
+                if (zone && zone.getName().toUpperCase() === name) {
+                    return zone;
+                }
+            }
+        }
+
+        return false;
+    }
+
     getControllersSize() {
         return this._zones.length;
     }
@@ -290,6 +304,17 @@ class RNet extends EventEmitter {
         else {
             return "Unknown";
         }
+    }
+
+    findSourceIDByName(name) {
+        name = name.toUpperCase();
+        for (let sourceID = 0; sourceID < this._sources.length; sourceID++) {
+            if (this._sources[sourceID] != null && this._sources[sourceID].name.toUpperCase() == name) {
+                return sourceID;
+            }
+        }
+
+        return false;
     }
 
     sourceExists(sourceID) {

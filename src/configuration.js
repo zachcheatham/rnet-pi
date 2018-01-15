@@ -18,7 +18,8 @@ module.exports = {
                 serverName: "Untitled RNet Controller",
                 serverHost: false,
                 serverPort: 3000,
-                serialDevice: "/dev/tty-usbserial1"
+                serialDevice: "/dev/tty-usbserial1",
+                webHookPassword: ""
             }
         }
     },

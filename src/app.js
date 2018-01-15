@@ -2,6 +2,7 @@ const Server = require("./server");
 const RNet = require("./rnet/rnet");
 const CastIntegration = require("./CastIntegration");
 const config = require("./configuration");
+const WebHookServer = require("./webHookServer");
 
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
 const PacketC2SDeleteSource = require("./packets/PacketC2SDeleteSource");
@@ -35,6 +36,7 @@ config.write();
 
 const server = new Server(config.get("serverName"), config.get("serverHost"), config.get("serverPort"));
 const rNet = new RNet(config.get("serialDevice"));
+const webHookServer = new WebHookServer(config.get("serverPort")+1, config.get("webHookPassword"), rNet);
 var castIntegration = null;
 
 if (rNet.hasCastSource()) {
@@ -333,3 +335,4 @@ rNet.on("connected", () => {
 // Start server
 console.log("Starting Server...");
 server.start();
+webHookServer.start();
