@@ -47,6 +47,6 @@ class PacketC2SMute extends PacketC2S {
 PacketC2SMute.ID = 0x0D;
 PacketC2SMute.MUTE_OFF = 0x00;
 PacketC2SMute.MUTE_ON = 0x01;
-PacketC2SMute.MUTE_TOGGLE = 0x03;
+PacketC2SMute.MUTE_TOGGLE = 0x02;
 
 module.exports = PacketC2SMute;
