@@ -63,6 +63,7 @@ class CaseIntegration {
                                     }
                                 }
                             }
+                            device.triggeredZones = false;
                         }, device.idleTimeout);
                     }
                 }
@@ -70,6 +71,16 @@ class CaseIntegration {
             })
             .on("media", (media) => {
                 console.log("[Cast] \"%s\" is now playing %s by %s", device.name, media.title, media.artist);
+
+                // Only turn on trigger zones if no other zone is playing it
+                if (!this.rNet.zonePlayingSource(device.sourceID)) {
+                    // Turn on the default zones
+                    for (i in device.triggerZones) {
+                        let zone = this.rNet.getZone(device.triggerZones[i][0], device.triggerZones[i][1]);
+                        zone.setPower(true);
+                    }
+                    device.triggeredZones = true;
+                }
             });
 
             console.info("[Cast] Monitoring \"%s\"", device.name);
