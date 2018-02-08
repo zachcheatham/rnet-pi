@@ -1,5 +1,6 @@
 const RNetPacket = require("./RNetPacket");
 const DataPacket = require("./DataPacket");
+const RenderedDisplayMessagePacket = require("./RenderedDisplayMessagePacket");
 const ZoneInfoPacket = require("./ZoneInfoPacket");
 const ZonePowerPacket = require("./ZonePowerPacket");
 const ZoneSourcePacket = require("./ZoneSourcePacket");
@@ -14,6 +15,8 @@ module.exports = {
             case 0x00:
                 packet = DataPacket.fromPacket(packet);
                 break;
+            case 0x06:
+                return RenderedDisplayMessagePacket.fromPacket(packet);
             default:
                 return false; // We don't care about anything else
         }
@@ -46,7 +49,6 @@ module.exports = {
                 return ZoneParameterPacket.fromPacket(packet);
             }
         }
-
         return false;
     }
 }

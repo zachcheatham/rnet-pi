@@ -7,6 +7,7 @@ const ExtraZoneParam = require("./extraZoneParam");
 const DisplayMessagePacket = require("./packets/DisplayMessagePacket");
 const HandshakePacket = require("./packets/HandshakePacket");
 const PacketBuilder = require("./packets/PacketBuilder");
+const RenderedDisplayMessagePacket = require("./packets/RenderedDisplayMessagePacket");
 const RequestDataPacket = require("./packets/RequestDataPacket");
 const SetAllPowerPacket = require("./packets/SetAllPowerPacket");
 const SetParameterPacket = require("./packets/SetParameterPacket");
@@ -627,6 +628,17 @@ class RNet extends EventEmitter {
             else {
                 console.warn("Received ZoneParameterPacket for unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             }
+        }
+        else if (packet instanceof RenderedDisplayMessagePacket) {
+            console.log("RenderedDisplayMessage:")
+            console.log("Target: %d -> %d -> %d", packet.targetControllerID, packet.targetZoneID, packet.targetKeypadID);
+            console.log("Source: %d -> %d -> %d", packet.sourceControllerID, packet.sourceZoneID, packet.sourceKeypadID)
+            console.log("Render Type: %d", packet.renderType);
+            console.log("Flash Time: %d", packet.flashTime);
+            console.log("Value Low: %d", packet.getLowValue());
+            console.log("Value High: %d", packet.getHighValue());
+            console.log("Short Value: %d", packet.getShortValue());
+            console.log(" ");
         }
     }
 }
