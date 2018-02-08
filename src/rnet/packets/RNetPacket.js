@@ -132,4 +132,10 @@ RNetPacket.fromData = function(data) {
     return packet;
 }
 
+RNetPacket.CONTROLLER_ALL_KEYPADS = 0x7F;
+RNetPacket.CONTROLLER_ALL = 0x7E;
+RNetPacket.CONTROLLER_ALL_DEVICES = 0x7D;
+RNetPacket.KEYPAD_CONTROLLER = 0x7F;
+RNetPacket.KEYPAD_ALL_IN_ZONE = 0x7D;
+
 module.exports = RNetPacket;

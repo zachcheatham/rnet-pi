@@ -2,12 +2,13 @@ const EventEmitter = require("events");
 const animate = require("amator");
 
 const ExtraZoneParam = require("./extraZoneParam");
+const DisplayMessagePacket = require("./packets/DisplayMessagePacket");
 const RequestDataPacket = require("./packets/RequestDataPacket");
 const RequestParameterPacket = require("./packets/RequestParameterPacket");
 
 class Zone extends EventEmitter {
     constructor(rnet, ctrllrID, zoneID) {
-        super()
+        super();
 
         this._rNet = rnet;
         this._zoneID = zoneID;
@@ -176,7 +177,7 @@ class Zone extends EventEmitter {
     }
 
     setSourceID(id, rNetTriggered=false) {
-        if (rNetTriggered || this._rNet.sourceExists(id)) {
+        if (rNetTriggered || this._rNet.getSource(id) != null) {
             if (this._source != id) {
                 this._source = id;
                 this.emit("source", id, rNetTriggered);
@@ -240,6 +241,10 @@ class Zone extends EventEmitter {
 
     requestPowered() {
         this._rNet.sendData(new RequestDataPacket(this._ctrllrID, this._zoneID, RequestDataPacket.DATA_TYPE.ZONE_POWER));
+    }
+
+    displayMessage(message, flashTime=0, alignment=DisplayMessagePacket.ALIGN_LEFT) {
+        this._rNet.sendData(new DisplayMessagePacket(this._ctrllrID, this._zoneID, alignment, flashTime, message));
     }
 }
 

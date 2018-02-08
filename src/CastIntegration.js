@@ -55,6 +55,7 @@ class CaseIntegration {
                         // Wait the configured time to shut off zones
                         device.idleTimer = setTimeout(() => {
                             // Shut off all zones running the cast source
+                            for (let zone in this.rNet.getZonesPlayingSource)
                             for (let ctrllrID = 0; ctrllrID < this.rNet.getControllersSize(); ctrllrID++) {
                                 for (let zoneID = 0; zoneID < this.rNet.getZonesSize(ctrllrID); zoneID++) {
                                     let zone = this.rNet.getZone(ctrllrID, zoneID);
@@ -81,11 +82,15 @@ class CaseIntegration {
                     }
                     device.triggeredZones = true;
                 }
+            })
+            .on("application", (application) => {
+                console.log("[Cast] \"%s\" is now running %s", device.name, application);
+                let source = this.rNet.getSource(device.sourceID);
+                source.setDisplay(application);
             });
 
             console.info("[Cast] Monitoring \"%s\"", device.name);
         }
-
     }
 
     stop() {

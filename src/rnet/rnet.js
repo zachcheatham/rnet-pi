@@ -4,6 +4,7 @@ const SerialPort = require("serialport");
 const SmartBuffer = require("smart-buffer").SmartBuffer;
 
 const ExtraZoneParam = require("./extraZoneParam");
+const DisplayMessagePacket = require("./packets/DisplayMessagePacket");
 const HandshakePacket = require("./packets/HandshakePacket");
 const PacketBuilder = require("./packets/PacketBuilder");
 const RequestDataPacket = require("./packets/RequestDataPacket");
@@ -17,6 +18,7 @@ const ZoneParameterPacket = require("./packets/ZoneParameterPacket");
 const ZonePowerPacket = require("./packets/ZonePowerPacket");
 const ZoneSourcePacket = require("./packets/ZoneSourcePacket");
 const ZoneVolumePacket = require("./packets/ZoneVolumePacket");
+const Source = require("./source");
 const Zone = require("./zone");
 
 class RNet extends EventEmitter {
@@ -70,7 +72,13 @@ class RNet extends EventEmitter {
         catch (e) {}
 
         if (sourceFile && sourceFile.length > 0) {
-            this._sources = JSON.parse(sourceFile);
+            let sources = JSON.parse(sourceFile);
+            for (let sourceID = 0; sourceID < sources.length; sourceID++) {
+                if (sources[sourceID] != null) {
+                    let sourceData = sources[sourceID];
+                    let source = this.createSource(sourceID, sourceData.name, ("cast" in sourceData) && "cast" || "generic", false);
+                }
+            }
         }
 
         var zonesFile = "";
@@ -98,8 +106,28 @@ class RNet extends EventEmitter {
     }
 
     writeConfiguration() {
-        fs.writeFileSync("sources.json", JSON.stringify(this._sources));
+        this.writeSources();
         this.writeZones();
+    }
+
+    writeSources() {
+        const sources = [];
+        for (var sourceID = 0; sourceID < this._sources.length; sourceID++) {
+            if (this._sources[sourceID] == null) {
+                sources[sourceID] = null;
+            }
+            else {
+                let source = this._sources[sourceID];
+                sources[sourceID] = {
+                    name: source.getName(),
+                }
+                if (source.isCast()) {
+                    sources[sourceID].cast = true;
+                }
+            }
+        }
+
+        fs.writeFileSync("sources.json", JSON.stringify(sources));
     }
 
     writeZones() {
@@ -186,6 +214,12 @@ class RNet extends EventEmitter {
                         )
                     );
                 }
+
+                let source = this.getSource(sourceID);
+                if (source && source.getDisplay() != null) {
+                    zone.displayMessage(source.getDisplay(), 0, DisplayMessagePacket.ALIGN_CENTER);
+                }
+
                 this.emit("source", zone, sourceID);
             })
             .on("parameter", (parameterID, value, rNetTriggered) => {
@@ -235,6 +269,19 @@ class RNet extends EventEmitter {
         }
     }
 
+    getZonesPlayingSource(sourceID) {
+        let zones = []
+        for (let ctrllrID = 0; ctrllrID < this.getControllersSize(); ctrllrID++) {
+            for (let zoneID = 0; zoneID < this.getZonesSize(ctrllrID); zoneID++) {
+                let zone = this.getZone(ctrllrID, zoneID);
+                if (zone && zone.getSourceID() == sourceID) {
+                    zones.push(zone);
+                }
+            }
+        }
+        return zones;
+    }
+
     findZoneByName(name) {
         name = name.toUpperCase();
         for (let ctrllrID = 0; ctrllrID < this.getControllersSize(); ctrllrID++) {
@@ -262,27 +309,38 @@ class RNet extends EventEmitter {
         }
     }
 
-    createSource(sourceID, name) {
+    createSource(sourceID, name, type, writeConfig=true) {
         if (!this._sources[sourceID]) {
-            this._sources[sourceID] = {name: name};
-            this.writeConfiguration();
-            this.emit("new-source", sourceID);
-            return true;
-        }
-        return false;
-    }
+            let source = new Source(this, sourceID, name, type);
+            this._sources[sourceID] = source;
 
-    renameSource(sourceID, name) {
-        if (this._sources[sourceID]) {
-            this._sources[sourceID].name = name;
-            this.writeConfiguration();
-            this.emit("source-name", sourceID);
-            return true;
+            if (writeConfig) {
+                this.writeSources();
+            }
+
+            source.on("name", (name) => {
+                this.emit("source-name", source, name);
+                this.writeSources();
+            })
+            .on("type", (type) => {
+                this.emit("source-type", source, type);
+                this.writeSources();
+            })
+            .on("display-message", (message) => {
+                for (let zone in this.getZonesPlayingSource(sourceID)) {
+                    zone.displayMessage(message, 0, DisplayMessagePacket.ALIGN_CENTER)
+                }
+                console.info("Source #%d (%s) display message set to \"%s\"", sourceID, name, message);
+            });
+
+            this.emit("new-source", source);
+            return source;
         }
         return false;
     }
 
     deleteSource(sourceID) {
+        this._sources[sourceID].removeAllListeners();
         delete this._sources[sourceID];
 
         let lastNonNull = false;
@@ -293,32 +351,28 @@ class RNet extends EventEmitter {
             }
         this._sources.splice(lastNonNull+1, this._sources.length - lastNonNull + 1)
 
-        this.writeConfiguration();
+        this.writeSources();
         this.emit("source-deleted", sourceID);
     }
 
-    getSourceName(sourceID) {
+    getSource(sourceID) {
         if (this._sources[sourceID]) {
-            return this._sources[sourceID].name;
+            return this._sources[sourceID];
         }
         else {
-            return "Unknown";
+            return null;
         }
     }
 
-    findSourceIDByName(name) {
+    findSourceByName(name) {
         name = name.toUpperCase();
         for (let sourceID = 0; sourceID < this._sources.length; sourceID++) {
-            if (this._sources[sourceID] != null && this._sources[sourceID].name.toUpperCase() == name) {
-                return sourceID;
+            if (this._sources[sourceID] != null && this._sources[sourceID].getName().toUpperCase() == name) {
+                return this._sources[sourceID];
             }
         }
 
         return false;
-    }
-
-    sourceExists(sourceID) {
-        return (sourceID < this._sources.length && this._sources[sourceID] != null)
     }
 
     getSourcesSize() {
@@ -331,7 +385,7 @@ class RNet extends EventEmitter {
 
     hasCastSource() {
         for (let sourceID = 0; sourceID < this._sources.length; sourceID++) {
-            if (this._sources[sourceID] != null && this._sources[sourceID].cast == true) {
+            if (this._sources[sourceID] != null && this._sources[sourceID].isCast()) {
                 return true;
             }
         }
@@ -341,8 +395,8 @@ class RNet extends EventEmitter {
     getCastSources() {
         let sources = [];
         for (let sourceID = 0; sourceID < this._sources.length; sourceID++) {
-            if (this._sources[sourceID] != null && this._sources[sourceID].cast == true) {
-                sources.push({sourceID: sourceID, name: this._sources[sourceID].name});
+            if (this._sources[sourceID] != null && this._sources[sourceID].isCast()) {
+                sources.push({sourceID: sourceID, name: this._sources[sourceID].getName()});
             }
         }
         return sources;

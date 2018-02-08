@@ -73,8 +73,9 @@ server.once("start", function() {
     client.send(new PacketS2CRNetStatus(rNet.isConnected()));
 
     for (let sourceID = 0; sourceID < rNet.getSourcesSize(); sourceID++) {
-        if (rNet.sourceExists(sourceID)) {
-            client.send(new PacketS2CSourceName(sourceID, rNet.getSourceName(sourceID)));
+        let source = rNet.getSource(sourceID);
+        if (source != null) {
+            client.send(new PacketS2CSourceName(sourceID, source.getName()));
         }
     }
 
@@ -129,10 +130,11 @@ server.once("start", function() {
         }
         case PacketC2SSourceName.ID:
         {
-            if (rNet.sourceExists(packet.getSourceID()))
-                rNet.renameSource(packet.getSourceID(), packet.getName());
+            let source = rNet.getSource(packet.getSourceID());
+            if (source != null)
+                source.setName(packet.getName());
             else
-                rNet.createSource(packet.getSourceID(), packet.getName());
+                rNet.createSource(packet.getSourceID(), packet.getName(), "generic");
             break;
         }
         case PacketC2SZoneName.ID:
@@ -255,20 +257,20 @@ rNet.on("connected", () => {
         zoneID
     );
 })
-.on("new-source", (sourceID) => {
-    server.broadcast(new PacketS2CSourceName(sourceID, rNet.getSourceName(sourceID)));
+.on("new-source", (source) => {
+    server.broadcast(new PacketS2CSourceName(source.getSourceID(), source.getName()));
     console.info(
         "Source #%d (%s) created.",
-        sourceID,
-        rNet.getSourceName(sourceID)
+        source.getSourceID(),
+        source.getName()
     );
 })
-.on("source-name", (sourceID) => {
-    server.broadcast(new PacketS2CSourceName(sourceID, rNet.getSourceName(sourceID)));
+.on("source-name", (source, name) => {
+    server.broadcast(new PacketS2CSourceName(source.getSourceID(), name));
     console.info(
         "Source #%d renamed to %s.",
-        sourceID,
-        rNet.getSourceName(sourceID)
+        source.getSourceID(),
+        name
     );
 })
 .on("source-deleted", (sourceID) => {
@@ -306,7 +308,7 @@ rNet.on("connected", () => {
         zone.getZoneID(),
         zone.getName(),
         sourceID,
-        rNet.getSourceName(sourceID)
+        rNet.getSource(sourceID).getName()
     );
 })
 .on("parameter", (zone, parameterID, value) => {
