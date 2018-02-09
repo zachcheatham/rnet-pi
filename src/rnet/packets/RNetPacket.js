@@ -137,5 +137,6 @@ RNetPacket.CONTROLLER_ALL = 0x7E;
 RNetPacket.CONTROLLER_ALL_DEVICES = 0x7D;
 RNetPacket.KEYPAD_CONTROLLER = 0x7F;
 RNetPacket.KEYPAD_ALL_IN_ZONE = 0x7D;
+RNetPacket.KEYPAD_ALL_ON_SOURCE = 0x79;
 
 module.exports = RNetPacket;

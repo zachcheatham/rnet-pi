@@ -29,9 +29,8 @@ class CaseIntegration {
 
             device.monitor.on("powerState", (stateName) => {
                 let powered = stateName == "on";
-                if (powered != device.lastState && "triggerZones" in device) {
+                if (powered != device.lastState) {
                     console.info("[Cast] \"%s\" power set to %s", device.name, powered);
-
                     // Cast powered on
                     if (powered) {
                         // Interrupt the timer for power down
@@ -41,7 +40,7 @@ class CaseIntegration {
                         }
 
                         // Only turn on trigger zones if no other zone is playing it
-                        if (!this.rNet.zonePlayingSource(device.sourceID)) {
+                        if ("triggerZones" in device && !this.rNet.zonePlayingSource(device.sourceID)) {
                             // Turn on the default zones
                             for (i in device.triggerZones) {
                                 let zone = this.rNet.getZone(device.triggerZones[i][0], device.triggerZones[i][1]);
@@ -51,21 +50,26 @@ class CaseIntegration {
                         }
                     }
                     // Cast powered off
-                    else if (device.triggeredZones) {
-                        // Wait the configured time to shut off zones
-                        device.idleTimer = setTimeout(() => {
-                            // Shut off all zones running the cast source
-                            for (let zone in this.rNet.getZonesPlayingSource)
-                            for (let ctrllrID = 0; ctrllrID < this.rNet.getControllersSize(); ctrllrID++) {
-                                for (let zoneID = 0; zoneID < this.rNet.getZonesSize(ctrllrID); zoneID++) {
-                                    let zone = this.rNet.getZone(ctrllrID, zoneID);
-                                    if (zone != null && zone.getSourceID() == device.sourceID) {
-                                        zone.setPower(false);
+                    else {
+                        let source = this.rNet.getSource(device.sourceID);
+                        source.setDescriptiveText(null);
+
+                        if (device.triggeredZones) {
+                            // Wait the configured time to shut off zones
+                            device.idleTimer = setTimeout(() => {
+                                // Shut off all zones running the cast source
+                                for (let zone in this.rNet.getZonesPlayingSource)
+                                for (let ctrllrID = 0; ctrllrID < this.rNet.getControllersSize(); ctrllrID++) {
+                                    for (let zoneID = 0; zoneID < this.rNet.getZonesSize(ctrllrID); zoneID++) {
+                                        let zone = this.rNet.getZone(ctrllrID, zoneID);
+                                        if (zone != null && zone.getSourceID() == device.sourceID) {
+                                            zone.setPower(false);
+                                        }
                                     }
                                 }
-                            }
-                            device.triggeredZones = false;
-                        }, device.idleTimeout);
+                                device.triggeredZones = false;
+                            }, device.idleTimeout);
+                        }
                     }
                 }
                 device.lastState = powered;
@@ -82,11 +86,13 @@ class CaseIntegration {
                     }
                     device.triggeredZones = true;
                 }
+
+                // TODO Temporary descriptive text of track
             })
             .on("application", (application) => {
                 console.log("[Cast] \"%s\" is now running %s", device.name, application);
                 let source = this.rNet.getSource(device.sourceID);
-                source.setDisplay(application);
+                source.setDescriptiveText(application);
             });
 
             console.info("[Cast] Monitoring \"%s\"", device.name);

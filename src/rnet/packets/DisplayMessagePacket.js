@@ -28,7 +28,7 @@ class DisplayMessagePacket extends DataPacket {
     }
 }
 
-DisplayMessagePacket.fromPacket = function(rNetPacket) {
+DisplayMessagePacket.fromPacket = function(dataPacket) {
     if (dataPacket instanceof DataPacket) {
         const displayMessagePacket = new DisplayMessagePacket();
         dataPacket.copyToPacket(displayMessagePacket);

@@ -4,7 +4,6 @@ const SerialPort = require("serialport");
 const SmartBuffer = require("smart-buffer").SmartBuffer;
 
 const ExtraZoneParam = require("./extraZoneParam");
-const DisplayMessagePacket = require("./packets/DisplayMessagePacket");
 const HandshakePacket = require("./packets/HandshakePacket");
 const PacketBuilder = require("./packets/PacketBuilder");
 const RenderedDisplayMessagePacket = require("./packets/RenderedDisplayMessagePacket");
@@ -14,6 +13,7 @@ const SetParameterPacket = require("./packets/SetParameterPacket");
 const SetPowerPacket = require("./packets/SetPowerPacket");
 const SetSourcePacket = require("./packets/SetSourcePacket");
 const SetVolumePacket = require("./packets/SetVolumePacket");
+const SourceDescriptiveTextPacket = require("./packets/SourceDescriptiveTextPacket");
 const ZoneInfoPacket = require("./packets/ZoneInfoPacket");
 const ZoneParameterPacket = require("./packets/ZoneParameterPacket");
 const ZonePowerPacket = require("./packets/ZonePowerPacket");
@@ -218,7 +218,8 @@ class RNet extends EventEmitter {
 
                 let source = this.getSource(sourceID);
                 if (source && source.getDisplay() != null) {
-                    zone.displayMessage(source.getDisplay(), 0, DisplayMessagePacket.ALIGN_CENTER);
+                    //zone.displayMessage(source.getDisplay(), 0, DisplayMessagePacket.ALIGN_CENTER);
+                    // TODO
                 }
 
                 this.emit("source", zone, sourceID);
@@ -327,11 +328,12 @@ class RNet extends EventEmitter {
                 this.emit("source-type", source, type);
                 this.writeSources();
             })
-            .on("display-message", (message) => {
-                for (let zone in this.getZonesPlayingSource(sourceID)) {
-                    zone.displayMessage(message, 0, DisplayMessagePacket.ALIGN_CENTER)
+            .on("descriptive-text", (message, flashTime, rNetTriggered) => {
+                if (!rNetTriggered) {
+                    this.sendData(new SourceDescriptiveTextPacket(source.getSourceID(), flashTime, message));
                 }
-                console.info("Source #%d (%s) display message set to \"%s\"", sourceID, name, message);
+                this.emit("descriptive-text", source, message, flashTime);
+                console.info("Source #%d (%s) published descriptive text: %s", sourceID, name, message);
             });
 
             this.emit("new-source", source);

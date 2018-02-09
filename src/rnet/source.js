@@ -10,7 +10,8 @@ class Source extends EventEmitter {
         this._name = name;
         this._type = type;
 
-        this._currentDisplay = null;
+        this._descriptiveText = null;
+        this._descriptiveTextFromRNet = true;
     }
 
     getSourceID() {
@@ -35,13 +36,25 @@ class Source extends EventEmitter {
         return this._type == Source.TYPE_CAST;
     }
 
-    setDisplay(displayMessage) {
-        this._currentDisplay = displayMessage;
-        this.emit("display-message", displayMessage);
+    setDescriptiveText(message, flashTime=0, rNetTriggered=false) {
+        if (flashTime == 0) {
+            this._descriptiveText = message;
+            this._descriptiveTextFromRNet = rNetTriggered;
+        }
+
+        if (message == null) {
+            message = this.getName();
+        }
+
+        this.emit("descriptive-text", message, flashTime, rNetTriggered);
     }
 
-    getDisplay() {
-        return this._currentDisplay;
+    getDescriptiveText() {
+        return this._descriptiveText;
+    }
+
+    isDescriptionFromRNet() {
+        return this._descriptiveTextFromRNet;
     }
 }
 
