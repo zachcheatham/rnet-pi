@@ -640,6 +640,19 @@ class RNet extends EventEmitter {
             console.log("Value Low: %d", packet.getLowValue());
             console.log("Value High: %d", packet.getHighValue());
             console.log("Short Value: %d", packet.getShortValue());
+
+            switch (packet.getRenderType()) {
+                case RenderedDisplayMessagePacket.TYPE_SOURCE_NAME:
+                    console.log("Possible source change to %d", packet.getHighValue());
+                    break;
+                case RenderedDisplayMessagePacket.TYPE_VOLUME:
+                    console.log("Possible volume change to %d", packet.getLowValue());
+                    break;
+                case RenderedDisplayMessagePacket.TYPE_KEYCODE_NAME:
+                    console.log("Possibly a key pressed.");
+                    break;
+            }
+
             console.log(" ");
         }
     }
