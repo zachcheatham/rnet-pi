@@ -217,7 +217,7 @@ class RNet extends EventEmitter {
                 }
 
                 let source = this.getSource(sourceID);
-                if (source && source.getDisplay() != null) {
+                if (source && source.getDescriptiveText() != null && !source.isDescriptionFromRNet()) {
                     //zone.displayMessage(source.getDisplay(), 0, DisplayMessagePacket.ALIGN_CENTER);
                     // TODO
                 }
