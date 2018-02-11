@@ -5,6 +5,7 @@ const SmartBuffer = require("smart-buffer").SmartBuffer;
 
 const ExtraZoneParam = require("./extraZoneParam");
 const HandshakePacket = require("./packets/HandshakePacket");
+const KeypadEventPacket = require("./packets/KeypadEventPacket")
 const PacketBuilder = require("./packets/PacketBuilder");
 const RenderedDisplayMessagePacket = require("./packets/RenderedDisplayMessagePacket");
 const RequestDataPacket = require("./packets/RequestDataPacket");

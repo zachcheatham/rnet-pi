@@ -1,11 +1,23 @@
 const RNetPacket = require("./RNetPacket");
 const DataPacket = require("./DataPacket");
+const EventPacket = require("./EventPacket");
+const KeypadEventPacket = require("./KeypadEventPacket");
 const RenderedDisplayMessagePacket = require("./RenderedDisplayMessagePacket");
 const ZoneInfoPacket = require("./ZoneInfoPacket");
 const ZonePowerPacket = require("./ZonePowerPacket");
 const ZoneSourcePacket = require("./ZoneSourcePacket");
 const ZoneVolumePacket = require("./ZoneVolumePacket");
 const ZoneParameterPacket = require("./ZoneParameterPacket");
+
+function inArray(arr, val) {
+    for (key in arr) {
+        if (arr[key] == val) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 module.exports = {
     build: function(buffer) {
@@ -14,6 +26,9 @@ module.exports = {
         switch (packet.messageType) {
             case 0x00:
                 packet = DataPacket.fromPacket(packet);
+                break;
+            case 0x05:
+                packet = EventPacket.fromPacket(packet);
                 break;
             case 0x06:
                 return RenderedDisplayMessagePacket.fromPacket(packet);
@@ -49,6 +64,19 @@ module.exports = {
                 return ZoneParameterPacket.fromPacket(packet);
             }
         }
+        // Event Messages
+        else if (packet.messageType == 0x05) {
+            // Keypad event
+            if (
+                packet.sourcePath.length == 2 &&
+                packet.sourcePath[0] == 0x04 &&
+                packet.sourcePath[1] == 0x03 &&
+                inArray(KeypadEventPacket.KEYS, packet.eventID)
+            ) {
+                return KeypadEventPacket.fromPacket(packet);
+            }
+        }
+
         return false;
     }
 }

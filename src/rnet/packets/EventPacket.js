@@ -59,24 +59,19 @@ class EventPacket extends RNetPacket {
 
     copyToPacket(packet) {
         if (packet.messageType == this.messageType) {
-            if (packet.eventID == this.eventID) {
-                packet.targetControllerID = this.targetControllerID;
-                packet.targetZoneID = this.targetZoneID;
-                packet.targetKeypadID = this.targetKeypadID;
-                packet.sourceControllerID = this.sourceControllerID;
-                packet.sourceZoneID = this.sourceZoneID;
-                packet.sourceKeypadID = this.sourceKeypadID;
+            packet.targetControllerID = this.targetControllerID;
+            packet.targetZoneID = this.targetZoneID;
+            packet.targetKeypadID = this.targetKeypadID;
+            packet.sourceControllerID = this.sourceControllerID;
+            packet.sourceZoneID = this.sourceZoneID;
+            packet.sourceKeypadID = this.sourceKeypadID;
 
-                packet.targetPath = this.targetPath;
-                packet.sourcePath = this.sourcePath;
-                packet.eventID = this.eventID;
-                packet.eventTimestamp = this.eventTimestamp;
-                packet.eventData = this.eventData;
-                packet.eventPriority = this.eventPriority;
-            }
-            else {
-                throw new Error("Attempted to copy values to packet with different eventID");
-            }
+            packet.targetPath = this.targetPath;
+            packet.sourcePath = this.sourcePath;
+            packet.eventID = this.eventID;
+            packet.eventTimestamp = this.eventTimestamp;
+            packet.eventData = this.eventData;
+            packet.eventPriority = this.eventPriority;
         }
         else {
             throw new Error("Attempted to copy values to packet with different messageType");
