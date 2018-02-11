@@ -32,6 +32,10 @@ class Source extends EventEmitter {
         this.emit("type", type);
     }
 
+    getType() {
+        return this._type;
+    }
+
     isCast() {
         return this._type == Source.TYPE_CAST;
     }
@@ -56,9 +60,21 @@ class Source extends EventEmitter {
     isDescriptionFromRNet() {
         return this._descriptiveTextFromRNet;
     }
+
+    control(operation, rNetTriggered=false) {
+        this.emit("control", operation, rNetTriggered);
+    }
 }
 
 Source.TYPE_GENERIC = "generic";
 Source.TYPE_CAST = "cast";
+
+Source.CONTROL_NEXT = 0;
+Source.CONTROL_PREV = 1;
+Source.CONTROL_STOP = 2;
+Source.CONTROL_PLAY = 3;
+Source.CONTROL_PAUSE = 4;
+Source.CONTROL_PLUS = 5;
+Source.CONTROL_MINUS = 6;
 
 module.exports = Source;

@@ -1,4 +1,5 @@
 const CastDeviceMonitor = require("castv2-device-monitor").DeviceMonitor
+const Source = require("./rnet/source");
 
 class CaseIntegration {
     constructor(rNet, config) {
@@ -9,6 +10,22 @@ class CaseIntegration {
 
         for (let deviceName in automationConfig) {
             for (let i in this._castDevices) {
+                const source = this.rNet.getSource(this._castDevices[i].sourceID);
+                source.on("control", (operation, rNetTriggered) => {
+                    const mon = this._castDevices[i].monitor;
+                    switch (operation) {
+                        case Source.CONTROL_PLAY:
+                            mon.playDevice();
+                            break;
+                        case Source.CONTROL_PAUSE:
+                            mon.pauseDevice();
+                            break;
+                        case Source.CONTROL_STOP:
+                            mon.stopDevice();
+                            break;
+                    }
+                })
+
                 if (this._castDevices[i].name == deviceName) {
                     this._castDevices[i].triggerZones = automationConfig[deviceName].zones;
                     this._castDevices[i].idleTimeout = automationConfig[deviceName].timeout * 1000;

@@ -335,6 +335,11 @@ class RNet extends EventEmitter {
                 }
                 this.emit("descriptive-text", source, message, flashTime);
                 console.info("Source #%d (%s) published descriptive text: %s", sourceID, name, message);
+            })
+            .on("control", (operation, rNetTriggered) => {
+                if (!rNetTriggered && source.getType() == "generic") {
+                    // TODO SEND EVENT TO RNET
+                }
             });
 
             this.emit("new-source", source);
@@ -633,28 +638,65 @@ class RNet extends EventEmitter {
             }
         }
         else if (packet instanceof RenderedDisplayMessagePacket) {
-            console.log("RenderedDisplayMessage:")
+            /*console.log("RenderedDisplayMessage:")
             console.log("Target: %d -> %d -> %d", packet.targetControllerID, packet.targetZoneID, packet.targetKeypadID);
             console.log("Source: %d -> %d -> %d", packet.sourceControllerID, packet.sourceZoneID, packet.sourceKeypadID)
             console.log("Render Type: %d", packet.renderType);
             console.log("Flash Time: %d", packet.flashTime);
             console.log("Value Low: %d", packet.getLowValue());
             console.log("Value High: %d", packet.getHighValue());
-            console.log("Short Value: %d", packet.getShortValue());
+            console.log("Short Value: %d", packet.getShortValue());*/
 
             switch (packet.getRenderType()) {
                 case RenderedDisplayMessagePacket.TYPE_SOURCE_NAME:
-                    console.log("Possible source change to %d", packet.getHighValue());
+                    this.getZone(packet.targetControllerID, packet.targetZoneID).setSourceID(packet.getHighValue(), true);
                     break;
-                case RenderedDisplayMessagePacket.TYPE_VOLUME:
-                    console.log("Possible volume change to %d", packet.getLowValue());
-                    break;
-                case RenderedDisplayMessagePacket.TYPE_KEYCODE_NAME:
-                    console.log("Possibly a key pressed.");
-                    break;
+                /*case RenderedDisplayMessagePacket.TYPE_VOLUME:
+                    //this.getZone(packet.targetControllerID, packet.targetZoneID).setVolume(packet.getLowValue() * 2, true);
+                    break;*/
             }
 
-            console.log(" ");
+            //console.log(" ");
+        }
+        else if (packet instanceof KeypadEventPacket) {
+            const zone = this.getZone(packet.sourceControllerID, packet.sourceZoneID);
+            const source = this.getSource(zone.getSourceID());
+            if (zone != null) {
+                switch (packet.getKey()) {
+                    case KeypadEventPacket.KEYS.POWER:
+                        zone.setPower(!zone.getPower(), true);
+                        return;
+                }
+
+                if (source != null) {
+                    switch (packet.getKey()) {
+                        case KeypadEventPacket.KEYS.NEXT:
+                            source.control(Source.CONTROL_NEXT, true);
+                            break;
+                        case KeypadEventPacket.KEYS.PREVIOUS:
+                            source.control(Source.CONTROL_PREV, true);
+                            break;
+                        case KeypadEventPacket.KEYS.PLUS:
+                            source.control(Source.CONTROL_PLUS, true);
+                            break;
+                        case KeypadEventPacket.KEYS.MINUS:
+                            source.control(Source.CONTROL_MINUS, true);
+                            break;
+                        case KeypadEventPacket.KEYS.STOP:
+                            source.control(Source.CONTROL_STOP, true);
+                            break;
+                        case KeypadEventPacket.KEYS.PAUSE:
+                            source.control(Source.CONTROL_PAUSE, true);
+                            break;
+                        case KeypadEventPacket.KEYS.PLAY:
+                            source.control(Source.CONTROL_PLAY, true);
+                            break;
+                    }
+                }
+            }
+            else {
+                console.warn("Received keypad event from unknown Zone (%d-%d)", packet.sourceControllerID, packet.sourceZoneID);
+            }
         }
     }
 }
