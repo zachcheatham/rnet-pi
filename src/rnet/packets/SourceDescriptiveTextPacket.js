@@ -15,13 +15,8 @@ class SourceDescriptiveTextPacket extends DataPacket {
         const buffer = new SmartBuffer();
         buffer.writeUInt8(0x10 | sourceID);
         buffer.writeUInt16LE(flashTime);
-        for (let i = 0; i < 12; i++) {
-            if (i < message.length) {
-                buffer.writeUInt8(message.charCodeAt(i));
-            }
-            else {
-                buffer.writeUInt8(0x00);
-            }
+        for (let i = 0; i < message.length; i++) {
+            buffer.writeUInt8(message.charCodeAt(i));
         }
         buffer.writeUInt8(0x00);
         this.data = buffer.toBuffer();
