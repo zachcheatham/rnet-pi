@@ -8,23 +8,23 @@ class RenderedDisplayMessagePacket extends RNetPacket {
     }
 
     getLowValue() {
-        return rdmPacket.valueLow;
+        return this.valueLow;
     }
 
     getHighValue() {
-        return rdmPacket.valueHigh;
+        return this.valueHigh;
     }
 
     getShortValue() {
-        return (rdmPacket.valueHigh << 4) | rdmPacket.valueLow;
+        return (this.valueHigh << 4) | this.valueLow;
     }
 
     getFlashTime() {
-        return rdmPacket.flashTime;
+        return this.flashTime;
     }
 
     getRenderType() {
-        return rdmPacket.renderType;
+        return this.renderType;
     }
 }
 
@@ -40,7 +40,7 @@ RenderedDisplayMessagePacket.fromPacket = function(rNetPacket) {
         rdmPacket.flashTime = buffer.readUInt16LE();
         rdmPacket.renderType = buffer.readUInt8();
 
-        return dataPacket;
+        return rdmPacket;
     }
     else {
         throw new TypeError("Cannot create RenderedDisplayMessagePacket with anything other than RNetPacket");
