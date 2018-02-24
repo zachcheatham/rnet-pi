@@ -189,6 +189,14 @@ class RNet extends EventEmitter {
                         )
                     );
                 }
+
+                if (powered) {
+                    let source = this.getSource(zone.getSourceID());
+                    if (source && source.getDescriptiveText() != null && !source.isDescriptionFromRNet()) {
+                        this.sendData(new SourceDescriptiveTextPacket(source.getSourceID(), 0, source.getDescriptiveText()));
+                    }
+                }
+
                 this.emit("power", zone, powered);
             })
             .on("volume", (volume, rNetTriggered) => {
@@ -219,7 +227,6 @@ class RNet extends EventEmitter {
 
                 let source = this.getSource(sourceID);
                 if (source && source.getDescriptiveText() != null && !source.isDescriptionFromRNet()) {
-                    //zone.displayMessage(source.getDisplay(), 0, DisplayMessagePacket.ALIGN_CENTER);
                     this.sendData(new SourceDescriptiveTextPacket(sourceID, 0, source.getDescriptiveText()));
                 }
 
@@ -263,7 +270,6 @@ class RNet extends EventEmitter {
     }
 
     getZone(ctrllrID, zoneID) {
-
         if (!this._zones[ctrllrID]) {
             return null;
         }
