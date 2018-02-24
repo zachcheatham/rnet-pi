@@ -1,35 +1,53 @@
 const Source = require("./rnet/source");
 const patchCastMonitor = require("./util/patch").castMonitor;
 
-class CaseIntegration {
+class CastIntegration {
     constructor(rNet, config) {
         this.rNet = rNet;
         this._castDevices = rNet.getCastSources();
 
-        let automationConfig = config.get("cast_automation");
+        for (let i in this._castDevices)
+        {
+            const device = this._castDevices[i];
 
-        for (let deviceName in automationConfig) {
-            for (let i in this._castDevices) {
-                const source = this.rNet.getSource(this._castDevices[i].sourceID);
-                source.on("control", (operation, rNetTriggered) => {
-                    const mon = this._castDevices[i].monitor;
-                    switch (operation) {
-                        case Source.CONTROL_PLAY:
-                            mon.playDevice();
-                            break;
-                        case Source.CONTROL_PAUSE:
-                            mon.pauseDevice();
-                            break;
-                        case Source.CONTROL_STOP:
-                            mon.stopDevice();
-                            break;
-                    }
-                })
+            // Bridge source control
+            const source = this.rNet.getSource(device.sourceID);
+            source.on("control", (operation, rNetTriggered) => {
+                const mon = device.monitor;
+                switch (operation) {
+                    case Source.CONTROL_PLAY:
+                        mon.playDevice();
+                        break;
+                    case Source.CONTROL_PAUSE:
+                        mon.pauseDevice();
+                        break;
+                    case Source.CONTROL_STOP:
+                        mon.stopDevice();
+                        break;
+                    case Source.CONTROL_NEXT:
+                        if (mon.skipDevice) {
+                            mon.skipDevice();
+                        }
+                        else {
+                            console.warn("Cast Monitor hasn't been patched with skip and rewind.");
+                        }
+                        break;
+                    case Source.CONTROL_PREV:
+                        if (mon.rewindDevice) {
+                            mon.rewindDevice();
+                        }
+                        else {
+                            console.warn("Cast Monitor hasn't been patched with skip and rewind.");
+                        }
+                        break;
+                }
+            });
 
-                if (this._castDevices[i].name == deviceName) {
-                    this._castDevices[i].triggerZones = automationConfig[deviceName].zones;
-                    this._castDevices[i].idleTimeout = automationConfig[deviceName].timeout * 1000;
-                    break;
+            let automationConfig = config.get("cast_automation");
+            if (automationConfig != null) {
+                if (device.name in automationConfig) {
+                    device.triggerZones = automationConfig[device.name].zones;
+                    device.idleTimeout = automationConfig[device.name].timeout * 1000;
                 }
             }
         }
@@ -127,4 +145,4 @@ class CaseIntegration {
     }
 }
 
-module.exports = CaseIntegration
+module.exports = CastIntegration
