@@ -1,0 +1,67 @@
+--- ./node_modules/castv2-device-monitor/index.js	2017-08-26 16:06:28.000000000 -0500
++++ index.js	2018-02-12 20:54:59.010670400 -0600
+@@ -129,6 +129,16 @@
+             this.clientConnection.playDevice();
+         }
+     }
++    skipDevice() {
++        if (this.clientConnection) {
++            this.clientConnection.skipDevice();
++        }
++    }
++    rewindDevice() {
++        if (this.clientConnection) {
++            this.clientConnection.rewindDevice();
++        }
++    }
+     volumeUp() {
+         if (this.clientConnection) {
+             this.clientConnection.volumeUp();
+@@ -229,6 +239,16 @@
+             this.mediaConnection.play();
+         }
+     }
++    skipDevice() {
++        if (this.mediaConnection) {
++            this.mediaConnection.skip();
++        }
++    }
++    rewindDevice() {
++        if (this.mediaConnection) {
++            this.mediaConnection.rewind();
++        }
++    }
+     volumeUp() {
+         this.receiver.send({
+             type: 'SET_VOLUME',
+@@ -287,6 +307,22 @@
+             requestId: requestId++,
+         });
+     }
++    skip() {
++        this.media.send({
++            type: "SEEK",
++            currentTime: (this.monitor.currentMedia.duration),
++            mediaSessionId: this.mediaSessionId,
++            requestId: requestId++,
++        })
++    }
++    rewind() {
++        this.media.send({
++            type: "SEEK",
++            currentTime: 0,
++            mediaSessionId: this.mediaSessionId,
++            requestId: requestId++,
++        })
++    }
+     parseMessage(message) {
+         debug('media message', message.requestId);
+         if (message.type === 'MEDIA_STATUS') {
+@@ -298,6 +334,7 @@
+                     this.monitor.setMedia({
+                         artist: status.media.metadata.artist,
+                         title: status.media.metadata.title,
++                        duration: status.media.duration,
+                     });
+                 }
+             }
