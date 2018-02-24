@@ -1,8 +1,8 @@
 const Server = require("./server");
 const RNet = require("./rnet/rnet");
 const CastIntegration = require("./CastIntegration");
-const config = require("./configuration");
 const WebHookServer = require("./webHookServer");
+const config = require("./configuration");
 
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
 const PacketC2SDeleteSource = require("./packets/PacketC2SDeleteSource");
@@ -46,7 +46,7 @@ if (rNet.hasCastSource()) {
 // Setup server
 server.once("start", function() {
     console.info("Server listening on %s", server.getAddress());
-    console.log("Connecting to RNet...")
+    console.info("Connecting to RNet...")
     rNet.connect();
 
     if (castIntegration != null) {
@@ -335,6 +335,6 @@ rNet.on("connected", () => {
 });
 
 // Start server
-console.log("Starting Server...");
+console.info("Starting Server...");
 server.start();
 webHookServer.start();
