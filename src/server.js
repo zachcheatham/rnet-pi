@@ -1,6 +1,5 @@
 const EventEmitter = require("events");
 const net = require("net");
-const mdns = require("mdns");
 
 const Client = require("./client");
 
@@ -32,8 +31,18 @@ class Server extends EventEmitter {
 
     start() {
         this._server.listen(this._port, this._host, () => {
-            this._service = mdns.createAdvertisement(mdns.tcp("rnet"), this._port, {name: this._name});
-            this._service.start();
+            let mdns = null;
+            try {
+                mdns = require("mdns");
+            }
+            catch (e) {
+                console.warn("MDNS Unavaiable. Remotes won't be able to automatically find this controller.")
+            }
+
+            if (mdns != null) {
+                this._service = mdns.createAdvertisement(mdns.tcp("rnet"), this._port, {name: this._name});
+                this._service.start();
+            }
 
             this.emit("start");
         });
