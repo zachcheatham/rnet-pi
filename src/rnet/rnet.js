@@ -63,7 +63,8 @@ class RNet extends EventEmitter {
     }
 
     disconnect() {
-        this._serialPort.close();
+        if (this._serialPort !== undefined)
+            this._serialPort.close();
     }
 
     readConfiguration() {
@@ -489,44 +490,46 @@ class RNet extends EventEmitter {
     }
 
     sendData(packet, queueLoop=false) {
-        if (packet instanceof HandshakePacket) {
-            this._serialPort.write(packet.getBuffer());
-            console.log("DEBUG: Sent handshake packet to RNet.");
+        if (this._serialPort !== undefined) {
+            if (packet instanceof HandshakePacket) {
+                this._serialPort.write(packet.getBuffer());
+                console.log("DEBUG: Sent handshake packet to RNet.");
 
-            if (!this._waitingForHandshake) {
-                console.warn("Unexpectedly sent a handshake packet!");
+                if (!this._waitingForHandshake) {
+                    console.warn("Unexpectedly sent a handshake packet!");
+                }
+                else {
+                    this._waitingForHandshake = false;
+                    clearTimeout(this._waitingForHandshakeTimeout);
+                }
+
+                if (this._packetQueue.length > 0) {
+                    this.sendData(this._packetQueue.shift(), true);
+                }
+            }
+            else if (this._waitingForHandshake || (!queueLoop && this._packetQueue.length > 0)) {
+                console.log("DEBUG: Queued packet while expecting to perform a handshake.");
+                this._packetQueue.push(packet);
             }
             else {
-                this._waitingForHandshake = false;
-                clearTimeout(this._waitingForHandshakeTimeout);
-            }
+                this._serialPort.write(packet.getBuffer());
+                console.log("DEBUG: Sent packet " + packet.constructor.name + " to RNet.");
 
-            if (this._packetQueue.length > 0) {
-                this.sendData(this._packetQueue.shift(), true);
-            }
-        }
-        else if (this._waitingForHandshake || (!queueLoop && this._packetQueue.length > 0)) {
-            console.log("DEBUG: Queued packet while expecting to perform a handshake.");
-            this._packetQueue.push(packet);
-        }
-        else {
-            this._serialPort.write(packet.getBuffer());
-            console.log("DEBUG: Sent packet " + packet.constructor.name + " to RNet.");
+                if (packet.causesResponseWithHandshake()) {
+                    console.log("DEBUG: Now expecting to perform handshake.");
+                    this._waitingForHandshake = true;
+                    this._waitingForHandshakeTimeout = setTimeout(() => {
+                        console.warn("Waited for expected handshake for too long. Continuing...");
+                        this._waitingForHandshake = false;
+                        if (this._packetQueue.length > 0) {
+                            this.sendData(this._packetQueue.shift(), true);
+                        }
+                    }, 3000);
+                }
 
-            if (packet.causesResponseWithHandshake()) {
-                console.log("DEBUG: Now expecting to perform handshake.");
-                this._waitingForHandshake = true;
-                this._waitingForHandshakeTimeout = setTimeout(() => {
-                    console.warn("Waited for expected handshake for too long. Continuing...");
-                    this._waitingForHandshake = false;
-                    if (this._packetQueue.length > 0) {
-                        this.sendData(this._packetQueue.shift(), true);
-                    }
-                }, 3000);
-            }
-
-            if (!this._waitingForHandshake && this._packetQueue.length > 0) {
-                this.sendData(this._packetQueue.shift(), true);
+                if (!this._waitingForHandshake && this._packetQueue.length > 0) {
+                    this.sendData(this._packetQueue.shift(), true);
+                }
             }
         }
     }

@@ -46,8 +46,14 @@ if (rNet.hasCastSource()) {
 // Setup server
 server.once("start", function() {
     console.info("Server listening on %s", server.getAddress());
-    console.info("Connecting to RNet...")
-    rNet.connect();
+
+    if (!config.get("simulate")) {
+        console.info("Connecting to RNet...");
+        rNet.connect();
+    }
+    else {
+        console.info("Simulation mode. Will not attempt to open serial connection.")
+    }
 
     if (castIntegration != null) {
         castIntegration.start();
