@@ -1,6 +1,6 @@
 {
   "name": "rnet-proxy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Proxy between smart devices and RNet enabled amps",
   "main": "index.js",
   "scripts": {
