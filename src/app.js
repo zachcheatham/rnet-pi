@@ -2,6 +2,7 @@ const Server = require("./server");
 const RNet = require("./rnet/rnet");
 const CastIntegration = require("./CastIntegration");
 const WebHookServer = require("./webHookServer");
+const Updater = require("./updater");
 const config = require("./configuration");
 
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
@@ -344,3 +345,6 @@ rNet.on("connected", () => {
 console.info("Starting Server...");
 server.start();
 webHookServer.start();
+Updater.checkForUpdates((current, latest) => {
+    Updater.update();
+});
