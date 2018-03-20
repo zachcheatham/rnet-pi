@@ -81,8 +81,8 @@ class Server extends EventEmitter {
         })
         .once("subscribed", () => {
             // Ready to tell the world!
-            this.emit("client_connected", client);
             this._clients.push(client);
+            this.emit("client_connected", client);
         })
         .on("packet", (packet) => {
             this.emit("packet", client, packet);

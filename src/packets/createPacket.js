@@ -2,6 +2,7 @@ const PacketC2SAllPower = require("./PacketC2SAllPower");
 const PacketC2SDeleteSource = require("./PacketC2SDeleteSource");
 const PacketC2SDeleteZone = require("./PacketC2SDeleteZone");
 const PacketC2SDisconnect = require("./PacketC2SDisconnect");
+const PacketC2SUpdate = require("./PacketC2SUpdate");
 const PacketC2SIntent = require("./PacketC2SIntent");
 const PacketC2SMute = require("./PacketC2SMute");
 const PacketC2SSourceName = require("./PacketC2SSourceName");
@@ -40,6 +41,8 @@ module.exports = function(packetType, data) {
             return new PacketC2SMute(data);
         case 0x64:
             return new PacketC2SZoneMaxVolume(data);
+        case 0x7D:
+            return new PacketC2SUpdate(data);
         default:
             return undefined;
     }

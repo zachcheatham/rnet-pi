@@ -13,9 +13,10 @@ function time() {
 }
 
 module.exports = {
+    currentVersion: packageJSON.version,
     checkForUpdates: function(callback) {
         if (updateAvaiable !== false) {
-            callback(remotePackageJSON.version, packageJSON.version);
+            callback(latestPackageJSON.version, packageJSON.version);
         }
         else if (time() - lastUpdateCheck >= UPDATE_CHECK_FREQUENCY) {
             console.info("Checking for updates...");

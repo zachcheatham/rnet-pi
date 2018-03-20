@@ -8,6 +8,7 @@ const config = require("./configuration");
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
 const PacketC2SDeleteSource = require("./packets/PacketC2SDeleteSource");
 const PacketC2SDeleteZone = require("./packets/PacketC2SDeleteZone");
+const PacketC2SUpdate = require("./packets/PacketC2SUpdate");
 const PacketC2SSourceName = require("./packets/PacketC2SSourceName");
 const PacketC2SZoneName = require("./packets/PacketC2SZoneName");
 const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
@@ -19,6 +20,7 @@ const PacketS2CRNetStatus = require("./packets/PacketS2CRNetStatus");
 const PacketC2SMute = require("./packets/PacketC2SMute");
 const PacketS2CSourceName = require("./packets/PacketS2CSourceName");
 const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
+const PacketS2CUpdateAvailable = require("./packets/PacketS2CUpdateAvailable");
 const PacketS2CZoneName = require("./packets/PacketS2CZoneName");
 const PacketS2CZoneDeleted = require("./packets/PacketS2CZoneDeleted");
 const PacketS2CZoneIndex = require("./packets/PacketS2CZoneIndex");
@@ -67,6 +69,8 @@ server.once("start", function() {
 .on("client_connected", function(client) {
     console.log("Client %s connected.", client.getAddress());
 
+    client.send(new PacketS2CVersion(Updater.currentVersion));
+
     let zones = [];
     for (let ctrllrID = 0; ctrllrID < rNet.getControllersSize(); ctrllrID++) {
         for (let zoneID = 0; zoneID < rNet.getZonesSize(ctrllrID); zoneID++) {
@@ -75,7 +79,7 @@ server.once("start", function() {
             }
         }
     }
-    client.send(new PacketS2CZoneIndex(zones))
+    client.send(new PacketS2CZoneIndex(zones));
 
     client.send(new PacketS2CRNetStatus(rNet.isConnected()));
 
@@ -109,6 +113,10 @@ server.once("start", function() {
         rNet.requestAllZoneInfo();
     }
     rNet.setAutoUpdate(true);
+
+    Updater.checkForUpdates((latest, current) => {
+        server.broadcast(new PacketS2CUpdateAvailable(latest));
+    });
 })
 .on("client_disconnect", function(client) {
     console.log("Client %s disconnected.", client.getAddress());
@@ -133,6 +141,11 @@ server.once("start", function() {
         case PacketC2SDeleteSource.ID:
         {
             rNet.deleteSource(packet.getSourceID());
+            break;
+        }
+        case PacketC2SUpdate.ID:
+        {
+            Updater.update();
             break;
         }
         case PacketC2SSourceName.ID:
@@ -345,6 +358,6 @@ rNet.on("connected", () => {
 console.info("Starting Server...");
 server.start();
 webHookServer.start();
-Updater.checkForUpdates((current, latest) => {
-    Updater.update();
+Updater.checkForUpdates((latest, current) => {
+    server.broadcast(new PacketS2CUpdateAvailable(latest));
 });
