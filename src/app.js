@@ -8,6 +8,7 @@ const config = require("./configuration");
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
 const PacketC2SDeleteSource = require("./packets/PacketC2SDeleteSource");
 const PacketC2SDeleteZone = require("./packets/PacketC2SDeleteZone");
+const PacketC2SProperty = require("./packets/PacketC2SProperty");
 const PacketC2SUpdate = require("./packets/PacketC2SUpdate");
 const PacketC2SSourceName = require("./packets/PacketC2SSourceName");
 const PacketC2SZoneName = require("./packets/PacketC2SZoneName");
@@ -16,8 +17,8 @@ const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
 const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
 const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
 const PacketC2SZoneMaxVolume = require("./packets/PacketC2SZoneMaxVolume");
-const PacketS2CRNetStatus = require("./packets/PacketS2CRNetStatus");
 const PacketC2SMute = require("./packets/PacketC2SMute");
+const PacketS2CProperty = require("./packets/PacketS2CProperty");
 const PacketS2CSourceName = require("./packets/PacketS2CSourceName");
 const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
 const PacketS2CUpdateAvailable = require("./packets/PacketS2CUpdateAvailable");
@@ -30,6 +31,7 @@ const PacketS2CZoneSource = require("./packets/PacketS2CZoneSource");
 const PacketS2CZoneVolume = require("./packets/PacketS2CZoneVolume");
 const PacketS2CZoneMaxVolume = require("./packets/PacketS2CZoneMaxVolume");
 const parameterIDToString = require("./rnet/parameterIDToString");
+const Property = require("./packets/Property");
 
 // Modify console.log to include timestamps
 require("console-stamp")(console, "HH:MM:ss");
@@ -69,8 +71,6 @@ server.once("start", function() {
 .on("client_connected", function(client) {
     console.log("Client %s connected.", client.getAddress());
 
-    client.send(new PacketS2CVersion(Updater.currentVersion));
-
     let zones = [];
     for (let ctrllrID = 0; ctrllrID < rNet.getControllersSize(); ctrllrID++) {
         for (let zoneID = 0; zoneID < rNet.getZonesSize(ctrllrID); zoneID++) {
@@ -80,8 +80,9 @@ server.once("start", function() {
         }
     }
     client.send(new PacketS2CZoneIndex(zones));
-
-    client.send(new PacketS2CRNetStatus(rNet.isConnected()));
+    client.send(new PacketS2CProperty(Property.PROPERTY_NAME, server.getName()));
+    client.send(new PacketS2CProperty(Property.PROPERTY_VERSION, Updater.currentVersion));
+    client.send(new PacketS2CProperty(Property.PROPERTY_SERIAL_CONNECTED, rNet.isConnected()));
 
     for (let sourceID = 0; sourceID < rNet.getSourcesSize(); sourceID++) {
         let source = rNet.getSource(sourceID);
@@ -141,6 +142,18 @@ server.once("start", function() {
         case PacketC2SDeleteSource.ID:
         {
             rNet.deleteSource(packet.getSourceID());
+            break;
+        }
+        case PacketC2SProperty.ID:
+        {
+            switch (packet.getProperty()) {
+                case Property.PROPERTY_NAME:
+                    server.setName(packet.getValue());
+                    server.broadcast(new PacketS2CProperty(Property.PROPERTY_NAME, packet.getValue()));
+                    config.set("serverName", packet.getValue());
+                    config.write();
+                    break;
+            }
             break;
         }
         case PacketC2SUpdate.ID:
@@ -240,11 +253,11 @@ server.once("start", function() {
 });
 
 rNet.on("connected", () => {
-    server.broadcast(new PacketS2CRNetStatus(true));
+    server.broadcast(new PacketS2CProperty(Server.PROPERTY_SERIAL_CONNECTED, true));
     console.log("Connected to RNet!");
 })
 .on("disconnected", () => {
-    server.broadcast(new PacketS2CRNetStatus(false));
+    server.broadcast(new PacketS2CProperty(Server.PROPERTY_SERIAL_CONNECTED, false));
     console.log("Disconnected from RNet")
 })
 .on("error", (error) => {

@@ -4,6 +4,7 @@ const PacketC2SDeleteZone = require("./PacketC2SDeleteZone");
 const PacketC2SDisconnect = require("./PacketC2SDisconnect");
 const PacketC2SUpdate = require("./PacketC2SUpdate");
 const PacketC2SIntent = require("./PacketC2SIntent");
+const PacketC2SProperty = require("./PacketC2SProperty");
 const PacketC2SMute = require("./PacketC2SMute");
 const PacketC2SSourceName = require("./PacketC2SSourceName");
 const PacketC2SZoneName = require("./PacketC2SZoneName");
@@ -17,6 +18,8 @@ module.exports = function(packetType, data) {
     switch (packetType) {
         case 0x01:
             return new PacketC2SIntent(data);
+        case 0x02:
+            return new PacketC2SProperty(data);
         case 0x03:
             return new PacketC2SDisconnect(data);
         case 0x04:
