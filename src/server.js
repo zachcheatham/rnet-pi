@@ -60,6 +60,30 @@ class Server extends EventEmitter {
         this._service.destroy();
     }
 
+    getName() {
+        return this._name;
+    }
+
+    setName(name) {
+        if (name != this._name) {
+            this._name = name;
+
+            let mdns = null;
+            try {
+                mdns = require("mdns");
+            }
+            catch (e) {
+                console.warn("MDNS Unavaiable. Remotes won't be able to automatically find this controller.")
+            }
+
+            if (mdns != null) {
+                this._service.stop();
+                this._service = mdns.createAdvertisement(mdns.tcp("rnet"), this._port, {name: this._name});
+                this._service.start();
+            }
+        }
+    }
+
     getAddress() {
         const addr = this._server.address();
         return addr.address + ":" + addr.port;
