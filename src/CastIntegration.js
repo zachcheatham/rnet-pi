@@ -125,12 +125,10 @@ class CastIntegration {
                         device.triggeredZones = true;
                     }
 
-                    // TODO Temporary descriptive text of track
-                })
-                .on("application", (application) => {
-                    console.log("[Cast] \"%s\" is now running %s", device.name, application);
                     let source = this.rNet.getSource(device.sourceID);
-                    source.setDescriptiveText(application);
+                    source.setDescriptiveText(device.monitor.application);
+
+                    // TODO Temporary descriptive text of track
                 });
 
                 console.info("[Cast] Connected to \"%s\"", device.name);
