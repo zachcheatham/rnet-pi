@@ -660,12 +660,10 @@ class RNet extends EventEmitter {
                 case RenderedDisplayMessagePacket.TYPE_SOURCE_NAME:
                     this.getZone(packet.targetControllerID, packet.targetZoneID).setSourceID(packet.getHighValue(), true);
                     break;
-                /*case RenderedDisplayMessagePacket.TYPE_VOLUME:
-                    //this.getZone(packet.targetControllerID, packet.targetZoneID).setVolume(packet.getLowValue() * 2, true);
-                    break;*/
+                case RenderedDisplayMessagePacket.TYPE_VOLUME:
+                    this.getZone(packet.targetControllerID, packet.targetZoneID).setVolume(packet.getLowValue() * 2, true);
+                    break;
             }
-
-            //console.log(" ");
         }
         else if (packet instanceof KeypadEventPacket) {
             const zone = this.getZone(packet.sourceControllerID, packet.sourceZoneID);
