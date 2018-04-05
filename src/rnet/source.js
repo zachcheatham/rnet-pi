@@ -61,8 +61,8 @@ class Source extends EventEmitter {
         return this._descriptiveTextFromRNet;
     }
 
-    control(operation, rNetTriggered=false) {
-        this.emit("control", operation, rNetTriggered);
+    control(operation, srcCtrllr, srcZone, rNetTriggered=false) {
+        this.emit("control", operation, srcCtrllr, srcZone, rNetTriggered);
     }
 }
 

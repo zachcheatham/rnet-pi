@@ -343,9 +343,9 @@ class RNet extends EventEmitter {
                 this.emit("descriptive-text", source, message, flashTime);
                 console.info("Source #%d (%s) published descriptive text: %s", sourceID, name, message);
             })
-            .on("control", (operation, rNetTriggered) => {
+            .on("control", (operation, srcCtrllr, srcZone, rNetTriggered) => {
                 if (!rNetTriggered && source.getType() == "generic") {
-                    // TODO SEND EVENT TO RNET
+                    this.sendData(new KeypadEventPacket(srcCtrllr, srcZone, operation));
                 }
             });
 

@@ -1,4 +1,4 @@
-const Server = require("./server");
+const Server = require("./server")
 const RNet = require("./rnet/rnet");
 const CastIntegration = require("./CastIntegration");
 const WebHookServer = require("./webHookServer");
@@ -10,6 +10,7 @@ const PacketC2SDeleteSource = require("./packets/PacketC2SDeleteSource");
 const PacketC2SDeleteZone = require("./packets/PacketC2SDeleteZone");
 const PacketC2SProperty = require("./packets/PacketC2SProperty");
 const PacketC2SUpdate = require("./packets/PacketC2SUpdate");
+const PacketC2SSourceControl = require("./packets/PacketC2SSourceControl");
 const PacketC2SSourceName = require("./packets/PacketC2SSourceName");
 const PacketC2SZoneName = require("./packets/PacketC2SZoneName");
 const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
@@ -159,6 +160,13 @@ server.once("start", function() {
         case PacketC2SUpdate.ID:
         {
             Updater.update();
+            break;
+        }
+        case PacketC2SSourceControl.ID:
+        {
+            let source = rNet.getSource(packet.getSourceID());
+            if (source != null)
+                source.control(packet.getKeyID());
             break;
         }
         case PacketC2SSourceName.ID:
