@@ -22,7 +22,7 @@ const PacketC2SMute = require("./packets/PacketC2SMute");
 const PacketS2CProperty = require("./packets/PacketS2CProperty");
 const PacketS2CSourceInfo = require("./packets/PacketS2CSourceInfo");
 const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
-const PacketS2SourceDescriptiveText = require("./packets/PacketS2SourceDescriptiveText");
+const PacketS2CSourceDescriptiveText = require("./packets/PacketS2CSourceDescriptiveText");
 const PacketS2CUpdateAvailable = require("./packets/PacketS2CUpdateAvailable");
 const PacketS2CZoneName = require("./packets/PacketS2CZoneName");
 const PacketS2CZoneDeleted = require("./packets/PacketS2CZoneDeleted");
@@ -376,7 +376,7 @@ rNet.on("connected", () => {
     );
 })
 .on("descriptive-text", (sourceID, time, text) => {
-    server.broadcast(new PacketS2SourceDescriptiveText(sourceID, time, text));
+    server.broadcast(new PacketS2CSourceDescriptiveText(sourceID, time, text));
 });
 
 // Start server

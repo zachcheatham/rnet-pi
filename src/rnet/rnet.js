@@ -338,7 +338,7 @@ class RNet extends EventEmitter {
                 if (!rNetTriggered) {
                     this.sendData(new SourceDescriptiveTextPacket(source.getSourceID(), flashTime, message));
                 }
-                this.emit("descriptive-text", source, message, flashTime);
+                this.emit("descriptive-text", source, flashTime, message);
                 console.info("Source #%d (%s) published descriptive text: %s", sourceID, name, message);
             })
             .on("control", (operation, srcCtrllr, srcZone, rNetTriggered) => {
