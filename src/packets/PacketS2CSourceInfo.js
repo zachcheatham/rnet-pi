@@ -4,17 +4,19 @@ const PacketS2C = require("./PacketS2C");
  * Server -> Client
  * ID = 0x06
  * Zone Name
- * Sends sources' names
+ * Sends source information
  * Data:
  *      (Unsigned Char) SourceID
  *      (String) Name
+ *      (Unsigned Char) Source Type ID
  */
-class PacketS2CSourceName extends PacketS2C {
-    constructor(sourceID, name) {
+class PacketS2CSourceInfo extends PacketS2C {
+    constructor(sourceID, name, sourceTypeID) {
         super();
 
         this._buffer.writeUInt8(sourceID);
         this._buffer.writeStringNT(name);
+        this._buffer.writeUInt8(sourceTypeID);
     }
 
     getID() {
@@ -22,4 +24,4 @@ class PacketS2CSourceName extends PacketS2C {
     }
 }
 
-module.exports = PacketS2CSourceName;
+module.exports = PacketS2CSourceInfo;

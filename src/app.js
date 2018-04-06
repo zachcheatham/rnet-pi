@@ -11,7 +11,7 @@ const PacketC2SDeleteZone = require("./packets/PacketC2SDeleteZone");
 const PacketC2SProperty = require("./packets/PacketC2SProperty");
 const PacketC2SUpdate = require("./packets/PacketC2SUpdate");
 const PacketC2SSourceControl = require("./packets/PacketC2SSourceControl");
-const PacketC2SSourceName = require("./packets/PacketC2SSourceName");
+const PacketC2SSourceInfo = require("./packets/PacketC2SSourceInfo");
 const PacketC2SZoneName = require("./packets/PacketC2SZoneName");
 const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
 const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
@@ -20,7 +20,7 @@ const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
 const PacketC2SZoneMaxVolume = require("./packets/PacketC2SZoneMaxVolume");
 const PacketC2SMute = require("./packets/PacketC2SMute");
 const PacketS2CProperty = require("./packets/PacketS2CProperty");
-const PacketS2CSourceName = require("./packets/PacketS2CSourceName");
+const PacketS2CSourceInfo = require("./packets/PacketS2CSourceInfo");
 const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
 const PacketS2SourceDescriptiveText = require("./packets/PacketS2SourceDescriptiveText");
 const PacketS2CUpdateAvailable = require("./packets/PacketS2CUpdateAvailable");
@@ -89,7 +89,7 @@ server.once("start", function() {
     for (let sourceID = 0; sourceID < rNet.getSourcesSize(); sourceID++) {
         let source = rNet.getSource(sourceID);
         if (source != null) {
-            client.send(new PacketS2CSourceName(sourceID, source.getName()));
+            client.send(new PacketS2CSourceInfo(sourceID, source.getName()));
         }
     }
 
@@ -170,7 +170,7 @@ server.once("start", function() {
                 source.control(packet.getKeyID());
             break;
         }
-        case PacketC2SSourceName.ID:
+        case PacketC2SSourceInfo.ID:
         {
             let source = rNet.getSource(packet.getSourceID());
             if (source != null)
@@ -300,7 +300,7 @@ rNet.on("connected", () => {
     );
 })
 .on("new-source", (source) => {
-    server.broadcast(new PacketS2CSourceName(source.getSourceID(), source.getName()));
+    server.broadcast(new PacketS2CSourceInfo(source.getSourceID(), source.getName()));
     console.info(
         "Source #%d (%s) created.",
         source.getSourceID(),
@@ -308,7 +308,7 @@ rNet.on("connected", () => {
     );
 })
 .on("source-name", (source, name) => {
-    server.broadcast(new PacketS2CSourceName(source.getSourceID(), name));
+    server.broadcast(new PacketS2CSourceInfo(source.getSourceID(), name));
     console.info(
         "Source #%d renamed to %s.",
         source.getSourceID(),

@@ -37,7 +37,7 @@ class Source extends EventEmitter {
     }
 
     isCast() {
-        return this._type == Source.TYPE_CAST;
+        return this._type == Source.TYPE_GOOGLE_CAST;
     }
 
     setDescriptiveText(message, flashTime=0, rNetTriggered=false) {
@@ -66,8 +66,26 @@ class Source extends EventEmitter {
     }
 }
 
-Source.TYPE_GENERIC = "generic";
-Source.TYPE_CAST = "cast";
+Source.TYPE_GENERIC = 0;
+Source.TYPE_AIRPLAY = 1;
+Source.TYPE_BLURAY = 2;
+Source.TYPE_CABLE = 3;
+Source.TYPE_CD = 4;
+Source.TYPE_COMPUTER = 5;
+Source.TYPE_DVD = 6;
+Source.TYPE_GOOGLE_CAST = 7;
+Source.TYPE_INTERNET_RADIO = 8;
+Source.TYPE_IPOD = 9;
+Source.TYPE_MEDIA_SERVER = 10;
+Source.TYPE_MP3 = 11;
+Source.TYPE_OTA = 12;
+Source.TYPE_PHONO = 13;
+Source.TYPE_RADIO = 14;
+Source.TYPE_SATELITE = 15;
+Source.TYPE_SATELITE_RADIO = 16;
+Source.TYPE_SONOS = 17;
+Source.TYPE_TAPE = 18;
+Source.TYPE_VCR = 19;
 
 Source.CONTROL_NEXT = 0;
 Source.CONTROL_PREV = 1;

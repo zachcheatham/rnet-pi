@@ -79,7 +79,7 @@ class RNet extends EventEmitter {
             for (let sourceID = 0; sourceID < sources.length; sourceID++) {
                 if (sources[sourceID] != null) {
                     let sourceData = sources[sourceID];
-                    let source = this.createSource(sourceID, sourceData.name, ("cast" in sourceData) && "cast" || "generic", false);
+                    let source = this.createSource(sourceID, sourceData.name, ("cast" in sourceData) && Source.TYPE_GOOGLE_CAST || sourceData.type, false);
                 }
             }
         }
@@ -123,9 +123,7 @@ class RNet extends EventEmitter {
                 let source = this._sources[sourceID];
                 sources[sourceID] = {
                     name: source.getName(),
-                }
-                if (source.isCast()) {
-                    sources[sourceID].cast = true;
+                    type: source.getType()
                 }
             }
         }
