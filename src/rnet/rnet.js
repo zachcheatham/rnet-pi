@@ -334,9 +334,13 @@ class RNet extends EventEmitter {
                 this.emit("source-type", source, type);
                 this.writeSources();
             })
+            .on("media-metadata", (title, artist, artworkURL) => {
+                this.emit("media-metadata", sourceID, title, artist, artworkURL);
+                console.info("Source #%d (%s) is now playing %s by %s", sourceID, name, title, artist);
+            })
             .on("descriptive-text", (message, flashTime, rNetTriggered) => {
                 if (!rNetTriggered) {
-                    this.sendData(new SourceDescriptiveTextPacket(source.getSourceID(), flashTime, message));
+                    this.sendData(new SourceDescriptiveTextPacket(sourceID, flashTime, message));
                 }
                 this.emit("descriptive-text", source, flashTime, message);
                 console.info("Source #%d (%s) published descriptive text: %s", sourceID, name, message);

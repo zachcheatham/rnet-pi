@@ -91,6 +91,7 @@ class CastIntegration {
                         else {
                             let source = this.rNet.getSource(device.sourceID);
                             source.setDescriptiveText(null);
+                            source.setMediaMetadata(null, null, null);
 
                             if (device.triggeredZones) {
                                 // Wait the configured time to shut off zones
@@ -113,8 +114,6 @@ class CastIntegration {
                     device.lastState = powered;
                 })
                 .on("media", (media) => {
-                    console.log("[Cast] \"%s\" is now playing %s by %s", device.name, media.title, media.artist);
-
                     // Only turn on trigger zones if no other zone is playing it
                     if (!this.rNet.zonePlayingSource(device.sourceID)) {
                         // Turn on the default zones
@@ -125,7 +124,12 @@ class CastIntegration {
                         device.triggeredZones = true;
                     }
 
+                    let artworkURL = null;
+                    if (media.images.length > 0)
+                        artworkURL = media.images[0].url;
+
                     let source = this.rNet.getSource(device.sourceID);
+                    source.setMediaMetadata(media.title, media.artist, artworkURL);
                     source.setDescriptiveText(device.monitor.application);
 
                     // TODO Temporary descriptive text of track

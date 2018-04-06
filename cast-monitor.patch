@@ -62,6 +62,7 @@
                          artist: status.media.metadata.artist,
                          title: status.media.metadata.title,
 +                        duration: status.media.duration,
++                        duration: status.media.metadata.images,
                      });
                  }
              }

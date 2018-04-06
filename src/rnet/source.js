@@ -10,6 +10,10 @@ class Source extends EventEmitter {
         this._name = name;
         this._type = type;
 
+        this._mediaMetadataTitle = null;
+        this._mediaMetadataArtist = null;
+        this._mediaMetadataArtworkURL = null;
+
         this._descriptiveText = null;
         this._descriptiveTextFromRNet = true;
     }
@@ -38,6 +42,31 @@ class Source extends EventEmitter {
 
     isCast() {
         return this._type == Source.TYPE_GOOGLE_CAST;
+    }
+
+    /*
+     * Media Metedata is used for smart sources
+     * such as a chromecast or sonos device
+     */
+
+    setMediaMetadata(title, artist, artworkURL) {
+        this._mediaMetadataTitle = title;
+        this._mediaMetadataArtist = artist;
+        this._mediaMetadataArtworkURL = artworkURL;
+
+        this.emit("media-metadata", title, artist, artworkURL);
+    }
+
+    getMediaTitle() {
+        return this._mediaMetadataTitle;
+    }
+
+    getMediaArtist() {
+        return this._mediaMetadataArtist;
+    }
+
+    getMediaArtworkURL() {
+        return this._mediaMetadataArtworkURL;
     }
 
     setDescriptiveText(message, flashTime=0, rNetTriggered=false) {
