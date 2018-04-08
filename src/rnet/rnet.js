@@ -415,7 +415,7 @@ class RNet extends EventEmitter {
         if (this._autoUpdating != enabled) {
             this._autoUpdating = enabled;
 
-            console.log("DEBUG: RNet auto-update set to " + enabled);
+            //console.log("DEBUG: RNet auto-update set to " + enabled);
 
             if (enabled) {
                 this._autoUpdateInterval = setInterval(() => {
@@ -470,7 +470,7 @@ class RNet extends EventEmitter {
         if (this._serialPort !== undefined) {
             if (packet instanceof HandshakePacket) {
                 this._serialPort.write(packet.getBuffer());
-                console.log("DEBUG: Sent handshake packet to RNet.");
+                //console.log("DEBUG: Sent handshake packet to RNet.");
 
                 if (!this._waitingForHandshake) {
                     console.warn("Unexpectedly sent a handshake packet!");
@@ -485,15 +485,15 @@ class RNet extends EventEmitter {
                 }
             }
             else if (this._waitingForHandshake || (!queueLoop && this._packetQueue.length > 0)) {
-                console.log("DEBUG: Queued packet while expecting to perform a handshake.");
+                //console.log("DEBUG: Queued packet while expecting to perform a handshake.");
                 this._packetQueue.push(packet);
             }
             else {
                 this._serialPort.write(packet.getBuffer());
-                console.log("DEBUG: Sent packet " + packet.constructor.name + " to RNet.");
+                //console.log("DEBUG: Sent packet " + packet.constructor.name + " to RNet.");
 
                 if (packet.causesResponseWithHandshake()) {
-                    console.log("DEBUG: Now expecting to perform handshake.");
+                    //console.log("DEBUG: Now expecting to perform handshake.");
                     this._waitingForHandshake = true;
                     this._waitingForHandshakeTimeout = setTimeout(() => {
                         console.warn("Waited for expected handshake for too long. Continuing...");
@@ -564,7 +564,7 @@ class RNet extends EventEmitter {
     }
 
     _receivedRNetPacket(packet) {
-        console.log("DEBUG: Received packet " + packet.constructor.name + " from RNet.");
+        //console.log("DEBUG: Received packet " + packet.constructor.name + " from RNet.");
 
         if (packet.requiresHandshake()) {
             this.sendData(new HandshakePacket(packet.sourceControllerID, 2));
