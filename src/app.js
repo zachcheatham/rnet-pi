@@ -48,7 +48,7 @@ const webHookServer = new WebHookServer(config.get("serverPort")+1, config.get("
 var castIntegration = null;
 
 if (rNet.hasCastSource()) {
-    castIntegration = new CastIntegration(rNet, config);
+    castIntegration = new CastIntegration(rNet);
 }
 
 // Setup server

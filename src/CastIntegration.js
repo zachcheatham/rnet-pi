@@ -2,7 +2,7 @@ const Source = require("./rnet/source");
 const patchCastMonitor = require("./util/patch").castMonitor;
 
 class CastIntegration {
-    constructor(rNet, config) {
+    constructor(rNet) {
         this.rNet = rNet;
         this._castDevices = rNet.getCastSources();
 
@@ -42,14 +42,6 @@ class CastIntegration {
                         break;
                 }
             });
-
-            let automationConfig = config.get("cast_automation");
-            if (automationConfig != null) {
-                if (device.name in automationConfig) {
-                    device.triggerZones = automationConfig[device.name].zones;
-                    device.idleTimeout = automationConfig[device.name].timeout * 1000;
-                }
-            }
         }
 
         console.info("Google Cast integration enabled.");
@@ -63,7 +55,6 @@ class CastIntegration {
                 let device = this._castDevices[i];
                 device.monitor = new CastDeviceMonitor(device.name);
                 device.lastState = false;
-                device.triggeredZones = false;
 
                 device.monitor.on("powerState", (stateName) => {
                     let powered = stateName == "on";
@@ -71,58 +62,21 @@ class CastIntegration {
                         console.info("[Cast] \"%s\" power set to %s", device.name, powered);
                         // Cast powered on
                         if (powered) {
-                            // Interrupt the timer for power down
-                            if ("idleTimer" in device) {
-                                clearTimeout(device.idleTimer);
-                                delete device.idleTimer;
-                            }
-
-                            // Only turn on trigger zones if no other zone is playing it
-                            if ("triggerZones" in device && !this.rNet.zonePlayingSource(device.sourceID)) {
-                                // Turn on the default zones
-                                for (i in device.triggerZones) {
-                                    let zone = this.rNet.getZone(device.triggerZones[i][0], device.triggerZones[i][1]);
-                                    zone.setPower(true);
-                                }
-                                device.triggeredZones = true;
-                            }
+                            source._onPower(true);
                         }
                         // Cast powered off
                         else {
                             let source = this.rNet.getSource(device.sourceID);
+                            source._onPower(false);
                             source.setDescriptiveText(null);
                             source.setMediaMetadata(null, null, null);
-
-                            if (device.triggeredZones) {
-                                // Wait the configured time to shut off zones
-                                device.idleTimer = setTimeout(() => {
-                                    // Shut off all zones running the cast source
-                                    for (let zone in this.rNet.getZonesPlayingSource)
-                                    for (let ctrllrID = 0; ctrllrID < this.rNet.getControllersSize(); ctrllrID++) {
-                                        for (let zoneID = 0; zoneID < this.rNet.getZonesSize(ctrllrID); zoneID++) {
-                                            let zone = this.rNet.getZone(ctrllrID, zoneID);
-                                            if (zone != null && zone.getSourceID() == device.sourceID) {
-                                                zone.setPower(false);
-                                            }
-                                        }
-                                    }
-                                    device.triggeredZones = false;
-                                }, device.idleTimeout);
-                            }
                         }
                     }
                     device.lastState = powered;
                 })
                 .on("media", (media) => {
-                    // Only turn on trigger zones if no other zone is playing it
-                    if (!this.rNet.zonePlayingSource(device.sourceID)) {
-                        // Turn on the default zones
-                        for (i in device.triggerZones) {
-                            let zone = this.rNet.getZone(device.triggerZones[i][0], device.triggerZones[i][1]);
-                            zone.setPower(true);
-                        }
-                        device.triggeredZones = true;
-                    }
+                    // We call _onPower here too because powerState is unreliable
+                    source._onPower(true);
 
                     let artworkURL = null;
                     if (media.images.length > 0)

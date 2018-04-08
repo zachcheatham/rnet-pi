@@ -80,6 +80,12 @@ class RNet extends EventEmitter {
                 if (sources[sourceID] != null) {
                     let sourceData = sources[sourceID];
                     let source = this.createSource(sourceID, sourceData.name, ("cast" in sourceData) && Source.TYPE_GOOGLE_CAST || sourceData.type, false);
+                    if ("auto_on_zones" in sourceData) {
+                        source._autoOnZones = sourceData.auto_on_zones;
+                    }
+                    if ("auto_off" in sourceData) {
+                        source._autoOff = sourceData.auto_off;
+                    }
                 }
             }
         }
@@ -124,6 +130,13 @@ class RNet extends EventEmitter {
                 sources[sourceID] = {
                     name: source.getName(),
                     type: source.getType()
+                }
+
+                if (source._autoOff) {
+                    sources[sourceID].auto_off = true;
+                }
+                if (source._autoOnZones.length > 0) {
+                    sources[sourceID].auto_on_zones = source._autoOnZones;
                 }
             }
         }
@@ -277,19 +290,6 @@ class RNet extends EventEmitter {
         }
     }
 
-    getZonesPlayingSource(sourceID) {
-        let zones = []
-        for (let ctrllrID = 0; ctrllrID < this.getControllersSize(); ctrllrID++) {
-            for (let zoneID = 0; zoneID < this.getZonesSize(ctrllrID); zoneID++) {
-                let zone = this.getZone(ctrllrID, zoneID);
-                if (zone && zone.getSourceID() == sourceID) {
-                    zones.push(zone);
-                }
-            }
-        }
-        return zones;
-    }
-
     findZoneByName(name) {
         name = name.toUpperCase();
         for (let ctrllrID = 0; ctrllrID < this.getControllersSize(); ctrllrID++) {
@@ -418,22 +418,6 @@ class RNet extends EventEmitter {
             }
         }
         return sources;
-    }
-
-    zonePlayingSource(sourceID) {
-        for (let ctrllrID = 0; ctrllrID < this.getControllersSize(); ctrllrID++) {
-            for (let zoneID = 0; zoneID < this.getZonesSize(ctrllrID); zoneID++) {
-                let zone = this.getZone(ctrllrID, zoneID);
-                if (zone != null &&
-                    zone.getPower() == true &&
-                    zone.getSourceID() == sourceID
-                ) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     setAutoUpdate(enabled) {

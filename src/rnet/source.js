@@ -10,12 +10,43 @@ class Source extends EventEmitter {
         this._name = name;
         this._type = type;
 
+        this._autoOnZones = [];
+        this._autoOff = false;
+
         this._mediaMetadataTitle = null;
         this._mediaMetadataArtist = null;
         this._mediaMetadataArtworkURL = null;
 
         this._descriptiveText = null;
         this._descriptiveTextFromRNet = true;
+    }
+
+    inUse() {
+        for (let ctrllrID = 0; ctrllrID < this._rNet.getControllersSize(); ctrllrID++) {
+            for (let zoneID = 0; zoneID < this._rNet.getZonesSize(ctrllrID); zoneID++) {
+                let zone = this._rNet.getZone(ctrllrID, zoneID);
+                if (zone.getSourceID() == this._id && zone.getPower()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    getZones() {
+        let zones = [];
+
+        for (let ctrllrID = 0; ctrllrID < this._rNet.getControllersSize(); ctrllrID++) {
+            for (let zoneID = 0; zoneID < this._rNet.getZonesSize(ctrllrID); zoneID++) {
+                let zone = this._rNet.getZone(ctrllrID, zoneID);
+                if (zone.getSourceID() == this._id && zone.getPower()) {
+                    zones.push(zone);
+                }
+            }
+        }
+
+        return zones;
     }
 
     getSourceID() {
@@ -92,6 +123,31 @@ class Source extends EventEmitter {
 
     control(operation, srcCtrllr, srcZone, rNetTriggered=false) {
         this.emit("control", operation, srcCtrllr, srcZone, rNetTriggered);
+    }
+
+    setZoneAutoOff(autoOff) {
+        this._autoOff = autoOff;
+    }
+
+    setAutoOnZones(zones) {
+        this._autoOnZones = zones;
+    }
+
+    // Called by smart device integration to toggle auto on/off
+    _onPower(powered) {
+        if (powered) {
+            if (!this.isUse()) {
+                for (let id in this._autoOnZones) {
+                    let zone = this._rNet.getZone(id[0], id[1]);
+                    zone.setPower(true);
+                }
+            }
+        }
+        else {
+            for (let zone in this.getZones()) {
+                zone.setPower(false);
+            }
+        }
     }
 }
 
