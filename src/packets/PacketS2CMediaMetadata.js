@@ -15,9 +15,9 @@ class PacketS2CMediaMetadata extends PacketS2C {
         super();
 
         this._buffer.writeUInt8(sourceID);
-        this._buffer.writeStringNT(title !== null ? title : "");
-        this._buffer.writeStringNT(artist !== null ? artist : "");
-        this._buffer.writeStringNT(artworkURL !== null ? artworkURL : "");
+        this._buffer.writeStringNT(title ? title : "");
+        this._buffer.writeStringNT(artist ? artist : "");
+        this._buffer.writeStringNT(artworkURL ? artworkURL : "");
     }
 
     getID() {
