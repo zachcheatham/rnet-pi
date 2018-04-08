@@ -346,7 +346,7 @@ class RNet extends EventEmitter {
                 console.info("Source #%d (%s) published descriptive text: %s", sourceID, name, message);
             })
             .on("control", (operation, srcCtrllr, srcZone, rNetTriggered) => {
-                if (!rNetTriggered && source.getType() == "generic") {
+                if (!rNetTriggered && !source.networkControlled()) {
                     this.sendData(new KeypadEventPacket(srcCtrllr, srcZone, operation));
                 }
             });
@@ -401,20 +401,11 @@ class RNet extends EventEmitter {
         return this._sources;
     }
 
-    hasCastSource() {
-        for (let sourceID = 0; sourceID < this._sources.length; sourceID++) {
-            if (this._sources[sourceID] != null && this._sources[sourceID].isCast()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    getCastSources() {
+    getSourcesByType(type) {
         let sources = [];
         for (let sourceID = 0; sourceID < this._sources.length; sourceID++) {
-            if (this._sources[sourceID] != null && this._sources[sourceID].isCast()) {
-                sources.push({sourceID: sourceID, name: this._sources[sourceID].getName()});
+            if (this._sources[sourceID] != null && this._sources[sourceID].getType() == type) {
+                sources.push(this._sources[sourceID]);
             }
         }
         return sources;

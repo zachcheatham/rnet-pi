@@ -1,6 +1,6 @@
 const Server = require("./server")
 const RNet = require("./rnet/rnet");
-const CastIntegration = require("./CastIntegration");
+const GoogleCastIntegration = require("./smart-integration/GoogleCastIntegration");
 const WebHookServer = require("./webHookServer");
 const Updater = require("./updater");
 const config = require("./configuration");
@@ -45,11 +45,7 @@ config.write();
 const server = new Server(config.get("serverName"), config.get("serverHost"), config.get("serverPort"));
 const rNet = new RNet(config.get("serialDevice"));
 const webHookServer = new WebHookServer(config.get("serverPort")+1, config.get("webHookPassword"), rNet);
-var castIntegration = null;
-
-if (rNet.hasCastSource()) {
-    castIntegration = new CastIntegration(rNet);
-}
+const googleCastIntegration = new GoogleCastIntegration(rNet);
 
 // Setup server
 server.once("start", function() {
@@ -61,10 +57,6 @@ server.once("start", function() {
     }
     else {
         console.info("Simulation mode. Will not attempt to open serial connection.")
-    }
-
-    if (castIntegration != null) {
-        castIntegration.start();
     }
 })
 .once("error", function(error) {

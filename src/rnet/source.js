@@ -21,34 +21,6 @@ class Source extends EventEmitter {
         this._descriptiveTextFromRNet = true;
     }
 
-    inUse() {
-        for (let ctrllrID = 0; ctrllrID < this._rNet.getControllersSize(); ctrllrID++) {
-            for (let zoneID = 0; zoneID < this._rNet.getZonesSize(ctrllrID); zoneID++) {
-                let zone = this._rNet.getZone(ctrllrID, zoneID);
-                if (zone.getSourceID() == this._id && zone.getPower()) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    getZones() {
-        let zones = [];
-
-        for (let ctrllrID = 0; ctrllrID < this._rNet.getControllersSize(); ctrllrID++) {
-            for (let zoneID = 0; zoneID < this._rNet.getZonesSize(ctrllrID); zoneID++) {
-                let zone = this._rNet.getZone(ctrllrID, zoneID);
-                if (zone.getSourceID() == this._id && zone.getPower()) {
-                    zones.push(zone);
-                }
-            }
-        }
-
-        return zones;
-    }
-
     getSourceID() {
         return this._id;
     }
@@ -71,8 +43,32 @@ class Source extends EventEmitter {
         return this._type;
     }
 
-    isCast() {
-        return this._type == Source.TYPE_GOOGLE_CAST;
+    inUse() {
+        for (let ctrllrID = 0; ctrllrID < this._rNet.getControllersSize(); ctrllrID++) {
+            for (let zoneID = 0; zoneID < this._rNet.getZonesSize(ctrllrID); zoneID++) {
+                let zone = this._rNet.getZone(ctrllrID, zoneID);
+                if (zone && zone.getSourceID() == this._id && zone.getPower()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    getZones() {
+        let zones = [];
+
+        for (let ctrllrID = 0; ctrllrID < this._rNet.getControllersSize(); ctrllrID++) {
+            for (let zoneID = 0; zoneID < this._rNet.getZonesSize(ctrllrID); zoneID++) {
+                let zone = this._rNet.getZone(ctrllrID, zoneID);
+                if (zone && zone.getSourceID() == this._id && zone.getPower()) {
+                    zones.push(zone);
+                }
+            }
+        }
+
+        return zones;
     }
 
     /*
@@ -121,6 +117,15 @@ class Source extends EventEmitter {
         return this._descriptiveTextFromRNet;
     }
 
+    networkControlled() {
+        switch (this._type) {
+        case TYPE_GOOGLE_CAST:
+            return true;
+        default:
+            return false;
+        }
+    }
+
     control(operation, srcCtrllr, srcZone, rNetTriggered=false) {
         this.emit("control", operation, srcCtrllr, srcZone, rNetTriggered);
     }
@@ -136,16 +141,18 @@ class Source extends EventEmitter {
     // Called by smart device integration to toggle auto on/off
     _onPower(powered) {
         if (powered) {
-            if (!this.isUse()) {
-                for (let id in this._autoOnZones) {
+            if (!this.inUse()) {
+                for (let i in this._autoOnZones) {
+                    let id = this._autoOnZones[i];
                     let zone = this._rNet.getZone(id[0], id[1]);
                     zone.setPower(true);
                 }
             }
         }
         else {
-            for (let zone in this.getZones()) {
-                zone.setPower(false);
+            let zones = this.getZones();
+            for (let i in zones) {
+                zones[i].setPower(false);
             }
         }
     }
