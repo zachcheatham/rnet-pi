@@ -51,6 +51,10 @@ class Client extends EventEmitter {
         return this._intent == 0x02;
     }
 
+    disconnect() {
+        this._connection.end();
+    }
+
     _recvData(data) {
         const incomingBuffer = SmartBuffer.fromBuffer(data);
 

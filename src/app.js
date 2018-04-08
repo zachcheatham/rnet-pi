@@ -382,3 +382,14 @@ webHookServer.start();
 Updater.checkForUpdates((latest, current) => {
     server.broadcast(new PacketS2CUpdateAvailable(latest));
 });
+
+process.on('SIGINT', function() {
+    console.info("Shutting down...");
+    server.stop(() => {
+        webHookServer.stop();
+        googleCastIntegration.stop();
+        rNet.disconnect();
+        console.info("Goodbye.");
+        process.exit();
+    });
+});

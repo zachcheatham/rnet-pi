@@ -103,8 +103,16 @@ class WebHookServer extends EventEmitter {
 
     start() {
         if (this._app) {
-            this._app.listen(this._port);
+            this._server = this._app.listen(this._port);
             console.info("Web hook server running on port " + this._port);
+        }
+    }
+
+    stop() {
+        if (this._app && this._server) {
+            this._server.close();
+            this._server = undefined;
+            console.info("Web hook server stopped.");
         }
     }
 }

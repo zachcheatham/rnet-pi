@@ -56,8 +56,15 @@ class Server extends EventEmitter {
         }
     }
 
-    stop() {
-        this._service.destroy();
+    stop(callback) {
+        this._service.stop();
+        for (let client of this._clients) {
+            client.disconnect();
+        }
+        this._server.close(() => {
+            console.info("Server stopped.")
+            callback();
+        });
     }
 
     getName() {
