@@ -319,7 +319,7 @@ class RNet extends EventEmitter {
 
     createSource(sourceID, name, type, writeConfig=true) {
         if (!this._sources[sourceID]) {
-            let source = new Source(this, sourceID, name, type);
+            let source = new Source(this, sourceID, name, type && type || Source.TYPE_GENERIC);
             this._sources[sourceID] = source;
 
             if (writeConfig) {

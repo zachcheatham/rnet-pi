@@ -169,7 +169,7 @@ server.once("start", function() {
             if (source != null)
                 source.setName(packet.getName());
             else
-                rNet.createSource(packet.getSourceID(), packet.getName(), "generic");
+                rNet.createSource(packet.getSourceID(), packet.getName(), packet.getSourceTypeID());
             break;
         }
         case PacketC2SZoneName.ID:
