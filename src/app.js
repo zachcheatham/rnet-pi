@@ -34,7 +34,7 @@ const PacketS2CZoneSource = require("./packets/PacketS2CZoneSource");
 const PacketS2CZoneVolume = require("./packets/PacketS2CZoneVolume");
 const PacketS2CZoneMaxVolume = require("./packets/PacketS2CZoneMaxVolume");
 const parameterIDToString = require("./rnet/parameterIDToString");
-const Property = require("./packets/Property");
+const Property = require("./Property");
 
 // Modify console.log to include timestamps
 require("console-stamp")(console, "HH:MM:ss");
