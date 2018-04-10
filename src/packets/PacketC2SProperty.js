@@ -3,7 +3,7 @@ const Property = require("../Property");
 
 /**
  * Client -> Server
- * ID = 0x02
+ * ID = 0x34
  * Property
  */
 class PacketC2SProperty extends PacketC2S {
@@ -30,5 +30,7 @@ class PacketC2SProperty extends PacketC2S {
         return PacketC2SProperty.ID;
     }
 }
+
+PacketC2SProperty.ID = 0x34;
 
 module.exports = PacketC2SProperty;

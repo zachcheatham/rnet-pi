@@ -134,14 +134,22 @@ class Source extends EventEmitter {
         this._autoOff = autoOff;
     }
 
+    getZoneAutoOff() {
+        return this._autoOff;
+    }
+
     setAutoOnZones(zones) {
         this._autoOnZones = zones;
+    }
+
+    getAutoOnZones() {
+        return this._autoOnZones;
     }
 
     // Called by smart device integration to toggle auto on/off
     _onPower(powered) {
         if (powered) {
-            if (!this.inUse()) {
+            if (this._autoOnZones.length > 0 && !this.inUse()) {
                 for (let i in this._autoOnZones) {
                     let id = this._autoOnZones[i];
                     let zone = this._rNet.getZone(id[0], id[1]);
@@ -149,7 +157,7 @@ class Source extends EventEmitter {
                 }
             }
         }
-        else {
+        else if (this._autoOff) {
             let zones = this.getZones();
             for (let i in zones) {
                 zones[i].setPower(false);

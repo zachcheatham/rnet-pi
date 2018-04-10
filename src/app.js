@@ -8,6 +8,8 @@ const config = require("./configuration");
 const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
 const PacketC2SDeleteSource = require("./packets/PacketC2SDeleteSource");
 const PacketC2SDeleteZone = require("./packets/PacketC2SDeleteZone");
+const PacketC2SMute = require("./packets/PacketC2SMute");
+const PacketC2SRequestSourceProperties = require("./packets/PacketC2SRequestSourceProperties");
 const PacketC2SProperty = require("./packets/PacketC2SProperty");
 const PacketC2SUpdate = require("./packets/PacketC2SUpdate");
 const PacketC2SSourceControl = require("./packets/PacketC2SSourceControl");
@@ -18,7 +20,6 @@ const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
 const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
 const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
 const PacketC2SZoneMaxVolume = require("./packets/PacketC2SZoneMaxVolume");
-const PacketC2SMute = require("./packets/PacketC2SMute");
 const PacketS2CMediaMetadata = require("./packets/PacketS2CMediaMetadata");
 const PacketS2CProperty = require("./packets/PacketS2CProperty");
 const PacketS2CSourceInfo = require("./packets/PacketS2CSourceInfo");
@@ -139,6 +140,31 @@ server.once("start", function() {
             rNet.deleteSource(packet.getSourceID());
             break;
         }
+        case PacketC2SMute.ID:
+        {
+            if (!packet.getControllerID()) {
+                if (packet.getMuteState() == PacketC2SMute.MUTE_TOGGLE) {
+                    rNet.setAllMute(!rNet.getAllMute(), packet.getFadeTime());
+                }
+                else {
+                    rNet.setAllMute(packet.getMuteState() == 0x01, packet.getFadeTime());
+                }
+            }
+            else {
+                const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
+                if (zone != null) {
+                    if (packet.getMuteState() == PacketC2SMute.MUTE_TOGGLE) {
+                        zone.setMute(!zone.getMuted(), packet.getFadeTime());
+                    }
+                    else {
+                        zone.setMute(zone.getMuted() == 0x01, packet.getFadeTime());
+                    }
+                }
+                else
+                    console.warn("Received request to set mute of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
+            }
+            break;
+        }
         case PacketC2SProperty.ID:
         {
             switch (packet.getProperty()) {
@@ -149,6 +175,20 @@ server.once("start", function() {
                     config.write();
                     break;
             }
+            break;
+        }
+        case PacketC2SRequestSourceProperties.ID:
+        {
+            let source = rNet.getSource(packet.getSourceID());
+            if (source) {
+                client.send(new PacketS2CSourceProperty(packet.getSourceID(), SourceProperty.PROPERTY_AUTO_OFF, source.getZoneAutoOff()));
+                client.send(new PacketS2CSourceProperty(packet.getSourceID(), SourceProperty.PROPERTY_AUTO_ON_ZONES, source.getAutoOnZones()));
+            }
+            break;
+        }
+        case PacketC2SSourceProperty.ID:
+        {
+            // TODO Handle Source property changes
             break;
         }
         case PacketC2SUpdate.ID:
@@ -215,31 +255,6 @@ server.once("start", function() {
                 zone.setVolume(packet.getVolume());
             else
                 console.warn("Received request to set volume of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
-            break;
-        }
-        case PacketC2SMute.ID:
-        {
-            if (!packet.getControllerID()) {
-                if (packet.getMuteState() == PacketC2SMute.MUTE_TOGGLE) {
-                    rNet.setAllMute(!rNet.getAllMute(), packet.getFadeTime());
-                }
-                else {
-                    rNet.setAllMute(packet.getMuteState() == 0x01, packet.getFadeTime());
-                }
-            }
-            else {
-                const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
-                if (zone != null) {
-                    if (packet.getMuteState() == PacketC2SMute.MUTE_TOGGLE) {
-                        zone.setMute(!zone.getMuted(), packet.getFadeTime());
-                    }
-                    else {
-                        zone.setMute(zone.getMuted() == 0x01, packet.getFadeTime());
-                    }
-                }
-                else
-                    console.warn("Received request to set mute of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
-            }
             break;
         }
         case PacketC2SZoneMaxVolume.ID:
