@@ -83,7 +83,7 @@ server.once("start", function() {
     for (let sourceID = 0; sourceID < rNet.getSourcesSize(); sourceID++) {
         let source = rNet.getSource(sourceID);
         if (source != null) {
-            client.send(new PacketS2CSourceInfo(sourceID, source.getName()));
+            client.send(new PacketS2CSourceInfo(sourceID, source.getName(), source.getType()));
         }
     }
 
@@ -308,7 +308,7 @@ rNet.on("connected", () => {
     );
 })
 .on("new-source", (source) => {
-    server.broadcast(new PacketS2CSourceInfo(source.getSourceID(), source.getName()));
+    server.broadcast(new PacketS2CSourceInfo(source.getSourceID(), source.getName(), source.getType()));
     console.info(
         "Source #%d (%s) created.",
         source.getSourceID(),
@@ -316,11 +316,20 @@ rNet.on("connected", () => {
     );
 })
 .on("source-name", (source, name) => {
-    server.broadcast(new PacketS2CSourceInfo(source.getSourceID(), name));
+    server.broadcast(new PacketS2CSourceInfo(source.getSourceID(), name, source.getType()));
     console.info(
         "Source #%d renamed to %s.",
         source.getSourceID(),
         name
+    );
+})
+.on("source-type", (source, type) => {
+    server.broadcast(new PacketS2CSourceInfo(source.getSourceID(), source.getName(), type));
+    console.info(
+        "Source #%d (%s) changed to type #%d.",
+        source.getSourceID(),
+        source.getName(),
+        type
     );
 })
 .on("source-deleted", (sourceID) => {
