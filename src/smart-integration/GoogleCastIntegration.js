@@ -7,6 +7,7 @@ class GoogleCastIntegration {
         this._rNet = rNet;
         this._pendingSources = [];
         this._devices = [];
+        this._settingUp = false;
 
         let sources = rNet.getSourcesByType(Source.TYPE_GOOGLE_CAST);
         for (let i in sources) {
@@ -23,7 +24,8 @@ class GoogleCastIntegration {
                     this.integrateSource(source.getSourceID());
                 }
                 else {
-                    pendingSources.add(source.getSourceID());
+                    this._pendingSources.push(source.getSourceID());
+                    this.setup();
                 }
             }
         });
@@ -45,6 +47,7 @@ class GoogleCastIntegration {
                 }
                 else {
                     pendingSources.add(sourceID);
+                    setup();
                 }
             }
             else {
@@ -60,12 +63,16 @@ class GoogleCastIntegration {
     }
 
     setup() {
-        patchCastMonitor(() => {
-            CastDeviceMonitor = require("castv2-device-monitor").DeviceMonitor;
-            for (let i in this._pendingSources) {
-                this.integrateSource(this._pendingSources[i]);
-            }
-        });
+        if (!this._settingUp && !CastDeviceMonitor) {
+            this._settingUp = true;
+            patchCastMonitor(() => {
+                CastDeviceMonitor = require("castv2-device-monitor").DeviceMonitor;
+                for (let i in this._pendingSources) {
+                    this.integrateSource(this._pendingSources[i]);
+                }
+                this._settingUp = false;
+            });
+        }
     }
 
     integrateSource(sourceID) {
