@@ -169,7 +169,9 @@ class GoogleCastIntegration {
                 if (source) {
                     source.removeListener("control", device.controlListener);
                 }
-                device.monitor.clientConnection.close();
+                if (device.monitor.clientConnection) {
+                    device.monitor.clientConnection.close();
+                }
                 this._devices.splice(i, 1);
 
                 console.info("[Google Cast] No longer monitoring \"%s\"", device.name);
@@ -185,7 +187,9 @@ class GoogleCastIntegration {
             if (source) {
                 source.removeListener("control", device.controlListener);
             }
-            device.monitor.clientConnection.close();
+            if (device.monitor.clientConnection) {
+                device.monitor.clientConnection.close();
+            }
         }
 
         this._devices = [];
