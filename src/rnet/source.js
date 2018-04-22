@@ -30,13 +30,17 @@ class Source extends EventEmitter {
     }
 
     setName(name) {
-        this._name = name;
-        this.emit("name", name);
+        if (name != this._name) {
+            this._name = name;
+            this.emit("name", name);
+        }
     }
 
     setType(type) {
-        this._type = type;
-        this.emit("type", type);
+        if (type != this._type) {
+            this._type = type;
+            this.emit("type", type);
+        }
     }
 
     getType() {
@@ -131,7 +135,10 @@ class Source extends EventEmitter {
     }
 
     setZoneAutoOff(autoOff) {
-        this._autoOff = autoOff;
+        if (this._autoOff != autoOff) {
+            this._autoOff = autoOff;
+            this._rNet.writeSources();
+        }
     }
 
     getZoneAutoOff() {
