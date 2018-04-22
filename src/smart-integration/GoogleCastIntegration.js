@@ -30,28 +30,27 @@ class GoogleCastIntegration {
             }
         });
 
-        this._rNet.on("source-name", (sourceID, name) => {
-            let source = this._rNet.getSource(sourceID);
+        this._rNet.on("source-name", (source, name) => {
             if (source.getType() == Source.TYPE_GOOGLE_CAST) {
                 if (CastDeviceMonitor) {
-                    this.seperateSource(sourceID);
-                    this.integrateSource(sourceID);
+                    this.seperateSource(source.getSourceID());
+                    this.integrateSource(source.getSourceID());
                 }
             }
         });
 
-        this._rNet.on("source-type", (sourceID, type) => {
+        this._rNet.on("source-type", (source, type) => {
             if (type == Source.TYPE_GOOGLE_CAST) {
                 if (CastDeviceMonitor) {
-                    this.integrateSource(sourceID);
+                    this.integrateSource(source.getSourceID());
                 }
                 else {
-                    pendingSources.add(sourceID);
+                    pendingSources.add(source.getSourceID());
                     setup();
                 }
             }
             else {
-                this.seperateSource(sourceID);
+                this.seperateSource(source.getSourceID());
             }
         });
 
