@@ -220,7 +220,10 @@ server.once("start", function() {
         {
             let source = rNet.getSource(packet.getSourceID());
             if (source != null)
+            {
                 source.setName(packet.getName());
+                source.setType(packet.getSourceTypeID());
+            }
             else
                 rNet.createSource(packet.getSourceID(), packet.getName(), packet.getSourceTypeID());
             break;
