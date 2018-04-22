@@ -147,6 +147,7 @@ class Source extends EventEmitter {
 
     setAutoOnZones(zones) {
         this._autoOnZones = zones;
+        this._rNet.writeSources();
     }
 
     getAutoOnZones() {
