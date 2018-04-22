@@ -19,7 +19,7 @@ class PacketS2CSourceProperty extends PacketS2C {
                 this._buffer.writeUInt8(propertyValue === true ? 0x01 : 0x00);
                 break;
             case SourceProperty.PROPERTY_AUTO_ON_ZONES:
-                for (zoneID of propertyValue) {
+                for (let zoneID of propertyValue) {
                     this._buffer.writeUInt8(zoneID[0]);
                     this._buffer.writeUInt8(zoneID[1]);
                 }

@@ -14,6 +14,7 @@ const PacketC2SProperty = require("./packets/PacketC2SProperty");
 const PacketC2SUpdate = require("./packets/PacketC2SUpdate");
 const PacketC2SSourceControl = require("./packets/PacketC2SSourceControl");
 const PacketC2SSourceInfo = require("./packets/PacketC2SSourceInfo");
+const PacketC2SSourceProperty = require("./packets/PacketC2SSourceProperty");
 const PacketC2SZoneName = require("./packets/PacketC2SZoneName");
 const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
 const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
@@ -25,6 +26,7 @@ const PacketS2CProperty = require("./packets/PacketS2CProperty");
 const PacketS2CSourceInfo = require("./packets/PacketS2CSourceInfo");
 const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
 const PacketS2CSourceDescriptiveText = require("./packets/PacketS2CSourceDescriptiveText");
+const PacketS2CSourceProperty = require("./packets/PacketS2CSourceProperty");
 const PacketS2CUpdateAvailable = require("./packets/PacketS2CUpdateAvailable");
 const PacketS2CZoneName = require("./packets/PacketS2CZoneName");
 const PacketS2CZoneDeleted = require("./packets/PacketS2CZoneDeleted");
@@ -36,6 +38,7 @@ const PacketS2CZoneVolume = require("./packets/PacketS2CZoneVolume");
 const PacketS2CZoneMaxVolume = require("./packets/PacketS2CZoneMaxVolume");
 const parameterIDToString = require("./rnet/parameterIDToString");
 const Property = require("./Property");
+const SourceProperty = require("./rnet/SourceProperty");
 
 // Modify console.log to include timestamps
 require("console-stamp")(console, "HH:MM:ss");
@@ -188,7 +191,17 @@ server.once("start", function() {
         }
         case PacketC2SSourceProperty.ID:
         {
-            // TODO Handle Source property changes
+            let source = rNet.getSource(packet.getSourceID());
+            if (source) {
+                switch (packet.getPropertyID()) {
+                case SourceProperty.PROPERTY_AUTO_OFF:
+                    source.setZoneAutoOff(packet.getPropertyValue());
+                    break;
+                case SourceProperty.PROPERTY_AUTO_ON_ZONES:
+                    source.setAutoOnZones(packet.getPropertyValue());
+                    break;
+                }
+            }
             break;
         }
         case PacketC2SUpdate.ID:

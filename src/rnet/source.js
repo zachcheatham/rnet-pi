@@ -168,8 +168,8 @@ class Source extends EventEmitter {
         }
         else if (this._autoOff) {
             let zones = this.getZones();
-            for (let i in zones) {
-                zones[i].setPower(false);
+            for (let zone of zones) {
+                zone.setPower(false);
             }
         }
     }

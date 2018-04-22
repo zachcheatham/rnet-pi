@@ -11,7 +11,7 @@ class PacketC2SRequestSourceProperties extends PacketC2S {
     }
 
     getSourceID() {
-        return this._value;
+        return this._sourceID;
     }
 
     getID() {
