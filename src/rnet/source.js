@@ -162,6 +162,7 @@ class Source extends EventEmitter {
                     let id = this._autoOnZones[i];
                     let zone = this._rNet.getZone(id[0], id[1]);
                     zone.setPower(true);
+                    zone.setSourceID(this._id);
                 }
             }
         }
