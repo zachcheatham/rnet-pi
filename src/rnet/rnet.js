@@ -326,8 +326,8 @@ class RNet extends EventEmitter {
                 this.writeSources();
             }
 
-            source.on("name", (name) => {
-                this.emit("source-name", source, name);
+            source.on("name", (name, oldName) => {
+                this.emit("source-name", source, name, oldName);
                 this.writeSources();
             })
             .on("type", (type) => {

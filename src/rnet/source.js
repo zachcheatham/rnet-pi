@@ -31,8 +31,9 @@ class Source extends EventEmitter {
 
     setName(name) {
         if (name != this._name) {
+            let oldName = this._name;
             this._name = name;
-            this.emit("name", name);
+            this.emit("name", name, oldName);
         }
     }
 
