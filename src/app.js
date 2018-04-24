@@ -87,6 +87,14 @@ server.once("start", function() {
         let source = rNet.getSource(sourceID);
         if (source != null) {
             client.send(new PacketS2CSourceInfo(sourceID, source.getName(), source.getType()));
+            let mediaTitle = source.getMediaTitle();
+            if (mediaTitle && mediaTitle.length > 0) {
+                client.send(new PacketS2CMediaMetadata(sourceID, mediaTitle, source.getMediaArtist(), source.getMediaArtworkURL()));
+            }
+            let descriptiveText = source.getDescriptiveText();
+            if (descriptiveText && descriptiveText.length > 0) {
+                client.send(new PacketS2CSourceDescriptiveText(sourceID, 0, descriptiveText));
+            }
         }
     }
 
