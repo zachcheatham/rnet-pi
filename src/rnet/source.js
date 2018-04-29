@@ -136,15 +136,23 @@ class Source extends EventEmitter {
 
     networkControlled() {
         switch (this._type) {
-        case TYPE_GOOGLE_CAST:
+        case Source.TYPE_GOOGLE_CAST:
             return true;
         default:
             return false;
         }
     }
 
-    control(operation, srcCtrllr, srcZone, rNetTriggered=false) {
-        this.emit("control", operation, srcCtrllr, srcZone, rNetTriggered);
+    control(operation, rNetTriggered=false) {
+        this.emit("control", operation, rNetTriggered);
+        if (!this.networkControlled()) {
+            if (operation == Source.CONTROL_PLAY) {
+                this.setMediaPlayState(true);
+            }
+            else if (operation == Source.CONTROL_PAUSE || operation == Source.CONTROL_STOP) {
+                this.setMediaPlayState(false);
+            }
+        }
     }
 
     setZoneAutoOff(autoOff) {

@@ -230,7 +230,7 @@ server.once("start", function() {
         {
             let source = rNet.getSource(packet.getSourceID());
             if (source != null)
-                source.control(packet.getKeyID());
+                source.control(packet.getOperation());
             break;
         }
         case PacketC2SSourceInfo.ID:

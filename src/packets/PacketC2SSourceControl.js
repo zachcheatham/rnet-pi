@@ -11,17 +11,16 @@ const PacketC2S = require("./PacketC2S");
  */
 class PacketC2SSourceControl extends PacketC2S {
     parseData() {
-        this._ctrllrID = this._buffer.readUInt8();
-        this._zoneID = this._buffer.readUInt8();
-        this._keyID = this._buffer.readUInt8();
+        this._sourceID = this._buffer.readUInt8();
+        this._operation = this._buffer.readUInt8();
     }
 
     getSourceID() {
         return this._sourceID;
     }
 
-    getKeyID() {
-        return this._keyID;
+    getOperation() {
+        return this._operation;
     }
 
     getID() {
