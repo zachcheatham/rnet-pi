@@ -444,13 +444,14 @@ rNet.on("connected", () => {
         maxVolume
     );
 })
-.on("media-metadata", (sourceID, title, artist, artworkURL) => {
-    server.broadcast(new PacketS2CMediaMetadata(sourceID, title, artist, artworkURL));
+.on("media-metadata", (source, title, artist, artworkURL) => {
+    server.broadcast(new PacketS2CMediaMetadata(source.getSourceID(), title, artist, artworkURL));
+})
 .on("media-playing", (source, playing) => {
     server.broadcast(new PacketS2CMediaPlayState(source.getSourceID(), playing));
 })
-.on("descriptive-text", (sourceID, time, text) => {
-    server.broadcast(new PacketS2CSourceDescriptiveText(sourceID, time, text));
+.on("descriptive-text", (source, time, text) => {
+    server.broadcast(new PacketS2CSourceDescriptiveText(source.getSourceID(), time, text));
 });
 
 // Start server
