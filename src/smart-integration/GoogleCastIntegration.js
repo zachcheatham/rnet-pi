@@ -25,7 +25,7 @@ class GoogleCastIntegration {
 
         this._rNet.on("source-name", (source, name, oldName) => {
             if (source.getType() == Source.TYPE_GOOGLE_CAST) {
-                this.removeSource(source, oldName);
+                this.removeSource(oldName, true);
                 this.integrateSource(source);
             }
         });
@@ -40,7 +40,12 @@ class GoogleCastIntegration {
         });
 
         this._rNet.on("source-deleted", (sourceID) => {
-            this._castMonitor.unregisterCast(source.getName());
+            for (let name of this._sources.keys()) {
+                if (sourceInfo[name].id == sourceID) {
+                    this.removeSource(name, true);
+                    break;
+                }
+            }
         });
 
         this._castMonitor.on("application", (castName, application) => {
@@ -108,7 +113,7 @@ class GoogleCastIntegration {
     }
 
     removeSource(source, byName=false) {
-        let name = (byName ? byName : source.getName());
+        let name = (byName ? source : source.getName());
         const sourceInfo = this._sources[name];
         source.removeListener("control", sourceInfo.controlListener);
         delete this._sources[name];
@@ -369,6 +374,7 @@ class Cast extends EventEmitter {
                             let transportID = data.status.applications[0].transportId;
 
                             if (this._application != applicationName) {
+                                clearTimeout(this._applicationTimeout);
                                 this._application = applicationName;
                                 this.emit("application", this._application);
                             }
@@ -383,7 +389,10 @@ class Cast extends EventEmitter {
                         else {
                             if (this._application) {
                                 this._application = null;
-                                this.emit("application", null);
+                                clearTimeout(this._applicationTimeout);
+                                this._applicationTimeout = setTimeout(() => {
+                                    this.emit("application", null);
+                                }, 30000);
                             }
                             this._transportID = null;
                             if (this._mediaStatusConnection) {
@@ -401,6 +410,7 @@ class Cast extends EventEmitter {
             this._active = false;
             clearInterval(this._heartbeatInterval);
             clearTimeout(this._reconnectTimer);
+            clearTimeout(this._applicationTimeout);
             this._closeMediaConnection();
             this._transportID = null;
             this._connection.close();
@@ -489,7 +499,10 @@ class Cast extends EventEmitter {
 
             if (this._application) {
                 this._application = null;
-                this.emit("application", null);
+                clearTimeout(this._applicationTimeout);
+                this._applicationTimeout = setTimeout(() => {
+                    this.emit("application", null);
+                }, 30000);
             }
             if (this._title || this._artist || this._artworkUrl) {
                 this._title = null;
