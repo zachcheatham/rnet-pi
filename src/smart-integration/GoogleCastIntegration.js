@@ -418,6 +418,7 @@ class Cast extends EventEmitter {
 
     _openMediaConnection(transportID) {
         if (!this._mediaStateConnection) {
+            this._transportID = transportID;
             this._mediaStateConnection = this._client.createChannel("client-17558", transportID, "urn:x-cast:com.google.cast.tp.connection", "JSON");
             this._mediaConnection = this._client.createChannel("client-17558", transportID, "urn:x-cast:com.google.cast.media", "JSON");
 
