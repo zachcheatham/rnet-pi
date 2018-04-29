@@ -2,7 +2,7 @@ const PacketC2S = require("./PacketC2S");
 
 /**
  * Client -> Server
- * ID = 0x32
+ * ID = 0x33
  * Request Properties
  */
 class PacketC2SRequestSourceProperties extends PacketC2S {
@@ -19,6 +19,6 @@ class PacketC2SRequestSourceProperties extends PacketC2S {
     }
 }
 
-PacketC2SRequestSourceProperties.ID = 0x32;
+PacketC2SRequestSourceProperties.ID = 0x33;
 
 module.exports = PacketC2SRequestSourceProperties;

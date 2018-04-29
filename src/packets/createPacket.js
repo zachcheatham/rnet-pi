@@ -46,9 +46,9 @@ module.exports = function(packetType, data) {
             return new PacketC2SAllPower(data);
         case 0x0D:
             return new PacketC2SMute(data);
-        case 0x32:
-            return new PacketC2SRequestSourceProperties(data);
         case 0x33:
+            return new PacketC2SRequestSourceProperties(data);
+        case 0x32:
             return new PacketC2SSourceControl(data);
         case 0x34:
             return new PacketC2SSourceProperty(data);
