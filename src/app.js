@@ -15,6 +15,7 @@ const PacketC2SUpdate = require("./packets/PacketC2SUpdate");
 const PacketC2SSourceControl = require("./packets/PacketC2SSourceControl");
 const PacketC2SSourceInfo = require("./packets/PacketC2SSourceInfo");
 const PacketC2SSourceProperty = require("./packets/PacketC2SSourceProperty");
+const PacketC2SZoneMute = require("./packets/PacketC2SZoneMute");
 const PacketC2SZoneName = require("./packets/PacketC2SZoneName");
 const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
 const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
@@ -29,6 +30,7 @@ const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
 const PacketS2CSourceDescriptiveText = require("./packets/PacketS2CSourceDescriptiveText");
 const PacketS2CSourceProperty = require("./packets/PacketS2CSourceProperty");
 const PacketS2CUpdateAvailable = require("./packets/PacketS2CUpdateAvailable");
+const PacketS2CZoneMute = require("./packets/PacketS2CZoneMute");
 const PacketS2CZoneName = require("./packets/PacketS2CZoneName");
 const PacketS2CZoneDeleted = require("./packets/PacketS2CZoneDeleted");
 const PacketS2CZoneIndex = require("./packets/PacketS2CZoneIndex");
@@ -116,6 +118,9 @@ server.once("start", function() {
                 }
                 if (zone.getMaxVolume() < 100) {
                     client.send(new PacketS2CZoneMaxVolume(ctrllrID, zoneID, zone.getMaxVolume()));
+                }
+                if (zone.getMuted()) {
+                    client.send(new PacketS2CZoneMute(ctrllrID, zoneID, true));
                 }
             }
         }
@@ -238,6 +243,15 @@ server.once("start", function() {
             }
             else
                 rNet.createSource(packet.getSourceID(), packet.getName(), packet.getSourceTypeID());
+            break;
+        }
+        case PacketC2SZoneMute.ID:
+        {
+            const zone = rNet.getZone(packet.getControllerID(), packet.getZoneID());
+            if (zone)
+                zone.setMute(packet.getMuted());
+            else
+                console.warn("Received request to set mute of unknown zone %d-%d", packet.getControllerID(), packet.getZoneID());
             break;
         }
         case PacketC2SZoneName.ID:
@@ -385,6 +399,16 @@ rNet.on("connected", () => {
         zone.getZoneID(),
         zone.getName(),
         volume
+    );
+})
+.on("mute", (zone, muting) => {
+    server.broadcast(new PacketS2CZoneMute(zone.getControllerID(), zone.getZoneID(), muting));
+    console.info(
+        "Controller #%d zone #%d (%s) mute set to %s",
+        zone.getControllerID(),
+        zone.getZoneID(),
+        zone.getName(),
+        muting
     );
 })
 .on("source", (zone, sourceID) => {

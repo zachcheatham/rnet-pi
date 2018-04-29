@@ -226,6 +226,9 @@ class RNet extends EventEmitter {
             .on("max-volume", (maxVolume) => {
                 this.emit("max-volume", zone, maxVolume);
             })
+            .on("mute", (muting) => {
+                this.emit("mute", zone, muting);
+            })
             .on("source", (sourceID, rNetTriggered) => {
                 if (!rNetTriggered) {
                     this.sendData(
@@ -335,7 +338,7 @@ class RNet extends EventEmitter {
                 this.writeSources();
             })
             .on("media-metadata", (title, artist, artworkURL) => {
-                this.emit("media-metadata", sourceID, title, artist, artworkURL);
+                this.emit("media-metadata", source, title, artist, artworkURL);
                 console.info("Source #%d (%s) is now playing %s by %s", sourceID, name, title, artist);
             })
             .on("media-playing", (playing) => {
@@ -349,9 +352,37 @@ class RNet extends EventEmitter {
                 this.emit("descriptive-text", source, flashTime, message);
                 console.info("Source #%d (%s) published descriptive text: %s", sourceID, name, message);
             })
-            .on("control", (operation, srcCtrllr, srcZone, rNetTriggered) => {
+            .on("control", (operation, rNetTriggered) => {
                 if (!rNetTriggered && !source.networkControlled()) {
-                    this.sendData(new KeypadEventPacket(srcCtrllr, srcZone, operation));
+                    let zones = source.getZones();
+                    if (zones.length > 0) {
+                        let key = false;
+                        switch (operation) {
+                        case Source.CONTROL_NEXT:
+                            key = KeypadEventPacket.NEXT;
+                            break;
+                        case Source.CONTROL_PREV:
+                            key = KeypadEventPacket.PREVIOUS;
+                            break;
+                        case Source.CONTROL_STOP:
+                            key = KeypadEventPacket.STOP;
+                            break;
+                        case Source.CONTROL_PLAY:
+                            key = KeypadEventPacket.PLAY;
+                            break;
+                        case Source.CONTROL_PAUSE:
+                            key = KeypadEventPacket.PAUSE;
+                            break;
+                        case Source.CONTROL_PLUS:
+                            key = KeypadEventPacket.PLUS;
+                            break;
+                        case Source.CONTROL_MINUS:
+                            key = KeypadEventPacket.MINUS;
+                            break;
+                        }
+
+                        this.sendData(new KeypadEventPacket(zones[0].getControllerID(), zones[0].getZoneID(), key));
+                    }
                 }
             });
 

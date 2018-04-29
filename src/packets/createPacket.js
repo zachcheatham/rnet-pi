@@ -10,6 +10,7 @@ const PacketC2SRequestSourceProperties = require("./PacketC2SRequestSourceProper
 const PacketC2SSourceControl = require("./PacketC2SSourceControl");
 const PacketC2SSourceInfo = require("./PacketC2SSourceInfo");
 const PacketC2SSourceProperty = require("./PacketC2SSourceProperty");
+const PacketC2SZoneMute = require("./PacketC2SZoneMute");
 const PacketC2SZoneName = require("./PacketC2SZoneName");
 const PacketC2SZoneParameter = require("./PacketC2SZoneParameter");
 const PacketC2SZonePower = require("./PacketC2SZonePower");
@@ -53,6 +54,8 @@ module.exports = function(packetType, data) {
             return new PacketC2SSourceProperty(data);
         case 0x64:
             return new PacketC2SZoneMaxVolume(data);
+        case 0x65:
+            return new PacketC2SZoneMute(data);
         case 0x7D:
             return new PacketC2SUpdate(data);
         default:

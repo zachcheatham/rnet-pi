@@ -64,6 +64,7 @@ class Zone extends EventEmitter {
             if (this._muted) {
                 this._muted = false;
                 this._preMuteVolume = 0;
+                this.emit("mute", false);
             }
 
             if (powered) {
@@ -85,6 +86,7 @@ class Zone extends EventEmitter {
                 if (this._mute && !forMute) {
                     this._mute = false;
                     this._preMuteVolume = 0;
+                    this.emit("mute", false);
                 }
 
                 if (volume > this._maxVolume) {
@@ -169,6 +171,8 @@ class Zone extends EventEmitter {
                     });
                 }
             }
+
+            this.emit("mute", muted);
         }
     }
 
