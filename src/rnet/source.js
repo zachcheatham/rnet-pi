@@ -16,6 +16,7 @@ class Source extends EventEmitter {
         this._mediaMetadataTitle = null;
         this._mediaMetadataArtist = null;
         this._mediaMetadataArtworkURL = null;
+        this._mediaPlaying = false;
 
         this._descriptiveText = null;
         this._descriptiveTextFromRNet = true;
@@ -99,6 +100,17 @@ class Source extends EventEmitter {
 
     getMediaArtworkURL() {
         return this._mediaMetadataArtworkURL;
+    }
+
+    setMediaPlayState(playing) {
+        if (this._playing != playing) {
+            this._playing = playing;
+            this.emit("media-playing", playing);
+        }
+    }
+
+    getMediaPlayState() {
+        return this._playing;
     }
 
     setDescriptiveText(message, flashTime=0, rNetTriggered=false) {

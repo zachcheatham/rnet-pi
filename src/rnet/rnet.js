@@ -338,6 +338,10 @@ class RNet extends EventEmitter {
                 this.emit("media-metadata", sourceID, title, artist, artworkURL);
                 console.info("Source #%d (%s) is now playing %s by %s", sourceID, name, title, artist);
             })
+            .on("media-playing", (playing) => {
+                this.emit("media-playing", source, playing);
+                console.info("Source #%d (%s) play state changed to %s", sourceID, name, playing);
+            })
             .on("descriptive-text", (message, flashTime, rNetTriggered) => {
                 if (!rNetTriggered) {
                     this.sendData(new SourceDescriptiveTextPacket(sourceID, flashTime, message));

@@ -22,6 +22,7 @@ const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
 const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
 const PacketC2SZoneMaxVolume = require("./packets/PacketC2SZoneMaxVolume");
 const PacketS2CMediaMetadata = require("./packets/PacketS2CMediaMetadata");
+const PacketS2CMediaPlayState = require("./packets/PacketS2CMediaPlayState");
 const PacketS2CProperty = require("./packets/PacketS2CProperty");
 const PacketS2CSourceInfo = require("./packets/PacketS2CSourceInfo");
 const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
@@ -94,6 +95,9 @@ server.once("start", function() {
             let descriptiveText = source.getDescriptiveText();
             if (descriptiveText && descriptiveText.length > 0) {
                 client.send(new PacketS2CSourceDescriptiveText(sourceID, 0, descriptiveText));
+            }
+            if (source.getMediaPlayState()) {
+                client.send(new PacketS2CMediaPlayState(sourceID, true));
             }
         }
     }
@@ -418,6 +422,8 @@ rNet.on("connected", () => {
 })
 .on("media-metadata", (sourceID, title, artist, artworkURL) => {
     server.broadcast(new PacketS2CMediaMetadata(sourceID, title, artist, artworkURL));
+.on("media-playing", (source, playing) => {
+    server.broadcast(new PacketS2CMediaPlayState(source.getSourceID(), playing));
 })
 .on("descriptive-text", (sourceID, time, text) => {
     server.broadcast(new PacketS2CSourceDescriptiveText(sourceID, time, text));

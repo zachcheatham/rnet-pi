@@ -64,6 +64,13 @@ class GoogleCastIntegration {
             }
         });
 
+        this._castMonitor.on("playing", (castName, playing) => {
+            if (castName in this._sources) {
+                const source = this._rNet.getSource(this._sources[castName].id);
+                source.setMediaPlayState(playing);
+            }
+        });
+
         console.info("[Google Cast] Ready.");
     }
 
