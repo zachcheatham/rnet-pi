@@ -327,6 +327,7 @@ class Cast extends EventEmitter {
         this._title = null;
         this._artist = null;
         this._artworkUrl = null;
+        this._duration = 0;
         this.connect();
     }
 
@@ -456,7 +457,7 @@ class Cast extends EventEmitter {
                                 artist = status.media.metadata.artist;
                             if (status.media.metadata.images)
                                 artworkURL = status.media.metadata.images[0].url;
-                            this._duration = status.media.metadata.duration;
+                            this._duration = status.media.duration;
 
                             if (this._title != title || this._artist != artist || this._artworkUrl != artworkURL) {
                                 this._title = title;
