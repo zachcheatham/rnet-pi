@@ -16,6 +16,7 @@ class PacketS2CSourceProperty extends PacketS2C {
         this._buffer.writeUInt8(propertyID);
         switch (propertyID) {
             case SourceProperty.PROPERTY_AUTO_OFF:
+            case SourceProperty.PROPERTY_OVERRIDE_NAME:
                 this._buffer.writeUInt8(propertyValue === true ? 0x01 : 0x00);
                 break;
             case SourceProperty.PROPERTY_AUTO_ON_ZONES:

@@ -12,6 +12,7 @@ class Source extends EventEmitter {
 
         this._autoOnZones = [];
         this._autoOff = false;
+        this._overrideName = false;
 
         this._mediaMetadataTitle = null;
         this._mediaMetadataArtist = null;
@@ -173,6 +174,21 @@ class Source extends EventEmitter {
 
     getAutoOnZones() {
         return this._autoOnZones;
+    }
+
+    setOverrideName(overrideName) {
+        if (this._overrideName != overrideName) {
+            this._overrideName = overrideName;
+            this._rNet.writeSources();
+
+            if (overrideName && !this._descriptiveText) {
+                this.emit("override-name");
+            }
+        }
+    }
+
+    getOverrideName(overrideName) {
+        return this._overrideName;
     }
 
     // Called by smart device integration to toggle auto on/off

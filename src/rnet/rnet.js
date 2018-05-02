@@ -86,6 +86,9 @@ class RNet extends EventEmitter {
                     if ("auto_off" in sourceData) {
                         source._autoOff = sourceData.auto_off;
                     }
+                    if ("override_name" in sourceData) {
+                        source._overrideName = sourceData.override_name;
+                    }
                 }
             }
         }
@@ -137,6 +140,9 @@ class RNet extends EventEmitter {
                 }
                 if (source._autoOnZones.length > 0) {
                     sources[sourceID].auto_on_zones = source._autoOnZones;
+                }
+                if (source._overrideName) {
+                    sources[sourceID].override_name = true;
                 }
             }
         }
@@ -204,8 +210,15 @@ class RNet extends EventEmitter {
 
                 if (powered) {
                     let source = this.getSource(zone.getSourceID());
-                    if (source && source.getDescriptiveText() != null && !source.isDescriptionFromRNet()) {
-                        this.sendData(new SourceDescriptiveTextPacket(source.getSourceID(), 0, source.getDescriptiveText()));
+                    if (source) {
+                        if (source.getDescriptiveText() != null) {
+                            if (!source.isDescriptionFromRNet()) {
+                                this.sendData(new SourceDescriptiveTextPacket(source.getSourceID(), 0, source.getDescriptiveText()));
+                            }
+                        }
+                        else if (source.getOverrideName()) {
+                            this.sendData(new SourceDescriptiveTextPacket(source.getSourceID(), 0, source.getName()));
+                        }
                     }
                 }
 
@@ -241,8 +254,15 @@ class RNet extends EventEmitter {
                 }
 
                 let source = this.getSource(sourceID);
-                if (source && source.getDescriptiveText() != null && !source.isDescriptionFromRNet()) {
-                    this.sendData(new SourceDescriptiveTextPacket(sourceID, 0, source.getDescriptiveText()));
+                if (source) {
+                    if (source.getDescriptiveText() != null) {
+                        if (!source.isDescriptionFromRNet()) {
+                            this.sendData(new SourceDescriptiveTextPacket(sourceID, 0, source.getDescriptiveText()));
+                        }
+                    }
+                    else if (source.getOverrideName()) {
+                        this.sendData(new SourceDescriptiveTextPacket(sourceID, 0, source.getName()));
+                    }
                 }
 
                 this.emit("source", zone, sourceID);
@@ -384,6 +404,9 @@ class RNet extends EventEmitter {
                         this.sendData(new KeypadEventPacket(zones[0].getControllerID(), zones[0].getZoneID(), key));
                     }
                 }
+            })
+            .on("override-name", () => {
+                this.sendData(new SourceDescriptiveTextPacket(sourceID, 0, source.getName()));
             });
 
             this.emit("new-source", source);

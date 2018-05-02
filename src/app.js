@@ -203,6 +203,7 @@ server.once("start", function() {
             if (source) {
                 client.send(new PacketS2CSourceProperty(packet.getSourceID(), SourceProperty.PROPERTY_AUTO_OFF, source.getZoneAutoOff()));
                 client.send(new PacketS2CSourceProperty(packet.getSourceID(), SourceProperty.PROPERTY_AUTO_ON_ZONES, source.getAutoOnZones()));
+                client.send(new PacketS2CSourceProperty(packet.getSourceID(), SourceProperty.PROPERTY_OVERRIDE_NAME, source.getOverrideName()));
             }
             break;
         }
@@ -216,6 +217,9 @@ server.once("start", function() {
                     break;
                 case SourceProperty.PROPERTY_AUTO_ON_ZONES:
                     source.setAutoOnZones(packet.getPropertyValue());
+                    break;
+                case SourceProperty.PROPERTY_OVERRIDE_NAME:
+                    source.setOverrideName(packet.getPropertyValue());
                     break;
                 }
             }

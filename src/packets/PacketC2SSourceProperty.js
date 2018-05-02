@@ -13,6 +13,7 @@ class PacketC2SSourceProperty extends PacketC2S {
         this._propertyID = this._buffer.readUInt8();
         switch (this._propertyID) {
         case SourceProperty.PROPERTY_AUTO_OFF:
+        case SourceProperty.PROPERTY_OVERRIDE_NAME:
             this._propertyValue = this._buffer.readUInt8() == 0x01;
             break;
         case SourceProperty.PROPERTY_AUTO_ON_ZONES:
