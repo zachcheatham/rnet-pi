@@ -115,7 +115,7 @@ class GoogleCastIntegration {
     removeSource(source, byName=false) {
         let name = (byName ? source : source.getName());
         const sourceInfo = this._sources[name];
-        source.removeListener("control", sourceInfo.controlListener);
+        this._rNet.getSource(sourceInfo.id).removeListener("control", sourceInfo.controlListener)
         delete this._sources[name];
 
         this._castMonitor.unregisterCast(name);
