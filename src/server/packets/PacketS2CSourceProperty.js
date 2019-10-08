@@ -1,11 +1,10 @@
 const PacketS2C = require("./PacketS2C");
-const SourceProperty = require("../rnet/SourceProperty");
+const SourceProperty = require("../../rnet/SourceProperty");
 
 /**
  * Server -> Client
  * ID = 0x34
- * Update Available
- * Notifies the client that theres an update available
+ * SourceProperty
  * Data:
  *      (Unsigned Char) Update Version
  */

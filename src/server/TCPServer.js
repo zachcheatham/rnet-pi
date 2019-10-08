@@ -1,7 +1,7 @@
 const EventEmitter = require("events");
 const net = require("net");
 
-const Client = require("./client");
+const Client = require("./TCPClient");
 
 class Server extends EventEmitter {
     constructor(name, host, port) {
@@ -48,9 +48,7 @@ class Server extends EventEmitter {
         });
     }
 
-    broadcast(packet) {
-        //console.info("DEBUG: Sending packet " + packet.constructor.name + " to everyone");
-        const buffer = packet.getBuffer();
+    broadcastBuffer(buffer) {
         for (let client of this._clients) {
             client.sendBuffer(buffer);
         }

@@ -1,17 +1,15 @@
-const EventEmitter = require("events");
-
 const SmartBuffer = require("smart-buffer").SmartBuffer;
 
+const Client = require("./Client");
 const createPacket = require("./packets/createPacket");
 const PacketC2S = require("./packets/PacketC2S");
 const PacketC2SIntent = require("./packets/PacketC2SIntent");
 const PacketS2CZoneIndex = require("./packets/PacketS2CZoneIndex");
 
-class Client extends EventEmitter {
+class TCPClient extends Client {
     constructor(connection) {
         super();
 
-        this._intent = false;
         this._pendingBuffer = SmartBuffer.fromSize(255);
         this._pendingBytesRemaining = false;
         this._pendingPacketType = false;
@@ -26,7 +24,7 @@ class Client extends EventEmitter {
         })
 
         this._connection.once("close", () => {
-            this._connectionClosed();
+            this.emit("close");
         });
     }
 
@@ -41,14 +39,6 @@ class Client extends EventEmitter {
 
     getAddress() {
         return this._connection.remoteAddress;
-    }
-
-    isValid() {
-        return this._intent !== false;
-    }
-
-    isSubscribed() {
-        return this._intent == 0x02;
     }
 
     disconnect() {
@@ -85,31 +75,6 @@ class Client extends EventEmitter {
             }
         }
     }
-
-    _handlePacket(packetType, data) {
-        const packet = createPacket(packetType, data);
-
-        if (packet !== undefined) {
-            //console.info("DEBUG: Recieved packet " + packet.constructor.name + " from " + this.getAddress());
-
-            if (packet.getID() == PacketC2SIntent.ID) {
-                this._intent = packet.getIntent();
-                if (this._intent == 0x02) { // Subscribe mode
-                    this.emit("subscribed");
-                }
-            }
-            else if (this.isValid()) {
-                this.emit("packet", packet);
-            }
-        }
-        else {
-            console.warn("Recieved bad packet from " + this.getAddress());
-        }
-    }
-
-    _connectionClosed() {
-        this.emit("close");
-    }
 }
 
-module.exports = Client;
+module.exports = TCPClient;

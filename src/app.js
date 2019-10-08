@@ -1,44 +1,44 @@
-const Server = require("./server")
+const Server = require("./server/Server")
 const RNet = require("./rnet/rnet");
 const GoogleCastIntegration = require("./smart-integration/GoogleCastIntegration");
 const WebHookServer = require("./webHookServer");
 const Updater = require("./updater");
 const config = require("./configuration");
 
-const PacketC2SAllPower = require("./packets/PacketC2SAllPower");
-const PacketC2SDeleteSource = require("./packets/PacketC2SDeleteSource");
-const PacketC2SDeleteZone = require("./packets/PacketC2SDeleteZone");
-const PacketC2SMute = require("./packets/PacketC2SMute");
-const PacketC2SRequestSourceProperties = require("./packets/PacketC2SRequestSourceProperties");
-const PacketC2SProperty = require("./packets/PacketC2SProperty");
-const PacketC2SUpdate = require("./packets/PacketC2SUpdate");
-const PacketC2SSourceControl = require("./packets/PacketC2SSourceControl");
-const PacketC2SSourceInfo = require("./packets/PacketC2SSourceInfo");
-const PacketC2SSourceProperty = require("./packets/PacketC2SSourceProperty");
-const PacketC2SZoneMute = require("./packets/PacketC2SZoneMute");
-const PacketC2SZoneName = require("./packets/PacketC2SZoneName");
-const PacketC2SZoneParameter = require("./packets/PacketC2SZoneParameter");
-const PacketC2SZonePower = require("./packets/PacketC2SZonePower");
-const PacketC2SZoneSource = require("./packets/PacketC2SZoneSource");
-const PacketC2SZoneVolume = require("./packets/PacketC2SZoneVolume");
-const PacketC2SZoneMaxVolume = require("./packets/PacketC2SZoneMaxVolume");
-const PacketS2CMediaMetadata = require("./packets/PacketS2CMediaMetadata");
-const PacketS2CMediaPlayState = require("./packets/PacketS2CMediaPlayState");
-const PacketS2CProperty = require("./packets/PacketS2CProperty");
-const PacketS2CSourceInfo = require("./packets/PacketS2CSourceInfo");
-const PacketS2CSourceDeleted = require("./packets/PacketS2CSourceDeleted");
-const PacketS2CSourceDescriptiveText = require("./packets/PacketS2CSourceDescriptiveText");
-const PacketS2CSourceProperty = require("./packets/PacketS2CSourceProperty");
-const PacketS2CUpdateAvailable = require("./packets/PacketS2CUpdateAvailable");
-const PacketS2CZoneMute = require("./packets/PacketS2CZoneMute");
-const PacketS2CZoneName = require("./packets/PacketS2CZoneName");
-const PacketS2CZoneDeleted = require("./packets/PacketS2CZoneDeleted");
-const PacketS2CZoneIndex = require("./packets/PacketS2CZoneIndex");
-const PacketS2CZoneParameter = require("./packets/PacketS2CZoneParameter");
-const PacketS2CZonePower = require("./packets/PacketS2CZonePower");
-const PacketS2CZoneSource = require("./packets/PacketS2CZoneSource");
-const PacketS2CZoneVolume = require("./packets/PacketS2CZoneVolume");
-const PacketS2CZoneMaxVolume = require("./packets/PacketS2CZoneMaxVolume");
+const PacketC2SAllPower = require("./server/packets/PacketC2SAllPower");
+const PacketC2SDeleteSource = require("./server/packets/PacketC2SDeleteSource");
+const PacketC2SDeleteZone = require("./server/packets/PacketC2SDeleteZone");
+const PacketC2SMute = require("./server/packets/PacketC2SMute");
+const PacketC2SRequestSourceProperties = require("./server/packets/PacketC2SRequestSourceProperties");
+const PacketC2SProperty = require("./server/packets/PacketC2SProperty");
+const PacketC2SUpdate = require("./server/packets/PacketC2SUpdate");
+const PacketC2SSourceControl = require("./server/packets/PacketC2SSourceControl");
+const PacketC2SSourceInfo = require("./server/packets/PacketC2SSourceInfo");
+const PacketC2SSourceProperty = require("./server/packets/PacketC2SSourceProperty");
+const PacketC2SZoneMute = require("./server/packets/PacketC2SZoneMute");
+const PacketC2SZoneName = require("./server/packets/PacketC2SZoneName");
+const PacketC2SZoneParameter = require("./server/packets/PacketC2SZoneParameter");
+const PacketC2SZonePower = require("./server/packets/PacketC2SZonePower");
+const PacketC2SZoneSource = require("./server/packets/PacketC2SZoneSource");
+const PacketC2SZoneVolume = require("./server/packets/PacketC2SZoneVolume");
+const PacketC2SZoneMaxVolume = require("./server/packets/PacketC2SZoneMaxVolume");
+const PacketS2CMediaMetadata = require("./server/packets/PacketS2CMediaMetadata");
+const PacketS2CMediaPlayState = require("./server/packets/PacketS2CMediaPlayState");
+const PacketS2CProperty = require("./server/packets/PacketS2CProperty");
+const PacketS2CSourceInfo = require("./server/packets/PacketS2CSourceInfo");
+const PacketS2CSourceDeleted = require("./server/packets/PacketS2CSourceDeleted");
+const PacketS2CSourceDescriptiveText = require("./server/packets/PacketS2CSourceDescriptiveText");
+const PacketS2CSourceProperty = require("./server/packets/PacketS2CSourceProperty");
+const PacketS2CUpdateAvailable = require("./server/packets/PacketS2CUpdateAvailable");
+const PacketS2CZoneMute = require("./server/packets/PacketS2CZoneMute");
+const PacketS2CZoneName = require("./server/packets/PacketS2CZoneName");
+const PacketS2CZoneDeleted = require("./server/packets/PacketS2CZoneDeleted");
+const PacketS2CZoneIndex = require("./server/packets/PacketS2CZoneIndex");
+const PacketS2CZoneParameter = require("./server/packets/PacketS2CZoneParameter");
+const PacketS2CZonePower = require("./server/packets/PacketS2CZonePower");
+const PacketS2CZoneSource = require("./server/packets/PacketS2CZoneSource");
+const PacketS2CZoneVolume = require("./server/packets/PacketS2CZoneVolume");
+const PacketS2CZoneMaxVolume = require("./server/packets/PacketS2CZoneMaxVolume");
 const parameterIDToString = require("./rnet/parameterIDToString");
 const Property = require("./Property");
 const SourceProperty = require("./rnet/SourceProperty");
@@ -49,24 +49,20 @@ require("console-stamp")(console, "HH:MM:ss");
 config.read();
 config.write();
 
-const server = new Server(config.get("serverName"), config.get("serverHost"), config.get("serverPort"));
+const server = new Server({
+    name: config.get("serverName"),
+    host: config.get("serverHost"),
+    port: config.get("serverPort"),
+    webHost: config.get("webHost"),
+    webPort: config.get("webPort")
+});
+
 const rNet = new RNet(config.get("serialDevice"));
 const webHookServer = new WebHookServer(config.get("serverPort")+1, config.get("webHookPassword"), rNet);
 const googleCastIntegration = new GoogleCastIntegration(rNet);
 
 // Setup server
-server.once("start", function() {
-    console.info("Server listening on %s", server.getAddress());
-
-    if (!config.get("simulate")) {
-        console.info("Connecting to RNet...");
-        rNet.connect();
-    }
-    else {
-        console.info("Simulation mode. Will not attempt to open serial connection.")
-    }
-})
-.once("error", function(error) {
+server.once("error", function(error) {
     console.error("Server error: %s", error.message);
     process.exit(1);
 })
@@ -457,6 +453,15 @@ rNet.on("connected", () => {
 .on("descriptive-text", (source, time, text) => {
     server.broadcast(new PacketS2CSourceDescriptiveText(source.getSourceID(), time, text));
 });
+
+// Connect to RNet
+if (!config.get("simulate")) {
+    console.info("Connecting to RNet...");
+    rNet.connect();
+}
+else {
+    console.info("Simulation mode. Will not attempt to open serial connection.")
+}
 
 // Start server
 console.info("Starting Server...");

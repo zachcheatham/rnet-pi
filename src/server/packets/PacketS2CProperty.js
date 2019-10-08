@@ -1,5 +1,5 @@
 const PacketS2C = require("./PacketS2C");
-const Property = require("../Property");
+const Property = require("../../Property");
 
 /**
  * Server -> Client

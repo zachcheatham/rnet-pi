@@ -1,5 +1,5 @@
 const PacketC2S = require("./PacketC2S");
-const SourceProperty = require("../rnet/SourceProperty");
+const SourceProperty = require("../../rnet/SourceProperty");
 
 /**
  * Client -> Server
