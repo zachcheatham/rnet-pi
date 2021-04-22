@@ -43,7 +43,7 @@ class Client extends EventEmitter {
         if (packet !== undefined) {
             //console.info("DEBUG: Recieved packet " + packet.constructor.name + " from " + this.getAddress());
 
-            if (packet.getID() == PacketC2SIntent.ID) {
+            if (packetType == PacketC2SIntent.ID) {
                 this._intent = packet.getIntent();
                 if (this._intent == 0x02) { // Subscribe mode
                     this.emit("subscribed");
