@@ -33,7 +33,7 @@ class Server extends EventEmitter {
         this._server.listen(this._port, this._host, () => {
             let mdns = null;
             try {
-                mdns = require("mdns");
+                mdns = require("mdns-js");
             }
             catch (e) {
                 console.warn("MDNS Unavaiable. Remotes won't be able to automatically find this controller.")

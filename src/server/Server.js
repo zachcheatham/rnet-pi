@@ -39,6 +39,9 @@ class Server extends EventEmitter {
             .on("client_disconnect", (client) => {
                 this.emit("client_disconnect", client);
             })
+            .on("packet", (client, packet) => {
+                this.emit("packet", client, packet);
+            })
             .on("error", function(err) {
                 self.emit("error", err);
             });

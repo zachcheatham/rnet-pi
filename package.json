@@ -1,6 +1,6 @@
 {
   "name": "rnet-proxy",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Proxy between smart devices and RNet enabled amps",
   "main": "index.js",
   "scripts": {
@@ -11,11 +11,8 @@
   "dependencies": {
     "amator": "^1.1.0",
     "castv2-client": "^1.2.0",
-    "console-stamp": "^0.2.5",
-    "express": "^4.16.2",
-    "forever": "^3.0.4",
-    "ip": "^1.1.5",
-    "mdns": "^2.5.1",
+    "console-stamp": "^3.1.2",
+    "express": "^5.0.1",
     "mdns-js": "^1.0.3",
     "serialport": "^8.0.2",
     "smart-buffer": "^3.0.3",
