@@ -1,6 +1,6 @@
 const EventEmitter = require("events");
 const CastClient = require("castv2").Client;
-const mdns = require("mdns-js");
+const bonjour = require("bonjour-service");
 
 const Source = require("../rnet/source");
 
@@ -147,22 +147,11 @@ class GoogleCastMonitor extends EventEmitter {
     }
 
     start() {
-        this._browser = mdns.createBrowser("_googlecast._tcp");
-        this._browser.on("ready", () => {
-            this._browser.discover();
-        });
-        this._browser.on("update", (service) => {
+        this._browser = new bonjour.Bonjour();
+        this._browser.find({ type: "googlecast"}, (service) => {
             if (service.txt && service.addresses) {
-                let id = null;
-                let name = null;
-                for (let txtRecord of service.txt) {
-                    if (txtRecord.includes("fn=")) {
-                        name = txtRecord.replace("fn=", "");
-                    }
-                    else if (txtRecord.includes("id=")) {
-                        id = txtRecord.replace("id=", "");
-                    }
-                }
+                let id = service.txt.id;
+                let name = service.txt.fn;
                 if (id && name) {
                     if (id in this._knownCasts) {
                         if (this._knownCasts[id].name != name) {

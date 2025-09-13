@@ -31,17 +31,16 @@ class Server extends EventEmitter {
 
     start() {
         this._server.listen(this._port, this._host, () => {
-            let mdns = null;
+            let bonjour = null;
             try {
-                mdns = require("mdns-js");
+                let bonjour = require("bonjour-service");
+
+                console.log(`Publishing Bonjour Service: ${this._name} - rnet - ${this._port}`);
+                this._bonjour = new bonjour.Bonjour();
+                this._service = this._bonjour.publish({name: this._name, type: "rnet", port: this._port});
             }
             catch (e) {
-                console.warn("MDNS Unavaiable. Remotes won't be able to automatically find this controller.")
-            }
-
-            if (mdns != null) {
-                this._service = mdns.createAdvertisement(mdns.tcp("rnet"), this._port, {name: this._name});
-                this._service.start();
+                console.warn("Bonjour Unavaiable. Remotes won't be able to automatically find this controller.")
             }
 
             this.emit("start");
@@ -73,18 +72,9 @@ class Server extends EventEmitter {
         if (name != this._name) {
             this._name = name;
 
-            let mdns = null;
-            try {
-                mdns = require("mdns");
-            }
-            catch (e) {
-                console.warn("MDNS Unavaiable. Remotes won't be able to automatically find this controller.")
-            }
-
-            if (mdns != null) {
+            if (this._service != null) {
                 this._service.stop();
-                this._service = mdns.createAdvertisement(mdns.tcp("rnet"), this._port, {name: this._name});
-                this._service.start();
+                this._service = this._bonjour.publish({name: this._name, type: "rnet", port: this._port});
             }
         }
     }
