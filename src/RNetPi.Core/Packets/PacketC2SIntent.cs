@@ -9,6 +9,8 @@ namespace RNetPi.Core.Packets;
 public class PacketC2SIntent : PacketC2S
 {
     public const byte ID = 0x01;
+    
+    private byte _intent;
 
     public PacketC2SIntent(byte[] data) : base(data)
     {
@@ -18,6 +20,8 @@ public class PacketC2SIntent : PacketC2S
 
     protected override void ParseData()
     {
-        // No data to parse for intent packet
+        _intent = Reader.ReadByte();
     }
+    
+    public byte GetIntent() => _intent;
 }
