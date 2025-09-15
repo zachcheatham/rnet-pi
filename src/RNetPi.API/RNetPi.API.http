@@ -1,0 +1,6 @@
+@RNetPi.API_HostAddress = http://localhost:5210
+
+GET {{RNetPi.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

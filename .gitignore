@@ -1,4 +1,16 @@
-node_modules/
+node_modules
+
+# .NET build outputs
+bin/
+obj/
+*.user
+*.suo
+*.cache
+.vs/
+.vscode/
+*.nupkg
+*.snupkg
+*.log/
 sources.json
 zones.json
 config.json
