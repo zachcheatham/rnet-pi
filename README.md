@@ -70,12 +70,67 @@ The RNET RS-232 protocol has no zone naming, method of determining which zones a
 
 The RNet-Pi project has been ported to modern C# .NET 8.0 for improved performance, better cross-platform support, and enhanced maintainability. This is the recommended deployment method for new installations.
 
+### Supported Raspberry Pi Models
+
+- **Raspberry Pi 2 Model B Rev 1.1** - Raspbian 12 (Bookworm) - 32-bit ARM
+- **Raspberry Pi 5** - 64-bit OS - 64-bit ARM
+- Other Linux ARM devices (generic linux-arm/linux-arm64 builds)
+
+### Quick Start
+
+For detailed deployment instructions specific to your Raspberry Pi model, see:
+📖 **[Raspberry Pi Deployment Guide](docs/RASPBERRY_PI_DEPLOYMENT.md)**
+
+### Building from Source
+
+#### Prerequisites
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- Git
+
+#### Build Commands
+
+```bash
+# Clone repository
+git clone https://github.com/mmackelprang/rnet-pi.git
+cd rnet-pi
+
+# Build for specific Raspberry Pi models
+make build-pi2    # Raspberry Pi 2 Model B Rev 1.1
+make build-pi5    # Raspberry Pi 5 (64-bit)
+make build-all    # Both architectures
+
+# Alternative: Use build scripts directly
+./scripts/build-raspberry-pi.sh --arch pi2
+./scripts/build-raspberry-pi.sh --arch pi5
+./scripts/build-raspberry-pi.sh --arch all
+
+# Self-contained builds (includes .NET runtime)
+make build-pi2-sc
+make build-pi5-sc
+```
+
+#### Available Build Targets
+
+| Target | Description | Runtime ID |
+|--------|-------------|------------|
+| `pi2` | Raspberry Pi 2 Model B Rev 1.1, Raspbian 12 - Bookworm | `linux-arm` |
+| `pi5` | Raspberry Pi 5 with 64-bit OS | `linux-arm64` |
+| `all` | Build for both architectures | Both |
+
+Build artifacts are generated in the `dist/` directory with complete deployment packages including installation scripts.
+
 ### Prerequisites
 - [Raspberry Pi](https://www.raspberrypi.org/) or compatible Linux device
-- .NET 8.0 Runtime or SDK
+- .NET 8.0 Runtime (automatically configured by deployment scripts)
 - Male USB to male RS-232 adapter
 
 ### Installation Steps
+
+**For Raspberry Pi 2 Model B Rev 1.1 or Raspberry Pi 5, use the optimized deployment packages:**
+
+See the **[Raspberry Pi Deployment Guide](docs/RASPBERRY_PI_DEPLOYMENT.md)** for complete instructions.
+
+**For generic Linux installations or development:**
 
 #### 1. Update Your System
 ```bash
