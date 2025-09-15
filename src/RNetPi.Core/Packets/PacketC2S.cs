@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 
 namespace RNetPi.Core.Packets;
 
@@ -14,6 +15,21 @@ public abstract class PacketC2S
 
     public abstract byte GetID();
     protected abstract void ParseData();
+
+    /// <summary>
+    /// Reads a null-terminated string from the stream
+    /// </summary>
+    /// <returns>The string without the null terminator</returns>
+    protected string ReadNullTerminatedString()
+    {
+        var bytes = new List<byte>();
+        byte b;
+        while ((b = Reader.ReadByte()) != 0)
+        {
+            bytes.Add(b);
+        }
+        return Encoding.UTF8.GetString(bytes.ToArray());
+    }
 
     protected virtual void Dispose(bool disposing)
     {
