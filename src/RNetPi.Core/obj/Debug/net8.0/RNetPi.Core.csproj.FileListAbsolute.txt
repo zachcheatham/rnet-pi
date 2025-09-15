@@ -1,0 +1,12 @@
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/bin/Debug/net8.0/RNetPi.Core.deps.json
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/bin/Debug/net8.0/RNetPi.Core.dll
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/bin/Debug/net8.0/RNetPi.Core.pdb
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/obj/Debug/net8.0/RNetPi.Core.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/obj/Debug/net8.0/RNetPi.Core.AssemblyInfoInputs.cache
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/obj/Debug/net8.0/RNetPi.Core.AssemblyInfo.cs
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/obj/Debug/net8.0/RNetPi.Core.csproj.CoreCompileInputs.cache
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/obj/Debug/net8.0/RNetPi.Core.sourcelink.json
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/obj/Debug/net8.0/RNetPi.Core.dll
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/obj/Debug/net8.0/refint/RNetPi.Core.dll
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/obj/Debug/net8.0/RNetPi.Core.pdb
+/home/runner/work/rnet-pi/rnet-pi/src/RNetPi.Core/obj/Debug/net8.0/ref/RNetPi.Core.dll
