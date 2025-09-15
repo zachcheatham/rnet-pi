@@ -1,0 +1,28 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <WarningsNotAsErrors />
+  </PropertyGroup>
+
+  <!-- Architecture-specific configurations -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-arm'">
+    <DefineConstants>$(DefineConstants);RASPBERRY_PI_2</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-arm64'">
+    <DefineConstants>$(DefineConstants);RASPBERRY_PI_5</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Common package versions -->
+  <PropertyGroup>
+    <MicrosoftExtensionsLoggingVersion>9.0.9</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsOptionsVersion>9.0.9</MicrosoftExtensionsOptionsVersion>
+    <SystemIOPortsVersion>9.0.9</SystemIOPortsVersion>
+    <SwashbuckleAspNetCoreVersion>6.6.2</SwashbuckleAspNetCoreVersion>
+    <MicrosoftAspNetCoreOpenApiVersion>8.0.19</MicrosoftAspNetCoreOpenApiVersion>
+  </PropertyGroup>
+</Project>

@@ -15,3 +15,6 @@ sources.json
 zones.json
 config.json
 package-lock.json
+
+# Build artifacts and deployment packages
+dist/
