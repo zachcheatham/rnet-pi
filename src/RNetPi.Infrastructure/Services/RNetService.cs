@@ -127,8 +127,8 @@ public class RNetService : IRNetService, IDisposable
         
         // Subscribe to zone events for persistence and broadcasting
         zone.NameChanged += (name) => SaveZonesAsync().ConfigureAwait(false);
-        zone.PowerChanged += (power) => _logger.LogDebug("Zone {Controller}-{Zone} power: {Power}", controllerID, zoneID, power);
-        zone.VolumeChanged += (volume) => _logger.LogDebug("Zone {Controller}-{Zone} volume: {Volume}", controllerID, zoneID, volume);
+        zone.PowerChangedSimple += (power) => _logger.LogDebug("Zone {Controller}-{Zone} power: {Power}", controllerID, zoneID, power);
+        zone.VolumeChangedSimple += (volume) => _logger.LogDebug("Zone {Controller}-{Zone} volume: {Volume}", controllerID, zoneID, volume);
         
         _zones.TryAdd((controllerID, zoneID), zone);
         _logger.LogInformation("Created zone {Controller}-{Zone}: {Name}", controllerID, zoneID, name);
@@ -142,7 +142,7 @@ public class RNetService : IRNetService, IDisposable
         var source = new Source(sourceID, name, type);
         
         // Subscribe to source events for persistence and broadcasting
-        source.NameChanged += (name) => SaveSourcesAsync().ConfigureAwait(false);
+        source.NameChanged += (name, oldName) => SaveSourcesAsync().ConfigureAwait(false);
         source.TypeChanged += (type) => SaveSourcesAsync().ConfigureAwait(false);
         
         _sources.TryAdd(sourceID, source);

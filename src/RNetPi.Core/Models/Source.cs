@@ -71,6 +71,15 @@ public class Source
     public event Action<SourceControl>? ControlRequested;
     public event Action? OverrideNameRequested;
 
+    // Backward compatibility events
+    public event Action<string>? MediaTitleChanged;
+    public event Action<string>? MediaArtistChanged;
+
+    public Source(int sourceID, string name, SourceType type)
+        : this(sourceID, name, type, (_, _) => null, () => 0, _ => 0)
+    {
+    }
+
     public Source(int sourceID, string name, SourceType type,
         Func<int, int, Zone?> getZone,
         Func<int> getControllersSize,
@@ -111,6 +120,10 @@ public class Source
             MediaArtist = artist;
             MediaArtworkURL = artworkURL;
             MediaMetadataChanged?.Invoke(title, artist, artworkURL);
+            
+            // Fire backward compatibility events
+            MediaTitleChanged?.Invoke(title ?? string.Empty);
+            MediaArtistChanged?.Invoke(artist ?? string.Empty);
         }
     }
 

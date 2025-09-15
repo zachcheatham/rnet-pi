@@ -161,11 +161,11 @@ public class EnhancedRNetService : IRNetService, IDisposable
 
         // Subscribe to zone events
         zone.NameChanged += (newName) => SaveConfiguration();
-        zone.PowerChanged += (power) => SaveConfiguration();
-        zone.VolumeChanged += (volume) => SaveConfiguration();
-        zone.SourceChanged += (source) => SaveConfiguration();
+        zone.PowerChangedSimple += (power) => SaveConfiguration();
+        zone.VolumeChangedSimple += (volume) => SaveConfiguration();
+        zone.SourceChangedSimple += (source) => SaveConfiguration();
         zone.MuteChanged += (mute) => SaveConfiguration();
-        zone.ParameterChanged += (paramId, value) => SaveConfiguration();
+        zone.ParameterChangedSimple += (paramId, value) => SaveConfiguration();
 
         _zones[(controllerID, zoneID)] = zone;
         SaveConfiguration();
@@ -182,12 +182,12 @@ public class EnhancedRNetService : IRNetService, IDisposable
         var source = new Source(sourceID, name, type);
 
         // Subscribe to source events
-        source.NameChanged += (newName) => SaveConfiguration();
+        source.NameChanged += (newName, oldName) => SaveConfiguration();
         source.TypeChanged += (newType) => SaveConfiguration();
         source.MediaTitleChanged += (title) => { /* Handle media metadata */ };
         source.MediaArtistChanged += (artist) => { /* Handle media metadata */ };
         source.MediaPlayingChanged += (playing) => { /* Handle playback state */ };
-        source.DescriptiveTextChanged += (text) => { /* Handle descriptive text */ };
+        source.DescriptiveTextChanged += (text, flashTime) => { /* Handle descriptive text */ };
 
         _sources[sourceID] = source;
         SaveConfiguration();
@@ -350,7 +350,7 @@ public class EnhancedRNetService : IRNetService, IDisposable
     {
         try
         {
-            var packet = new DisplayMessagePacket((byte)controllerID, (byte)zoneID, message, displayTime);
+            var packet = new DisplayMessagePacket((byte)controllerID, (byte)zoneID, DisplayMessagePacket.Alignment.Left, (byte)displayTime, message);
             EnqueuePacket(packet);
             _logger.LogInformation("Sent display message to zone {ZoneID}: {Message}", zoneID, message);
         }

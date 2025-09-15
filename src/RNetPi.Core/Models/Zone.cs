@@ -32,6 +32,17 @@ public class Zone
     public event Action<int>? MaxVolumeChanged;
     public event Action<int, object, bool>? ParameterChanged; // parameterID, value, rNetTriggered
 
+    // Backward compatibility events
+    public event Action<bool>? PowerChangedSimple;
+    public event Action<int>? VolumeChangedSimple;
+    public event Action<int>? SourceChangedSimple;
+    public event Action<int, object>? ParameterChangedSimple;
+
+    public Zone(int controllerID, int zoneID)
+        : this(controllerID, zoneID, null, null, null)
+    {
+    }
+
     public Zone(int controllerID, int zoneID,
         Action<Zone, RNet.RequestDataPacket>? sendDataCallback = null,
         Action<Zone, RNet.RequestParameterPacket>? sendParameterCallback = null,
@@ -70,6 +81,7 @@ public class Zone
         {
             Power = power;
             PowerChanged?.Invoke(power, rNetTriggered);
+            PowerChangedSimple?.Invoke(power); // Backward compatibility
 
             // Clear mute state when power changes
             if (Mute)
@@ -111,6 +123,7 @@ public class Zone
 
             Volume = volume;
             VolumeChanged?.Invoke(volume, rNetTriggered);
+            VolumeChangedSimple?.Invoke(volume); // Backward compatibility
         }
     }
 
@@ -120,6 +133,7 @@ public class Zone
         {
             Source = source;
             SourceChanged?.Invoke(source, rNetTriggered);
+            SourceChangedSimple?.Invoke(source); // Backward compatibility
         }
     }
 
@@ -200,6 +214,7 @@ public class Zone
         {
             _parameters[parameterID] = validatedValue;
             ParameterChanged?.Invoke(parameterID, validatedValue, rNetTriggered);
+            ParameterChangedSimple?.Invoke(parameterID, validatedValue); // Backward compatibility
         }
     }
 
