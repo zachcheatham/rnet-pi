@@ -7,6 +7,26 @@ namespace RNetPi.Core.RNet;
 /// </summary>
 public class RequestDataPacket : DataPacket
 {
+    public enum DataType : byte
+    {
+        ZoneVolume = 0x01,
+        ZoneSource = 0x02,
+        ZonePower = 0x06,
+        ZoneInfo = 0x07
+    }
+
+    public RequestDataPacket(byte controllerID, byte zoneID, DataType dataType)
+    {
+        MessageType = 0x01;
+        TargetControllerID = controllerID;
+        TargetZoneID = zoneID;
+        TargetPath = new byte[] { 0x02, 0x00, zoneID, (byte)dataType };
+        SourcePath = Array.Empty<byte>();
+        PacketNumber = 0;
+        PacketCount = 1;
+        Data = Array.Empty<byte>();
+    }
+
     public RequestDataPacket(byte[] targetPath)
     {
         MessageType = 0x00;

@@ -8,30 +8,39 @@ namespace RNetPi.Core.RNet;
 /// </summary>
 public class DisplayMessagePacket : RNetPacket
 {
+    public enum Alignment : byte
+    {
+        Center = 0x00,
+        Left = 0x01
+    }
+
     public string Message { get; set; } = string.Empty;
     public byte DisplayTime { get; set; } = 5; // Default 5 seconds
+    public Alignment TextAlignment { get; set; } = Alignment.Left;
 
     public DisplayMessagePacket()
     {
         MessageType = 0x04;
     }
 
-    public DisplayMessagePacket(byte controllerID, byte zoneID, string message, byte displayTime = 5)
+    public DisplayMessagePacket(byte controllerID, byte zoneID, Alignment alignment, byte displayTime, string message)
         : this()
     {
         TargetControllerID = controllerID;
         TargetZoneID = zoneID;
-        Message = message ?? string.Empty;
+        TextAlignment = alignment;
         DisplayTime = displayTime;
+        Message = message ?? string.Empty;
     }
 
     protected override byte[] GetMessageBody()
     {
         var messageBytes = Encoding.UTF8.GetBytes(Message);
-        var body = new byte[messageBytes.Length + 2]; // +2 for display time and null terminator
+        var body = new byte[messageBytes.Length + 3]; // +3 for alignment, display time and null terminator
         
-        body[0] = DisplayTime;
-        Array.Copy(messageBytes, 0, body, 1, messageBytes.Length);
+        body[0] = (byte)TextAlignment;
+        body[1] = DisplayTime;
+        Array.Copy(messageBytes, 0, body, 2, messageBytes.Length);
         body[^1] = 0; // Null terminator
         
         return body;
