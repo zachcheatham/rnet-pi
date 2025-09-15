@@ -24,6 +24,9 @@ public interface IRNetService
     void SetAllPower(bool power);
     void SetAllMute(bool mute, int fadeTime = 0);
     
+    Task SetAllPowerAsync(bool power);
+    Task SetAllMuteAsync(bool mute, int fadeTime = 0);
+    
     event EventHandler? Connected;
     event EventHandler? Disconnected;
     event EventHandler<Exception>? Error;

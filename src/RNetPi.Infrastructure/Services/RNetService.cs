@@ -379,6 +379,16 @@ public class RNetService : IRNetService, IDisposable
         }
     }
 
+    public async Task SetAllPowerAsync(bool power)
+    {
+        await Task.Run(() => SetAllPower(power));
+    }
+
+    public async Task SetAllMuteAsync(bool mute, int fadeTime = 0)
+    {
+        await Task.Run(() => SetAllMute(mute, fadeTime));
+    }
+
     public void Dispose()
     {
         DisconnectAsync().ConfigureAwait(false);

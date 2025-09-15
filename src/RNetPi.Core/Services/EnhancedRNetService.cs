@@ -609,6 +609,16 @@ public class EnhancedRNetService : IRNetService, IDisposable
         // This would save zones.json and sources.json like in the JavaScript implementation
     }
 
+    public async Task SetAllPowerAsync(bool power)
+    {
+        await Task.Run(() => SetAllPower(power));
+    }
+
+    public async Task SetAllMuteAsync(bool mute, int fadeTime = 0)
+    {
+        await Task.Run(() => SetAllMute(mute, fadeTime));
+    }
+
     public void Dispose()
     {
         DisconnectAsync().Wait();
