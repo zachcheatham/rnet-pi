@@ -1,7 +1,31 @@
+using RNetPi.Core.Constants;
+
 namespace RNetPi.Core.Utilities;
 
 public static class ParameterUtils
 {
+    /// <summary>
+    /// Gets the human-readable name for a parameter ID
+    /// </summary>
+    /// <param name="parameterID">The parameter ID</param>
+    /// <returns>The parameter name</returns>
+    public static string GetParameterName(int parameterID)
+    {
+        return parameterID switch
+        {
+            ZoneParameters.Bass => "Bass",
+            ZoneParameters.Treble => "Treble",
+            ZoneParameters.Loudness => "Loudness", 
+            ZoneParameters.Balance => "Balance",
+            ZoneParameters.TurnOnVolume => "Turn on Volume",
+            ZoneParameters.BackgroundColor => "Background Color",
+            ZoneParameters.DoNotDisturb => "Do Not Disturb",
+            ZoneParameters.PartyMode => "Party Mode",
+            ZoneParameters.FrontAVEnable => "Front AV Enable",
+            _ => "Unknown"
+        };
+    }
+
     /// <summary>
     /// Determines if a parameter ID represents a signed value
     /// </summary>
