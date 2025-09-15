@@ -65,3 +65,194 @@ Installation
 `sudo systemctl start rnet-pi`
 ##### Setup the Zones and Sources
 The RNET RS-232 protocol has no zone naming, method of determining which zones and sources have physical connections, or method to retrieve the names of sources. All of that is up to you. Before you can start using this system, you must connect to this newly created server using the [RNET Remote](https://play.google.com/store/apps/details?id=me.zachcheatham.rnetremote) app and add zones and sources.
+
+## C# .NET Installation (Recommended)
+
+The RNet-Pi project has been ported to modern C# .NET 8.0 for improved performance, better cross-platform support, and enhanced maintainability. This is the recommended deployment method for new installations.
+
+### Prerequisites
+- [Raspberry Pi](https://www.raspberrypi.org/) or compatible Linux device
+- .NET 8.0 Runtime or SDK
+- Male USB to male RS-232 adapter
+
+### Installation Steps
+
+#### 1. Update Your System
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+#### 2. Install .NET 8.0
+```bash
+# Add Microsoft package repository
+curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+sudo apt-add-repository https://packages.microsoft.com/debian/11/prod
+
+# Install .NET 8.0 Runtime (or SDK for development)
+sudo apt update
+sudo apt install -y dotnet-runtime-8.0
+
+# Verify installation
+dotnet --version
+```
+
+#### 3. Clone and Build RNet-Pi
+```bash
+# Clone the repository
+git clone https://github.com/mmackelprang/rnet-pi.git
+cd rnet-pi
+
+# Build the application
+dotnet build --configuration Release
+
+# Publish for deployment
+dotnet publish src/RNetPi.API/RNetPi.API.csproj -c Release -o /opt/rnet-pi
+```
+
+#### 4. Configure Serial Device
+Determine your USB-to-RS232 adapter device path:
+```bash
+# Before connecting adapter
+ls /dev/tty*
+
+# Connect the adapter and list again
+ls /dev/tty*
+
+# Look for new device (typically /dev/ttyUSB0 or /dev/tty-usbserial1)
+```
+
+#### 5. Create Configuration
+Create initial configuration file:
+```bash
+sudo mkdir -p /etc/rnet-pi
+sudo tee /etc/rnet-pi/config.json > /dev/null <<EOF
+{
+  "serverName": "RNet Controller",
+  "serverHost": null,
+  "serverPort": 3000,
+  "webHost": null,
+  "webPort": null,
+  "serialDevice": "/dev/ttyUSB0",
+  "webHookPassword": "your-secure-password-here",
+  "simulate": false
+}
+EOF
+```
+
+#### 6. Create Systemd Service
+Create a systemd service for automatic startup:
+```bash
+sudo tee /etc/systemd/system/rnet-pi.service > /dev/null <<EOF
+[Unit]
+Description=RNet-Pi Audio Controller
+After=network.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/dotnet /opt/rnet-pi/RNetPi.API.dll
+Restart=always
+RestartSec=5
+User=pi
+Group=pi
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://0.0.0.0:3000
+WorkingDirectory=/opt/rnet-pi
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=rnet-pi
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+#### 7. Start and Enable Service
+```bash
+# Set correct permissions
+sudo chown -R pi:pi /opt/rnet-pi
+sudo chmod +x /opt/rnet-pi/RNetPi.API
+
+# Enable and start the service
+sudo systemctl daemon-reload
+sudo systemctl enable rnet-pi
+sudo systemctl start rnet-pi
+
+# Check status
+sudo systemctl status rnet-pi
+
+# View logs
+sudo journalctl -u rnet-pi -f
+```
+
+### Configuration
+
+The application uses `config.json` for configuration. Key settings include:
+
+- **serverName**: Display name for your RNet controller
+- **serverPort**: Port for the main API (default: 3000)
+- **serialDevice**: Path to your USB-to-RS232 adapter
+- **webHookPassword**: Password for webhook API access
+- **simulate**: Set to true for testing without hardware
+
+### API Endpoints
+
+The C# version exposes RESTful API endpoints:
+
+#### Global Controls
+- `PUT /api/webhooks/on?pass=yourpassword` - Turn all zones on
+- `PUT /api/webhooks/off?pass=yourpassword` - Turn all zones off
+- `PUT /api/webhooks/mute?pass=yourpassword` - Mute all zones
+- `PUT /api/webhooks/unmute?pass=yourpassword` - Unmute all zones
+
+#### Zone-Specific Controls
+- `PUT /api/webhooks/{zoneName}/on?pass=yourpassword` - Turn specific zone on
+- `PUT /api/webhooks/{zoneName}/off?pass=yourpassword` - Turn specific zone off
+- `PUT /api/webhooks/{zoneName}/volume/{level}?pass=yourpassword` - Set volume (0-100)
+- `PUT /api/webhooks/{zoneName}/mute?pass=yourpassword` - Mute specific zone
+- `PUT /api/webhooks/{zoneName}/unmute?pass=yourpassword` - Unmute specific zone
+- `PUT /api/webhooks/{zoneName}/source/{sourceName}?pass=yourpassword` - Set source
+
+### Swagger API Documentation
+
+The C# version includes Swagger documentation available at:
+`http://your-pi-ip:3000/swagger`
+
+### Troubleshooting
+
+#### View Service Logs
+```bash
+# Real-time logs
+sudo journalctl -u rnet-pi -f
+
+# Recent logs
+sudo journalctl -u rnet-pi --since "1 hour ago"
+```
+
+#### Check Serial Device Permissions
+```bash
+# Add user to dialout group for serial access
+sudo usermod -a -G dialout pi
+
+# Check device permissions
+ls -la /dev/ttyUSB0
+```
+
+#### Test Configuration
+```bash
+# Test configuration loading
+sudo -u pi dotnet /opt/rnet-pi/RNetPi.API.dll --urls="http://localhost:3001"
+```
+
+#### Service Management
+```bash
+# Restart service
+sudo systemctl restart rnet-pi
+
+# Stop service
+sudo systemctl stop rnet-pi
+
+# Disable autostart
+sudo systemctl disable rnet-pi
+```
