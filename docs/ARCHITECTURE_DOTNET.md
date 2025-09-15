@@ -230,7 +230,7 @@ rnetService.Error += (sender, exception) => {
 
 ## Packet System
 
-The packet system maintains compatibility with the original RNet protocol while providing type-safe implementations.
+The packet system maintains compatibility with the original RNet protocol while providing type-safe implementations. All 33 packet classes from the original JavaScript implementation have been ported to modern C#.
 
 ### Base Packet Classes
 ```csharp
@@ -240,6 +240,7 @@ public abstract class PacketC2S : IDisposable
     
     public abstract byte GetID();
     protected abstract void ParseData();
+    protected string ReadNullTerminatedString(); // Helper for string data
 }
 
 public abstract class PacketS2C : IDisposable
@@ -248,8 +249,73 @@ public abstract class PacketS2C : IDisposable
     
     public abstract byte GetID();
     public virtual byte[] GetBuffer();
+    protected void WriteNullTerminatedString(string? value); // Helper for string data
 }
 ```
+
+### Client to Server Packets (C2S)
+
+| Packet Class | ID | Description |
+|-------------|-------|-------------|
+| `PacketC2SAllPower` | 0x0C | Sets on/off state of all zones |
+| `PacketC2SDeleteSource` | 0x07 | Deletes a source |
+| `PacketC2SDeleteZone` | 0x05 | Deletes a zone |
+| `PacketC2SDisconnect` | 0x03 | Disconnects from server |
+| `PacketC2SIntent` | 0x01 | Announces client's intent to connect |
+| `PacketC2SMute` | 0x0D | Mute control with fade time and optional zone targeting |
+| `PacketC2SProperty` | 0x02 | Sets controller properties |
+| `PacketC2SRequestSourceProperties` | 0x33 | Requests source properties |
+| `PacketC2SSourceControl` | 0x32 | Controls source media (play/pause/etc.) |
+| `PacketC2SSourceInfo` | 0x06 | Updates source information |
+| `PacketC2SSourceProperty` | 0x34 | Changes source properties |
+| `PacketC2SUpdate` | 0x7D | Requests software update |
+| `PacketC2SZoneMaxVolume` | 0x64 | Sets zone's maximum volume |
+| `PacketC2SZoneMute` | 0x65 | Mute/unmute specific zone |
+| `PacketC2SZoneName` | 0x04 | Renames a zone |
+| `PacketC2SZoneParameter` | 0x0B | Sets zone parameters (bass, treble, etc.) |
+| `PacketC2SZonePower` | 0x08 | Turns zone on/off |
+| `PacketC2SZoneSource` | 0x0A | Sets zone's source |
+| `PacketC2SZoneVolume` | 0x09 | Sets zone's volume |
+
+### Server to Client Packets (S2C)
+
+| Packet Class | ID | Description |
+|-------------|-------|-------------|
+| `PacketS2CMediaMetadata` | 0x36 | Sends current track metadata |
+| `PacketS2CMediaPlayState` | 0x37 | Sends media play/pause state |
+| `PacketS2CProperty` | 0x02 | Sends controller property values |
+| `PacketS2CSourceDeleted` | 0x07 | Notifies of deleted source |
+| `PacketS2CSourceDescriptiveText` | 0x35 | Sends source descriptive text |
+| `PacketS2CSourceInfo` | 0x06 | Sends source information |
+| `PacketS2CSourceProperty` | 0x34 | Sends source property values |
+| `PacketS2CUpdateAvailable` | 0x7D | Notifies of available updates |
+| `PacketS2CZoneDeleted` | 0x05 | Notifies of deleted zone |
+| `PacketS2CZoneIndex` | 0x03 | Sends list of existing zones |
+| `PacketS2CZoneMaxVolume` | 0x64 | Sends zone's maximum volume |
+| `PacketS2CZoneMute` | 0x65 | Sends zone's mute state |
+| `PacketS2CZoneName` | 0x04 | Sends zone's name |
+| `PacketS2CZoneParameter` | 0x0B | Sends zone parameter values |
+| `PacketS2CZonePower` | 0x08 | Sends zone's power state |
+| `PacketS2CZoneSource` | 0x0A | Sends zone's current source |
+| `PacketS2CZoneVolume` | 0x09 | Sends zone's current volume |
+
+### Advanced Packet Features
+
+**Parameter Handling**
+The `ParameterUtils` utility class provides intelligent parameter type handling:
+```csharp
+public static class ParameterUtils
+{
+    public static bool IsParameterSigned(byte parameterID);   // Bass, Treble, Balance
+    public static bool IsParameterBoolean(byte parameterID);  // Loudness, Do Not Disturb
+}
+```
+
+**Complex Data Types**
+- **Null-terminated strings**: Automatic encoding/decoding for zone names, source info
+- **Boolean values**: Proper conversion between byte and bool
+- **Signed/unsigned values**: Correct handling based on parameter type
+- **Array data**: Support for zone collections and parameter lists
 
 ### Example Packet Implementation
 ```csharp
