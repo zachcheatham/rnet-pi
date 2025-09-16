@@ -44,6 +44,19 @@ public class Zone
     {
     }
 
+    public enum Parameter
+    {
+        Bass = 0,
+        Treble = 1,
+        Loudness = 2,
+        Balance = 3,
+        TurnOnVolume = 4,
+        BackgroundColor = 5,
+        DoNotDisturb = 6,
+        PartyMode = 7,
+        FrontAVEnable = 8
+    }
+
     public Zone(int controllerID, int zoneID,
         Action<Zone, RNet.RequestDataPacket>? sendDataCallback = null,
         Action<Zone, RNet.RequestParameterPacket>? sendParameterCallback = null,
@@ -56,15 +69,15 @@ public class Zone
         _sendDisplayCallback = sendDisplayCallback;
         
         // Initialize parameters with default values
-        _parameters[0] = 0;      // Bass             -10 - +10
-        _parameters[1] = 0;      // Treble           -10 - +10
-        _parameters[2] = false;  // Loudness
-        _parameters[3] = 0;      // Balance          -10 - +10
-        _parameters[4] = 0;      // Turn on Volume   0 - 100
-        _parameters[5] = 0;      // Background Color 0 - 2
-        _parameters[6] = false;  // Do Not Disturb
-        _parameters[7] = 0;      // Party Mode       0 - 2
-        _parameters[8] = false;  // Front AV Enable
+        _parameters[(int)Parameter.Bass] = 0;      // Bass             -10 - +10
+        _parameters[(int)Parameter.Treble] = 0;      // Treble           -10 - +10
+        _parameters[(int)Parameter.Loudness] = false;  // Loudness
+        _parameters[(int)Parameter.Balance] = 0;      // Balance          -10 - +10
+        _parameters[(int)Parameter.TurnOnVolume] = 50;      // Turn on Volume   0 - 100
+        _parameters[(int)Parameter.BackgroundColor] = 0;      // Background Color 0 - 2
+        _parameters[(int)Parameter.DoNotDisturb] = false;  // Do Not Disturb
+        _parameters[(int)Parameter.PartyMode] = 0;      // Party Mode       0 - 2
+        _parameters[(int)Parameter.FrontAVEnable] = false;  // Front AV Enable
     }
 
     public void SetName(string name)

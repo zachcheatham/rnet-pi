@@ -185,24 +185,29 @@ public class RNetApplication
         if (livingRoom != null)
         {
             System.Console.WriteLine("Testing Living Room zone:");
-            
+
             // Test power
+            var p = livingRoom.Power;
             livingRoom.SetPower(true);
-            System.Console.WriteLine($"  Power on - Current power: {livingRoom.Power}");
-            
+            System.Console.WriteLine($"  Power on - Current power: {livingRoom.Power}, Previous: {p}");
+
             // Test volume
+            var v = livingRoom.Volume;
             livingRoom.SetVolume(25);
-            System.Console.WriteLine($"  Set volume to 25 - Current volume: {livingRoom.Volume}");
-            
+            System.Console.WriteLine($"  Set volume to 25 - Current volume: {livingRoom.Volume}, Previous: {v}");
+
             // Test source
+            var s = livingRoom.Source;
             livingRoom.SetSource(1);
-            System.Console.WriteLine($"  Set source to 1 - Current source: {livingRoom.Source}");
+            System.Console.WriteLine($"  Set source to 1 - Current source: {livingRoom.Source}, Previous: {s}");
             
             // Test parameters
-            livingRoom.SetParameter(0, 5); // Bass
-            livingRoom.SetParameter(1, -2); // Treble
+            var b = livingRoom.GetParameter((int)Zone.Parameter.Bass);
+            var t = livingRoom.GetParameter((int)Zone.Parameter.Treble);
+            livingRoom.SetParameter((int)Zone.Parameter.Bass, 5); // Bass
+            livingRoom.SetParameter((int)Zone.Parameter.Treble, -2); // Treble
             System.Console.WriteLine($"  Set bass to 5, treble to -2");
-            System.Console.WriteLine($"  Bass: {livingRoom.GetParameter(0)}, Treble: {livingRoom.GetParameter(1)}");
+            System.Console.WriteLine($"  Bass: {livingRoom.GetParameter((int)Zone.Parameter.Bass)}, Previous {b}, Treble: {livingRoom.GetParameter((int)Zone.Parameter.Treble)}, Previous {t}");
         }
 
         // Test global functions
