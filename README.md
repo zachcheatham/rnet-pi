@@ -40,7 +40,7 @@ Installation
 5. Download and install required libraries:
 `npm install`
 6. Install RNET Pi to a service for autostarting at boot:
-`sudo forever-service install -s ./src/app.js rnet-pi`
+`sudo forever-service install -s ./src_js/app.js rnet-pi`
 ##### Configuration
 1. Run the server once to generate a config file
 `npm start` *Wait for startup to complete* `^C`

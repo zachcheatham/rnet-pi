@@ -4,7 +4,7 @@
   "description": "Proxy between smart devices and RNet enabled amps",
   "main": "index.js",
   "scripts": {
-    "start": "forever start src/app.js"
+    "start": "forever start src_js/app.js"
   },
   "author": "zachcheatham",
   "license": "ISC",
