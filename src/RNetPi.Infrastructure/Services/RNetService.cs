@@ -16,7 +16,6 @@ public class RNetService : IRNetService, IDisposable
     private readonly ConcurrentDictionary<int, Source> _sources;
     private SerialPort? _serialPort;
     private bool _connected = false;
-    private bool _autoUpdating = false;
     private readonly Queue<byte[]> _packetQueue = new();
     private readonly string _zonesFilePath;
     private readonly string _sourcesFilePath;

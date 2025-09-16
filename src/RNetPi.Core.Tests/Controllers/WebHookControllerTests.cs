@@ -156,14 +156,14 @@ public class WebHookControllerTests
     }
 
     [Fact]
-    public async Task SetZoneVolume_WithUnknownZone_ShouldReturnNotFound()
+    public void SetZoneVolume_WithUnknownZone_ShouldReturnNotFound()
     {
         // Arrange
         _mockRNetController.Setup(x => x.FindZoneByName("unknown-zone"))
             .Returns((Zone?)null);
 
         // Act
-        var result = await _controller.SetZoneVolume("unknown-zone", 50);
+        var result = _controller.SetZoneVolume("unknown-zone", 50);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);

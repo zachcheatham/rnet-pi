@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using RNetPi.Core.Interfaces;
 using RNetPi.Core.Models;
 using RNetPi.Core.RNet;
+using RNetPi.Core.Logging;
 
 namespace RNetPi.Core.Services;
 
@@ -25,8 +26,6 @@ public class EnhancedRNetService : IRNetService, IDisposable
     
     private SerialPort? _serialPort;
     private bool _connected = false;
-    private bool _waitingForHandshake = false;
-    private bool _autoUpdating = false;
     private CancellationTokenSource? _cancellationTokenSource;
     private Task? _processingTask;
 
@@ -377,7 +376,6 @@ public class EnhancedRNetService : IRNetService, IDisposable
         {
             var handshakePacket = new HandshakePacket(0x00, 0x01);
             await SendPacketAsync(handshakePacket);
-            _waitingForHandshake = true;
             _logger.LogDebug("Sent handshake packet");
         }
         catch (Exception ex)
@@ -397,8 +395,7 @@ public class EnhancedRNetService : IRNetService, IDisposable
             await _serialPort.BaseStream.WriteAsync(buffer, 0, buffer.Length);
             await _serialPort.BaseStream.FlushAsync();
             
-            _logger.LogTrace("Sent packet: {PacketType} ({Size} bytes)", 
-                packet.GetType().Name, buffer.Length);
+            _logger.LogSentPacket(packet.GetType().Name, buffer, $"to RNet ({buffer.Length} bytes)");
         }
         catch (Exception ex)
         {
@@ -471,11 +468,11 @@ public class EnhancedRNetService : IRNetService, IDisposable
             var packet = PacketBuilder.Build(buffer);
             if (packet == null)
             {
-                _logger.LogWarning("Received unrecognized packet");
+                _logger.LogReceivedPacket("Unknown", buffer, "unrecognized packet");
                 return;
             }
 
-            _logger.LogTrace("Received packet: {PacketType}", packet.GetType().Name);
+            _logger.LogReceivedPacket(packet.GetType().Name, buffer, "from RNet");
 
             // Handle different packet types
             switch (packet)
@@ -587,7 +584,6 @@ public class EnhancedRNetService : IRNetService, IDisposable
 
     private void HandleHandshakePacket(HandshakePacket packet)
     {
-        _waitingForHandshake = false;
         _logger.LogDebug("Received handshake response");
     }
 

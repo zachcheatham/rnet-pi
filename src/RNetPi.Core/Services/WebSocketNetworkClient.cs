@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using RNetPi.Core.Packets;
+using RNetPi.Core.Logging;
 
 namespace RNetPi.Core.Services;
 
@@ -14,7 +15,6 @@ public class WebSocketNetworkClient : NetworkClient, IDisposable
 {
     private readonly WebSocket _webSocket;
     private readonly string _remoteAddress;
-    private readonly ILogger<WebSocketNetworkClient>? _logger;
     private readonly CancellationTokenSource _cancellationTokenSource;
     
     private bool _disposed = false;
@@ -23,7 +23,7 @@ public class WebSocketNetworkClient : NetworkClient, IDisposable
     {
         _webSocket = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
         _remoteAddress = remoteAddress ?? "Unknown";
-        _logger = logger;
+        base._logger = logger; // Set the base class logger
         _cancellationTokenSource = new CancellationTokenSource();
 
         // Start receiving data
@@ -48,8 +48,7 @@ public class WebSocketNetworkClient : NetworkClient, IDisposable
                 true, 
                 _cancellationTokenSource.Token);
             
-            _logger?.LogTrace("Sent packet {PacketType} to {Address} ({Size} bytes)", 
-                packet.GetType().Name, GetAddress(), buffer.Length);
+            _logger?.LogSentPacket(packet.GetType().Name, buffer, $"to {GetAddress()} ({buffer.Length} bytes)");
         }
         catch (Exception ex)
         {
@@ -70,7 +69,7 @@ public class WebSocketNetworkClient : NetworkClient, IDisposable
                 true, 
                 _cancellationTokenSource.Token);
             
-            _logger?.LogTrace("Sent buffer to {Address} ({Size} bytes)", GetAddress(), buffer.Length);
+            _logger?.LogSentPacket("RawBuffer", buffer, $"to {GetAddress()} ({buffer.Length} bytes)");
         }
         catch (Exception ex)
         {

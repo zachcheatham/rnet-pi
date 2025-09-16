@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using RNetPi.Core.Logging;
 using RNetPi.Core.Constants;
 using RNetPi.Core.Interfaces;
 using RNetPi.Core.Models;
@@ -80,7 +81,7 @@ public class SimpleRNetController : IRNetController, IDisposable
         }
     }
 
-    public async Task DisconnectAsync()
+    public Task DisconnectAsync()
     {
         try
         {
@@ -100,6 +101,8 @@ public class SimpleRNetController : IRNetController, IDisposable
             _logger.LogError(ex, "Error during disconnect");
             Error?.Invoke(this, ex);
         }
+        
+        return Task.CompletedTask;
     }
 
     public Zone CreateZone(int controllerID, int zoneID, string name)
@@ -110,7 +113,7 @@ public class SimpleRNetController : IRNetController, IDisposable
             if (existingZone.Name != name)
             {
                 existingZone.SetName(name);
-                SaveConfigurationAsync();
+                _ = SaveConfigurationAsync();
             }
             return existingZone;
         }
@@ -119,7 +122,7 @@ public class SimpleRNetController : IRNetController, IDisposable
         zone.SetName(name);
 
         // Subscribe to events
-        zone.NameChanged += _ => SaveConfigurationAsync();
+        zone.NameChanged += name => { _ = SaveConfigurationAsync(); };
         zone.PowerChangedSimple += power => ZonePowerChanged?.Invoke(this, (zone, power));
         zone.VolumeChangedSimple += volume => ZoneVolumeChanged?.Invoke(this, (zone, volume));
         zone.SourceChangedSimple += source => ZoneSourceChanged?.Invoke(this, (zone, source));
@@ -129,7 +132,7 @@ public class SimpleRNetController : IRNetController, IDisposable
         _zones[key] = zone;
         _logger.LogInformation("Created zone {ControllerID}-{ZoneID}: {Name}", controllerID, zoneID, name);
         ZoneAdded?.Invoke(this, zone);
-        SaveConfigurationAsync();
+        _ = SaveConfigurationAsync();
 
         return zone;
     }
@@ -141,7 +144,7 @@ public class SimpleRNetController : IRNetController, IDisposable
         {
             _logger.LogInformation("Deleted zone {ControllerID}-{ZoneID}", controllerID, zoneID);
             ZoneRemoved?.Invoke(this, zone);
-            SaveConfigurationAsync();
+            _ = SaveConfigurationAsync();
             return true;
         }
         return false;
@@ -179,7 +182,7 @@ public class SimpleRNetController : IRNetController, IDisposable
             {
                 existingSource.SetName(name);
                 existingSource.SetType(type);
-                SaveConfigurationAsync();
+                _ = SaveConfigurationAsync();
             }
             return existingSource;
         }
@@ -187,11 +190,11 @@ public class SimpleRNetController : IRNetController, IDisposable
         var source = new Source(sourceID, name, type, GetZone, GetControllersSize, GetZonesSize);
 
         // Subscribe to events
-        source.NameChanged += (newName, _) => {
+        source.NameChanged += (newName, oldName) => {
             SourceNameChanged?.Invoke(this, (source, newName));
-            SaveConfigurationAsync();
+            _ = SaveConfigurationAsync();
         };
-        source.TypeChanged += _ => SaveConfigurationAsync();
+        source.TypeChanged += type => { _ = SaveConfigurationAsync(); };
         source.MediaMetadataChanged += (title, artist, artworkURL) => 
             SourceMediaMetadata?.Invoke(this, (source, title, artist, artworkURL));
         source.MediaPlayingChanged += playing => 
@@ -202,7 +205,7 @@ public class SimpleRNetController : IRNetController, IDisposable
         _sources[sourceID] = source;
         _logger.LogInformation("Created source {SourceID}: {Name} ({Type})", sourceID, name, type);
         SourceAdded?.Invoke(this, source);
-        SaveConfigurationAsync();
+        _ = SaveConfigurationAsync();
 
         return source;
     }
@@ -213,7 +216,7 @@ public class SimpleRNetController : IRNetController, IDisposable
         {
             _logger.LogInformation("Deleted source {SourceID}", sourceID);
             SourceRemoved?.Invoke(this, source);
-            SaveConfigurationAsync();
+            _ = SaveConfigurationAsync();
             return true;
         }
         return false;
@@ -235,36 +238,42 @@ public class SimpleRNetController : IRNetController, IDisposable
     public IReadOnlyList<Source> GetSourcesByType(SourceType type) => 
         _sources.Values.Where(s => s.Type == type).ToList().AsReadOnly();
 
-    public async Task RequestAllZoneInfoAsync(bool forceAll = false)
+    public Task RequestAllZoneInfoAsync(bool forceAll = false)
     {
         foreach (var zone in _zones.Values)
         {
             zone.RequestInfo();
         }
+        
+        return Task.CompletedTask;
     }
 
-    public async Task SetAllPowerAsync(bool power)
+    public Task SetAllPowerAsync(bool power)
     {
         foreach (var zone in _zones.Values)
         {
             zone.SetPower(power);
         }
+        
+        return Task.CompletedTask;
     }
 
-    public async Task SetAllMuteAsync(bool muted, int fadeTime = 0)
+    public Task SetAllMuteAsync(bool muted, int fadeTime = 0)
     {
         _allMuted = muted;
         foreach (var zone in _zones.Values.Where(z => z.Power))
         {
             zone.SetMute(muted, fadeTime);
         }
+        
+        return Task.CompletedTask;
     }
 
     public void SetAutoUpdate(bool enabled)
     {
         if (enabled)
         {
-            _autoUpdateTimer = new Timer(_ => RequestAllZoneInfoAsync(), 
+            _autoUpdateTimer = new Timer(state => { _ = RequestAllZoneInfoAsync(); }, 
                 null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
         }
         else
@@ -278,8 +287,9 @@ public class SimpleRNetController : IRNetController, IDisposable
     {
         if (_serialPort?.IsOpen == true)
         {
-            await _serialPort.BaseStream.WriteAsync(packet.GetBuffer());
-            _logger.LogDebug("Sent packet {PacketType} to RNet", packet.GetType().Name);
+            var buffer = packet.GetBuffer();
+            await _serialPort.BaseStream.WriteAsync(buffer);
+            _logger.LogSentPacket(packet.GetType().Name, buffer, "to RNet");
         }
     }
 
@@ -311,20 +321,23 @@ public class SimpleRNetController : IRNetController, IDisposable
             var json = await File.ReadAllTextAsync("sources.json");
             var sourcesArray = JsonSerializer.Deserialize<JsonElement[]>(json);
 
-            for (int sourceID = 0; sourceID < sourcesArray.Length; sourceID++)
+            if (sourcesArray != null)
             {
-                if (sourcesArray[sourceID].ValueKind != JsonValueKind.Null)
+                for (int sourceID = 0; sourceID < sourcesArray.Length; sourceID++)
                 {
-                    var sourceData = sourcesArray[sourceID];
-                    var name = sourceData.GetProperty("name").GetString() ?? $"Source {sourceID}";
-                    var type = SourceType.Generic;
-                    
-                    if (sourceData.TryGetProperty("type", out var typeElement))
+                    if (sourcesArray[sourceID].ValueKind != JsonValueKind.Null)
                     {
-                        type = (SourceType)typeElement.GetInt32();
-                    }
+                        var sourceData = sourcesArray[sourceID];
+                        var name = sourceData.GetProperty("name").GetString() ?? $"Source {sourceID}";
+                        var type = SourceType.Generic;
+                        
+                        if (sourceData.TryGetProperty("type", out var typeElement))
+                        {
+                            type = (SourceType)typeElement.GetInt32();
+                        }
 
-                    CreateSource(sourceID, name, type);
+                        CreateSource(sourceID, name, type);
+                    }
                 }
             }
             _logger.LogInformation("Loaded {Count} sources from configuration", _sources.Count);
@@ -344,8 +357,10 @@ public class SimpleRNetController : IRNetController, IDisposable
             var json = await File.ReadAllTextAsync("zones.json");
             var controllersArray = JsonSerializer.Deserialize<JsonElement[][]>(json);
 
-            for (int controllerID = 0; controllerID < controllersArray.Length; controllerID++)
+            if (controllersArray != null)
             {
+                for (int controllerID = 0; controllerID < controllersArray.Length; controllerID++)
+                {
                 if (controllersArray[controllerID] != null)
                 {
                     var zonesArray = controllersArray[controllerID];
@@ -364,6 +379,7 @@ public class SimpleRNetController : IRNetController, IDisposable
                             }
                         }
                     }
+                }
                 }
             }
             _logger.LogInformation("Loaded {Count} zones from configuration", _zones.Count);

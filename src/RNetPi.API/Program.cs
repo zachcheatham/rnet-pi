@@ -2,9 +2,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using RNetPi.Core.Interfaces;
 using RNetPi.Infrastructure.Services;
+using RNetPi.Core.Logging;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure enhanced logging
+builder.Logging.ClearProviders();
+builder.Logging.AddEnhancedConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Debug); // Set to Debug to see packet details
 
 // Add services to the container.
 builder.Services.AddControllers();

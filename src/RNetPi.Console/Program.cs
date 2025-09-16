@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RNetPi.Core.Interfaces;
 using RNetPi.Infrastructure.Services;
 using RNetPi.Core.Models;
+using RNetPi.Core.Logging;
 
 namespace RNetPi.Console;
 
@@ -25,8 +26,8 @@ public class Program
             .ConfigureLogging(logging =>
             {
                 logging.ClearProviders();
-                logging.AddConsole();
-                logging.SetMinimumLevel(LogLevel.Information);
+                logging.AddEnhancedConsole();
+                logging.SetMinimumLevel(LogLevel.Debug); // Set to Debug to see packet details
             })
             .Build();
 
@@ -81,8 +82,8 @@ public class RNetApplication
             return;
         }
 
-        // Create some sample zones and sources for demonstration
-        await CreateSampleData();
+        // Create default zones and sources for demonstration
+        await CreateDefaultData();
 
         // Wait for user input
         System.Console.WriteLine("\nPress 'q' to quit, 'z' to list zones, 's' to list sources:");
@@ -121,24 +122,27 @@ public class RNetApplication
         }
     }
 
-    private async Task CreateSampleData()
+    private async Task CreateDefaultData()
     {
-        // Create sample zones if none exist
+        // Create default zones if none exist
         if (!_rnetService.GetAllZones().Any())
         {
-            _logger.LogInformation("Creating sample zones...");
-            _rnetService.CreateZone(0, 0, "Living Room");
-            _rnetService.CreateZone(0, 1, "Kitchen");
-            _rnetService.CreateZone(0, 2, "Master Bedroom");
+            _logger.LogInformation("Creating default zones...");
+            _rnetService.CreateZone(0, 0, "Screen Porch");
+            _rnetService.CreateZone(0, 1, "Master Bedroom");
+            _rnetService.CreateZone(0, 2, "Dining Room");
+            _rnetService.CreateZone(0, 3, "Kitchen");
+            _rnetService.CreateZone(0, 4, "Living Room");
+            _rnetService.CreateZone(0, 5, "Bonus Room");
         }
 
-        // Create sample sources if none exist
+        // Create default sources if none exist
         if (!_rnetService.GetAllSources().Any())
         {
-            _logger.LogInformation("Creating sample sources...");
-            _rnetService.CreateSource(0, "FM Radio", SourceType.Generic);
-            _rnetService.CreateSource(1, "Living Room Chromecast", SourceType.GoogleCast);
-            _rnetService.CreateSource(2, "CD Player", SourceType.Generic);
+            _logger.LogInformation("Creating default sources...");
+            _rnetService.CreateSource(0, "AudioCast1", SourceType.GoogleCast);
+            _rnetService.CreateSource(1, "AudioCast2", SourceType.GoogleCast);
+            _rnetService.CreateSource(2, "Pi Audio Input", SourceType.Computer);
         }
 
         await Task.CompletedTask;
@@ -177,7 +181,7 @@ public class RNetApplication
     {
         _logger.LogInformation("Testing zone control functionality...");
         
-        var livingRoom = _rnetService.GetZone(0, 0);
+        var livingRoom = _rnetService.GetZone(0, 4);
         if (livingRoom != null)
         {
             System.Console.WriteLine("Testing Living Room zone:");

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using RNetPi.Core.Packets;
+using RNetPi.Core.Logging;
 
 namespace RNetPi.Core.Services;
 
@@ -15,7 +16,6 @@ public class TcpNetworkClient : NetworkClient, IDisposable
 {
     private readonly TcpClient _tcpClient;
     private readonly NetworkStream _stream;
-    private readonly ILogger<TcpNetworkClient>? _logger;
     private readonly CancellationTokenSource _cancellationTokenSource;
     
     private readonly byte[] _pendingBuffer = new byte[255];
@@ -29,7 +29,7 @@ public class TcpNetworkClient : NetworkClient, IDisposable
     {
         _tcpClient = tcpClient ?? throw new ArgumentNullException(nameof(tcpClient));
         _stream = _tcpClient.GetStream();
-        _logger = logger;
+        base._logger = logger; // Set the base class logger
         _cancellationTokenSource = new CancellationTokenSource();
 
         // Start receiving data
@@ -58,8 +58,7 @@ public class TcpNetworkClient : NetworkClient, IDisposable
             await _stream.WriteAsync(buffer, 0, buffer.Length, _cancellationTokenSource.Token);
             await _stream.FlushAsync(_cancellationTokenSource.Token);
             
-            _logger?.LogTrace("Sent packet {PacketType} to {Address} ({Size} bytes)", 
-                packet.GetType().Name, GetAddress(), buffer.Length);
+            _logger?.LogSentPacket(packet.GetType().Name, buffer, $"to {GetAddress()} ({buffer.Length} bytes)");
         }
         catch (Exception ex)
         {
