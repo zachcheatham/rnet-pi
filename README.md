@@ -271,8 +271,17 @@ The C# version exposes RESTful API endpoints:
 
 ### Swagger API Documentation
 
-The C# version includes Swagger documentation available at:
+The C# version includes comprehensive Swagger/OpenAPI documentation available at:
 `http://your-pi-ip:3000/swagger`
+
+The API documentation includes:
+- Complete endpoint descriptions and examples
+- Request/response schemas  
+- Authentication requirements (webhook password)
+- HTTP status codes and error responses
+
+You can also access the raw OpenAPI specification at:
+`http://your-pi-ip:3000/swagger/v1/swagger.json`
 
 ### Troubleshooting
 
