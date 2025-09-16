@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using RNetPi.Core.Logging;
 using RNetPi.Core.Constants;
 using RNetPi.Core.Interfaces;
 using RNetPi.Core.Models;
@@ -286,8 +287,9 @@ public class SimpleRNetController : IRNetController, IDisposable
     {
         if (_serialPort?.IsOpen == true)
         {
-            await _serialPort.BaseStream.WriteAsync(packet.GetBuffer());
-            _logger.LogDebug("Sent packet {PacketType} to RNet", packet.GetType().Name);
+            var buffer = packet.GetBuffer();
+            await _serialPort.BaseStream.WriteAsync(buffer);
+            _logger.LogSentPacket(packet.GetType().Name, buffer, "to RNet");
         }
     }
 

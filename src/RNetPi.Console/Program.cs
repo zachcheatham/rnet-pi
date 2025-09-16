@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RNetPi.Core.Interfaces;
 using RNetPi.Infrastructure.Services;
 using RNetPi.Core.Models;
+using RNetPi.Core.Logging;
 
 namespace RNetPi.Console;
 
@@ -25,8 +26,8 @@ public class Program
             .ConfigureLogging(logging =>
             {
                 logging.ClearProviders();
-                logging.AddConsole();
-                logging.SetMinimumLevel(LogLevel.Information);
+                logging.AddEnhancedConsole();
+                logging.SetMinimumLevel(LogLevel.Debug); // Set to Debug to see packet details
             })
             .Build();
 

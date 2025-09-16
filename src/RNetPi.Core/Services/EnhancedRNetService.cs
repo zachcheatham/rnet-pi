@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using RNetPi.Core.Interfaces;
 using RNetPi.Core.Models;
 using RNetPi.Core.RNet;
+using RNetPi.Core.Logging;
 
 namespace RNetPi.Core.Services;
 
@@ -394,8 +395,7 @@ public class EnhancedRNetService : IRNetService, IDisposable
             await _serialPort.BaseStream.WriteAsync(buffer, 0, buffer.Length);
             await _serialPort.BaseStream.FlushAsync();
             
-            _logger.LogTrace("Sent packet: {PacketType} ({Size} bytes)", 
-                packet.GetType().Name, buffer.Length);
+            _logger.LogSentPacket(packet.GetType().Name, buffer, $"to RNet ({buffer.Length} bytes)");
         }
         catch (Exception ex)
         {
@@ -468,11 +468,11 @@ public class EnhancedRNetService : IRNetService, IDisposable
             var packet = PacketBuilder.Build(buffer);
             if (packet == null)
             {
-                _logger.LogWarning("Received unrecognized packet");
+                _logger.LogReceivedPacket("Unknown", buffer, "unrecognized packet");
                 return;
             }
 
-            _logger.LogTrace("Received packet: {PacketType}", packet.GetType().Name);
+            _logger.LogReceivedPacket(packet.GetType().Name, buffer, "from RNet");
 
             // Handle different packet types
             switch (packet)

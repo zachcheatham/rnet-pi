@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using RNetPi.Core.Packets;
+using RNetPi.Core.Logging;
 
 namespace RNetPi.Core.Services;
 
@@ -10,6 +12,7 @@ namespace RNetPi.Core.Services;
 public abstract class NetworkClient
 {
     private ClientIntent _intent = ClientIntent.None;
+    protected ILogger? _logger;
 
     /// <summary>
     /// Event fired when a packet is received from the client
@@ -78,7 +81,7 @@ public abstract class NetworkClient
 
         if (packet != null)
         {
-            Console.WriteLine($"DEBUG: Received packet {packet.GetType().Name} from {GetAddress()}");
+            _logger?.LogReceivedPacket(packet.GetType().Name, data, $"from {GetAddress()}");
 
             if (packet is PacketC2SIntent intentPacket)
             {
@@ -95,7 +98,7 @@ public abstract class NetworkClient
         }
         else
         {
-            Console.WriteLine($"Received bad packet from {GetAddress()} <{packetType}:{Convert.ToHexString(data)}>");
+            _logger?.LogReceivedPacket("BadPacket", data, $"from {GetAddress()} - invalid packet type {packetType}");
         }
     }
 
