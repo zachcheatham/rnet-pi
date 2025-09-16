@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using RNetPi.Core.Constants;
 
@@ -255,6 +256,19 @@ public class Zone
 
     private object ValidateParameterValue(int parameterID, object value)
     {
+        // Convert JsonElement to appropriate type
+        if (value is JsonElement jsonElement)
+        {
+            value = jsonElement.ValueKind switch
+            {
+                JsonValueKind.Number => jsonElement.GetInt32(),
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                JsonValueKind.String => jsonElement.GetString() ?? string.Empty,
+                _ => value
+            };
+        }
+
         return parameterID switch
         {
             0 or 1 or 3 => Math.Clamp(Convert.ToInt32(value), -10, 10), // Bass, Treble, Balance

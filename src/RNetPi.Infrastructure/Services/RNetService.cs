@@ -20,6 +20,8 @@ public class RNetService : IRNetService, IDisposable
     private readonly Queue<byte[]> _packetQueue = new();
     private readonly string _zonesFilePath;
     private readonly string _sourcesFilePath;
+    private readonly SemaphoreSlim _zonesFileSemaphore = new(1, 1);
+    private readonly SemaphoreSlim _sourcesFileSemaphore = new(1, 1);
 
     public bool IsConnected => _connected;
 
@@ -275,6 +277,7 @@ public class RNetService : IRNetService, IDisposable
 
     private async Task SaveSourcesAsync()
     {
+        await _sourcesFileSemaphore.WaitAsync();
         try
         {
             var sourcesArray = new SourceData[_sources.Keys.Max() + 1];
@@ -303,6 +306,10 @@ public class RNetService : IRNetService, IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to save sources to {FilePath}", _sourcesFilePath);
+        }
+        finally
+        {
+            _sourcesFileSemaphore.Release();
         }
     }
 
@@ -343,6 +350,7 @@ public class RNetService : IRNetService, IDisposable
 
     private async Task SaveZonesAsync()
     {
+        await _zonesFileSemaphore.WaitAsync();
         try
         {
             var zonesList = new List<ZoneData>();
@@ -377,6 +385,10 @@ public class RNetService : IRNetService, IDisposable
         {
             _logger.LogError(ex, "Failed to save zones to {FilePath}", _zonesFilePath);
         }
+        finally
+        {
+            _zonesFileSemaphore.Release();
+        }
     }
 
     public async Task SetAllPowerAsync(bool power)
@@ -392,6 +404,8 @@ public class RNetService : IRNetService, IDisposable
     public void Dispose()
     {
         DisconnectAsync().ConfigureAwait(false);
+        _zonesFileSemaphore?.Dispose();
+        _sourcesFileSemaphore?.Dispose();
     }
 
     // Data classes for serialization
