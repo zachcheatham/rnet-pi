@@ -1,0 +1,104 @@
+[
+  {
+    "ControllerID": 0,
+    "ZoneID": 0,
+    "Name": "Screen Porch",
+    "MaxVolume": 100,
+    "Parameters": [
+      0,
+      0,
+      false,
+      0,
+      50,
+      0,
+      false,
+      0,
+      false
+    ]
+  },
+  {
+    "ControllerID": 0,
+    "ZoneID": 1,
+    "Name": "Master Bedroom",
+    "MaxVolume": 100,
+    "Parameters": [
+      0,
+      0,
+      false,
+      0,
+      50,
+      0,
+      false,
+      0,
+      false
+    ]
+  },
+  {
+    "ControllerID": 0,
+    "ZoneID": 2,
+    "Name": "Dining Room",
+    "MaxVolume": 100,
+    "Parameters": [
+      0,
+      0,
+      false,
+      0,
+      50,
+      0,
+      false,
+      0,
+      false
+    ]
+  },
+  {
+    "ControllerID": 0,
+    "ZoneID": 3,
+    "Name": "Kitchen",
+    "MaxVolume": 100,
+    "Parameters": [
+      0,
+      0,
+      false,
+      0,
+      50,
+      0,
+      false,
+      0,
+      false
+    ]
+  },
+  {
+    "ControllerID": 0,
+    "ZoneID": 4,
+    "Name": "Living Room",
+    "MaxVolume": 100,
+    "Parameters": [
+      0,
+      0,
+      false,
+      0,
+      50,
+      0,
+      false,
+      0,
+      false
+    ]
+  },
+  {
+    "ControllerID": 0,
+    "ZoneID": 5,
+    "Name": "Bonus Room",
+    "MaxVolume": 100,
+    "Parameters": [
+      0,
+      0,
+      false,
+      0,
+      50,
+      0,
+      false,
+      0,
+      false
+    ]
+  }
+]

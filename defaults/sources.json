@@ -1,0 +1,23 @@
+[
+  {
+    "Name": "AudioCast1",
+    "Type": 7,
+    "AutoOnZones": [],
+    "AutoOff": false,
+    "OverrideName": false
+  },
+  {
+    "Name": "AudioCast2",
+    "Type": 7,
+    "AutoOnZones": [],
+    "AutoOff": false,
+    "OverrideName": false
+  },
+  {
+    "Name": "Pi Audio Input",
+    "Type": 0,
+    "AutoOnZones": [],
+    "AutoOff": false,
+    "OverrideName": false
+  }
+]

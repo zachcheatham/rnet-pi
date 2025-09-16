@@ -1,0 +1,10 @@
+{
+  "ServerName": "MackelHome Audio Controller",
+  "ServerHost": null,
+  "ServerPort": 3000,
+  "WebHost": null,
+  "WebPort": null,
+  "SerialDevice": "/dev/ttyUSB0",
+  "WebHookPassword": "",
+  "Simulate": true
+}
