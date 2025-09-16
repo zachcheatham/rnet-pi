@@ -6,6 +6,7 @@ namespace RNetPi.API.Controllers;
 
 [ApiController]
 [Route("api/webhooks")]
+[Produces("application/json")]
 public class WebHookController : ControllerBase
 {
     private readonly ILogger<WebHookController> _logger;
@@ -51,7 +52,22 @@ public class WebHookController : ControllerBase
         return _rnetController.FindZoneByName(zoneName);
     }
 
+    /// <summary>
+    /// Turn all zones on
+    /// </summary>
+    /// <remarks>Powers on all audio zones in the RNet system. Requires 'pass' query parameter with webhook password.</remarks>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">All zones turned on successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("on")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> AllOn()
     {
         var validation = ValidateWebHook();
@@ -70,7 +86,22 @@ public class WebHookController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Turn all zones off
+    /// </summary>
+    /// <remarks>Powers off all audio zones in the RNet system. Requires 'pass' query parameter with webhook password.</remarks>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">All zones turned off successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("off")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> AllOff()
     {
         var validation = ValidateWebHook();
@@ -89,7 +120,22 @@ public class WebHookController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Mute all zones
+    /// </summary>
+    /// <remarks>Mutes all audio zones in the RNet system. Requires 'pass' query parameter with webhook password.</remarks>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">All zones muted successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("mute")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> AllMute()
     {
         var validation = ValidateWebHook();
@@ -108,7 +154,22 @@ public class WebHookController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Unmute all zones
+    /// </summary>
+    /// <remarks>Unmutes all audio zones in the RNet system. Requires 'pass' query parameter with webhook password.</remarks>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">All zones unmuted successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("unmute")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> AllUnmute()
     {
         var validation = ValidateWebHook();
@@ -127,7 +188,26 @@ public class WebHookController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Set zone volume
+    /// </summary>
+    /// <remarks>Sets the volume level for a specific audio zone. Volume levels are automatically adjusted to even numbers (0-100). Requires 'pass' query parameter with webhook password.</remarks>
+    /// <param name="zoneName">Name of the audio zone</param>
+    /// <param name="volume">Volume level (0-100, will be adjusted to even numbers)</param>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">Zone volume set successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="404">Zone not found</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("{zoneName}/volume/{volume:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> SetZoneVolume(string zoneName, int volume)
     {
         var validation = ValidateWebHook();
@@ -155,7 +235,26 @@ public class WebHookController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Set zone source
+    /// </summary>
+    /// <remarks>Changes the audio source for a specific zone. Requires 'pass' query parameter with webhook password.</remarks>
+    /// <param name="zoneName">Name of the audio zone</param>
+    /// <param name="sourceName">Name of the audio source</param>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">Zone source set successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="404">Zone or source not found</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("{zoneName}/source/{sourceName}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> SetZoneSource(string zoneName, string sourceName)
     {
         var validation = ValidateWebHook();
@@ -188,7 +287,25 @@ public class WebHookController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Mute zone
+    /// </summary>
+    /// <remarks>Mutes a specific audio zone. Requires 'pass' query parameter with webhook password.</remarks>
+    /// <param name="zoneName">Name of the audio zone</param>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">Zone muted successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="404">Zone not found</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("{zoneName}/mute")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> MuteZone(string zoneName)
     {
         var validation = ValidateWebHook();
@@ -214,7 +331,25 @@ public class WebHookController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Unmute zone
+    /// </summary>
+    /// <remarks>Unmutes a specific audio zone. Requires 'pass' query parameter with webhook password.</remarks>
+    /// <param name="zoneName">Name of the audio zone</param>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">Zone unmuted successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="404">Zone not found</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("{zoneName}/unmute")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> UnmuteZone(string zoneName)
     {
         var validation = ValidateWebHook();
@@ -240,7 +375,25 @@ public class WebHookController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Turn zone on
+    /// </summary>
+    /// <remarks>Powers on a specific audio zone. Requires 'pass' query parameter with webhook password.</remarks>
+    /// <param name="zoneName">Name of the audio zone</param>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">Zone turned on successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="404">Zone not found</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("{zoneName}/on")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> TurnZoneOn(string zoneName)
     {
         var validation = ValidateWebHook();
@@ -266,7 +419,25 @@ public class WebHookController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Turn zone off
+    /// </summary>
+    /// <remarks>Powers off a specific audio zone. Requires 'pass' query parameter with webhook password.</remarks>
+    /// <param name="zoneName">Name of the audio zone</param>
+    /// <returns>Success or error message</returns>
+    /// <response code="200">Zone turned off successfully</response>
+    /// <response code="400">Web hooks are disabled - no password configured</response>
+    /// <response code="401">Invalid password</response>
+    /// <response code="404">Zone not found</response>
+    /// <response code="500">Failed to execute command</response>
+    /// <response code="503">RNet not connected</response>
     [HttpPut("{zoneName}/off")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> TurnZoneOff(string zoneName)
     {
         var validation = ValidateWebHook();
