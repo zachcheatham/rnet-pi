@@ -44,7 +44,7 @@ RNET-Pi is a Node.js-based proxy server that enables modern smart home integrati
 
 ## Core Components Analysis
 
-### 1. Application Entry Point (`src/app.js`)
+### 1. Application Entry Point (`src_js/app.js`)
 - **Purpose**: Main application orchestrator and event handler
 - **Responsibilities**:
   - Initializes all subsystems (Server, RNet, GoogleCast, WebHook)
