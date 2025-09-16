@@ -208,7 +208,7 @@ public class WebHookController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> SetZoneVolume(string zoneName, int volume)
+    public IActionResult SetZoneVolume(string zoneName, int volume)
     {
         var validation = ValidateWebHook();
         if (validation is not OkResult)
@@ -255,7 +255,7 @@ public class WebHookController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> SetZoneSource(string zoneName, string sourceName)
+    public IActionResult SetZoneSource(string zoneName, string sourceName)
     {
         var validation = ValidateWebHook();
         if (validation is not OkResult)
@@ -306,7 +306,7 @@ public class WebHookController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> MuteZone(string zoneName)
+    public IActionResult MuteZone(string zoneName)
     {
         var validation = ValidateWebHook();
         if (validation is not OkResult)
@@ -350,7 +350,7 @@ public class WebHookController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> UnmuteZone(string zoneName)
+    public IActionResult UnmuteZone(string zoneName)
     {
         var validation = ValidateWebHook();
         if (validation is not OkResult)
@@ -394,7 +394,7 @@ public class WebHookController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> TurnZoneOn(string zoneName)
+    public IActionResult TurnZoneOn(string zoneName)
     {
         var validation = ValidateWebHook();
         if (validation is not OkResult)
@@ -438,7 +438,7 @@ public class WebHookController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> TurnZoneOff(string zoneName)
+    public IActionResult TurnZoneOff(string zoneName)
     {
         var validation = ValidateWebHook();
         if (validation is not OkResult)

@@ -67,9 +67,13 @@ public class WebSocketNetworkServer : IDisposable
         {
             _bindAddress = IPAddress.Any;
         }
-        else if (!IPAddress.TryParse(host, out _bindAddress))
+        else if (!IPAddress.TryParse(host, out var parsedAddress))
         {
             throw new ArgumentException($"Invalid host address: {host}", nameof(host));
+        }
+        else
+        {
+            _bindAddress = parsedAddress;
         }
     }
 

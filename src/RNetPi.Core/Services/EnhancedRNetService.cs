@@ -25,8 +25,6 @@ public class EnhancedRNetService : IRNetService, IDisposable
     
     private SerialPort? _serialPort;
     private bool _connected = false;
-    private bool _waitingForHandshake = false;
-    private bool _autoUpdating = false;
     private CancellationTokenSource? _cancellationTokenSource;
     private Task? _processingTask;
 
@@ -377,7 +375,6 @@ public class EnhancedRNetService : IRNetService, IDisposable
         {
             var handshakePacket = new HandshakePacket(0x00, 0x01);
             await SendPacketAsync(handshakePacket);
-            _waitingForHandshake = true;
             _logger.LogDebug("Sent handshake packet");
         }
         catch (Exception ex)
@@ -587,7 +584,6 @@ public class EnhancedRNetService : IRNetService, IDisposable
 
     private void HandleHandshakePacket(HandshakePacket packet)
     {
-        _waitingForHandshake = false;
         _logger.LogDebug("Received handshake response");
     }
 
